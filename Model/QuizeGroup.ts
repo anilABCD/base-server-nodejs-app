@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 const quizGroupSchema = new mongoose.Schema({
   // key :{
@@ -23,6 +23,6 @@ const quizGroupSchema = new mongoose.Schema({
   // quizQuestions: [],
 });
 
-const QuizGroup = mongoose.model("QuizGroup", quizGroupSchema);
+const QuizeGroup = mongoose.model("QuizGroup", quizGroupSchema);
 
-module.exports = QuizGroup;
+export default QuizeGroup;

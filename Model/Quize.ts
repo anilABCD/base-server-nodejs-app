@@ -8,6 +8,6 @@ const quizSchema = new mongoose.Schema({
   },
 });
 
-const Quiz = mongoose.model("Quiz", quizSchema);
+const Quize = mongoose.model("Quiz", quizSchema);
 
-module.exports = Quiz;
+export default Quize;
