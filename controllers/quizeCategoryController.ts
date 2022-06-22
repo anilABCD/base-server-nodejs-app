@@ -1,29 +1,29 @@
 import AppError from "../ErrorHandling/AppError";
 import catchAsync from "../ErrorHandling/catchAsync";
-import Quize from "../Model/Quize";
-const filterObj = require("../utils/filterObj");
+import QuizeCategory from "../Model/QuizeCategory";
+import filterObject from "../utils/filterObj";
 
 import { Request, Response, NextFunction } from "express";
 
 const getAllQuizes = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const quizes = await Quize.find();
-    res.status(200).json(quizes);
+    const quizeCategories = await QuizeCategory.find();
+    res.status(200).json(quizeCategories);
   }
 );
 
 const getQuize = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const quize = await Quize.findById(req.params.id);
+    const quizeCategory = await QuizeCategory.findById(req.params.id);
 
-    if (!quize) {
+    if (!quizeCategory) {
       next(new AppError("Quize not found", 404));
     }
 
     res.status(200).json({
       status: "success",
       data: {
-        quize,
+        quizeCategory,
       },
     });
   }
@@ -31,15 +31,15 @@ const getQuize = catchAsync(
 
 const createQuize = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const newQuize = new Quize();
-    newQuize.key = req.body.topic; //key
-    await newQuize.save();
+    const newQuizeCategory = new QuizeCategory();
+    newQuizeCategory.key = req.body.topic; //key
+    await newQuizeCategory.save();
 
     // 201 created
     res.status(201).json({
       status: "success",
       data: {
-        quize: newQuize,
+        quizeCategory: newQuizeCategory,
       },
     });
   }
@@ -47,20 +47,21 @@ const createQuize = catchAsync(
 
 const updateQuize = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const quize = Quize.findById(req.params.id);
+    const filteredBody = filterObject(req.body, ["key"]);
 
-    if (!quize) {
-      next(new AppError("Quize not found", 404));
-    }
-
-    filterObj(quize, req.body, ["key"]);
-
-    await quize.save();
+    const updatedQuizeCateogry = await QuizeCategory.findByIdAndUpdate(
+      req.params.id,
+      filteredBody,
+      {
+        new: true,
+        runValidators: true,
+      }
+    );
 
     res.status(200).json({
       status: "success",
       data: {
-        updatedQuize: quize,
+        updatedQuizeCateogry,
       },
     });
   }

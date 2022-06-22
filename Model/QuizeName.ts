@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const quizGroupSchema = new mongoose.Schema({
+const quizNameSchema = new mongoose.Schema({
   // key :{
 
   // },
@@ -23,6 +23,6 @@ const quizGroupSchema = new mongoose.Schema({
   // quizQuestions: [],
 });
 
-const QuizeGroup = mongoose.model("QuizGroup", quizGroupSchema);
+const QuizeName = mongoose.model("Quize-Name", quizNameSchema);
 
-export default QuizeGroup;
+export default QuizeName;

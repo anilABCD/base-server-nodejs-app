@@ -43,10 +43,10 @@ app.use(
 );
 
 const sampleRouter = require("./routes/sampleRouter");
-const quizRouter = require("./routes/quizRouter");
+import quizeCategoryRouter from "./routes/quizeCategoryRouter";
 
 app.use("/sampleRoute/", sampleRouter);
-app.use("/quize/", quizRouter);
+app.use("/quize-category/", quizeCategoryRouter);
 
 app.get("/", (req, res, next) => {
   res.status(200).send("<h1>Hello World</h1>");
