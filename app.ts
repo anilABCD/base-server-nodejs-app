@@ -6,7 +6,7 @@ import mongoSanitize from "express-mongo-sanitize";
 import xss from "xss-clean";
 import hpp from "hpp";
 import morgan from "morgan";
-import errorController from "./ErrorHandling/errorController";
+import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
 
 const limiter = rateLimit({
@@ -43,7 +43,7 @@ app.use(
 );
 
 const sampleRouter = require("./routes/sampleRouter");
-import quizeCategoryRouter from "./routes/quizeCategoryRouter";
+import quizeCategoryRouter from "./routes/quize-routes/quize.category.router";
 
 app.use("/sampleRoute/", sampleRouter);
 app.use("/quize-category/", quizeCategoryRouter);

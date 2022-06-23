@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
 
 const quizNameSchema = new mongoose.Schema({
-  // key :{
+  // QuizeCategoryId :{
 
   // },
   name: {
@@ -20,7 +20,6 @@ const quizNameSchema = new mongoose.Schema({
     default: "easy",
     required: [true, "difficulty is required"],
   },
-  // quizQuestions: [],
 });
 
 const QuizeName = mongoose.model("Quize-Name", quizNameSchema);

@@ -1,10 +1,7 @@
 import mongoose from "mongoose";
 
 const quizQuestionSchema = new mongoose.Schema({
-  // key :{
-
-  // },
-  // groupId:{
+  // QuizeNameId:{
 
   // },
   active: {
