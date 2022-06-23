@@ -1,0 +1,28 @@
+{
+  "folders": [
+    {
+      "path": "../quize-master-client"
+    },
+    {
+      "path": "./"
+    }
+  ],
+  "settings": {
+    "editor.detectIndentation": true,
+    "restoreTerminals.runOnStartup": true,
+    "restoreTerminals.terminals": [
+      {
+        "splitTerminals": [
+          {
+            "name": "npm start",
+            "commands": ["npm start"]
+          },
+          {
+            "name": "npm install",
+            "commands": []
+          }
+        ]
+      }
+    ]
+  }
+}
