@@ -8,7 +8,10 @@ export default class BaseController {
 
   constructor(service?: BaseService<any>) {
     this.service = service;
-    console.log(this.service, "******** SERVICE ******* ");
+    // console.log(
+    // "\n\n******** Service injected in controller : ******* \n\n",
+    // this.service
+    // );
   }
 
   post = catchAsync(async (req: Request, res: Response, next: NextFunction) => {

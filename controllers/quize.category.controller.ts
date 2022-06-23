@@ -2,7 +2,7 @@
 // import catchAsync from "../ErrorHandling/catchAsync";
 // import QuizeCategory from "../Model/quize.category.model";
 // import filterObject from "../utils/filterObj.util";
-import "reflect-metadata";
+
 import { autoInjectable } from "tsyringe";
 import QuizeCategoryService from "../services/quize.category.service";
 import BaseController from "./base.controller";
