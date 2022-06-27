@@ -11,10 +11,15 @@ const DB =
     process.env.DATABASE_PASSWORD || ""
   ) || "";
 
-mongoose.connect(DB).then(() => {
-  // console.log(con.connections);
-  console.log("DB connection successfull!");
-});
+mongoose
+  .connect(DB)
+  .then(() => {
+    // console.log(con.connections);
+    console.log("\nDB connection successfull!\n");
+  })
+  .catch((err) => {
+    console.log("\nDB Connection Error \n", err);
+  });
 
 app.listen(80, () => {
   console.log("Listening on port 80");

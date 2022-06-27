@@ -9,7 +9,10 @@ quizeCategoryRouter
   .get(quizeCategoryController.get)
   .post(quizeCategoryController.post);
 
-quizeCategoryRouter.route("/:id").get(quizeCategoryController.getById);
-quizeCategoryRouter.route("/:id").patch(quizeCategoryController.patch);
+quizeCategoryRouter
+  .route("/:id")
+  .get(quizeCategoryController.getById)
+  .patch(quizeCategoryController.patch)
+  .delete(quizeCategoryController.delete);
 
 export default quizeCategoryRouter;

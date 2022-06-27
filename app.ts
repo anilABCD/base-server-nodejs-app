@@ -43,14 +43,20 @@ app.use(
 );
 
 const sampleRouter = require("./routes/sampleRouter");
-import quizeCategoryRouter from "./routes/quize-routes/quize.category.router";
+import quizeCategoryRouter from "./routes/quize.routes/quize.category.router";
+import quizeNameRouter from "./routes/quize.routes/quize.name.router";
 
-app.use("/sampleRoute/", sampleRouter);
-app.use("/quize-category/", quizeCategoryRouter);
+//#region  V1 Quize API ...
 
-app.get("/", (req, res, next) => {
+app.use("/api/v1/sampleRoute/", sampleRouter);
+app.use("/api/v1/quize-category/", quizeCategoryRouter);
+app.use("/api/v1/quize-name/", quizeNameRouter);
+
+app.get("/api/v1/", (req, res, next) => {
   res.status(200).send("<h1>Hello World</h1>");
 });
+
+//#endregion
 
 // 404 NOTE: all("*") : get, post, patch , delete All URLs .
 app.all("*", (req, res, next) => {

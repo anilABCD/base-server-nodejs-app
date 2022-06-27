@@ -1,11 +1,19 @@
+import { autoInjectable } from "tsyringe";
+import QuizeCategoryService from "../services/quize.category.service";
+import BaseController from "./base.controller";
+
+@autoInjectable()
+export default class QuizeCategoryController extends BaseController {
+  constructor(service?: QuizeCategoryService) {
+    super(service);
+  }
+}
+
+//#region  OLD Code :
 // import AppError from "../ErrorHandling/AppError";
 // import catchAsync from "../ErrorHandling/catchAsync";
 // import QuizeCategory from "../Model/quize.category.model";
 // import filterObject from "../utils/filterObj.util";
-
-import { autoInjectable } from "tsyringe";
-import QuizeCategoryService from "../services/quize.category.service";
-import BaseController from "./base.controller";
 
 // import { Request, Response, NextFunction } from "express";
 
@@ -75,10 +83,4 @@ import BaseController from "./base.controller";
 // export { getQuize };
 // export { createQuize };
 // export { updateQuize };
-
-@autoInjectable()
-export default class QuizeCategoryController extends BaseController {
-  constructor(service?: QuizeCategoryService) {
-    super(service);
-  }
-}
+//#endregion

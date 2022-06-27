@@ -12,16 +12,16 @@
     "restoreTerminals.runOnStartup": true,
     "restoreTerminals.terminals": [
       {
-        "splitTerminals": [
-          {
-            "name": "npm start",
-            "commands": ["npm start"]
-          },
-          {
-            "name": "npm install",
-            "commands": []
-          }
-        ]
+        // "splitTerminals": [
+        //   {
+        //     "name": "npm start",
+        //     "commands": ["npm start","any other command"]
+        //   },
+        //   {
+        //     "name": "npm install",
+        //     "commands": []
+        //   }
+        // ]
       }
     ]
   }

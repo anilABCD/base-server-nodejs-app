@@ -1,27 +1,14 @@
-import mongoose from "mongoose";
+import { singleton } from "tsyringe";
+import mongoose, { model, Model, Schema } from "mongoose";
+import ModelI from "../interfaces/model.interface";
+import QuizeNameSI from "../interfaces/quize.name.interface";
 
-const quizNameSchema = new mongoose.Schema({
-  // QuizeCategoryId :{
+@singleton()
+export default class QuizeNameModel implements ModelI {
+  schema: Schema<any> = new mongoose.Schema({
+    name: { type: String, required: true, unique: true },
+    quizeId: { type: mongoose.Schema.Types.ObjectId, required: true },
+  });
 
-  // },
-  name: {
-    type: String,
-    unique: true,
-    requried: [true, "name is required"],
-  },
-  level: {
-    type: Number,
-    default: 1,
-    required: [true, "level is required"],
-  },
-  difficulty: {
-    type: String,
-    enum: ["easy", "medium", "difficult"],
-    default: "easy",
-    required: [true, "difficulty is required"],
-  },
-});
-
-const QuizeName = mongoose.model("Quize-Name", quizNameSchema);
-
-export default QuizeName;
+  model: Model<any, any> = model<QuizeNameSI>("quize-name", this.schema);
+}

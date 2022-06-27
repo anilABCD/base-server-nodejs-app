@@ -4,18 +4,6 @@ import ModelI from "../interfaces/model.interface";
 
 import QuizeCategorySI from "../interfaces/quize.category.interface";
 
-// const quizCategorySchema = new mongoose.Schema({
-//   key: {
-//     type: String,
-//     unique: true,
-//     required: [true, "A quiz shold have a key"],
-//   },
-// });
-
-// const QuizeCategory = mongoose.model("Quize-Category", quizCategorySchema);
-
-// export default QuizeCategory;
-
 @singleton()
 export default class QuizeCategoryModel implements ModelI {
   schema: Schema<any> = new mongoose.Schema({

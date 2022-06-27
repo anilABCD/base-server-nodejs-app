@@ -16,7 +16,7 @@ export default class BaseController {
 
   post = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const resource = await this.service?.post(req.body);
-    res.status(201).send({
+    res.status(201).json({
       status: "success",
       data: {
         resource,
@@ -27,7 +27,7 @@ export default class BaseController {
   get = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const resource = await this.service?.get();
 
-    res.status(200).send({
+    res.status(200).json({
       status: "success",
       data: {
         resource,
@@ -45,7 +45,7 @@ export default class BaseController {
         return;
       }
 
-      res.status(200).send({
+      res.status(200).json({
         status: "success",
         data: {
           resource,
@@ -72,13 +72,10 @@ export default class BaseController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
 
-      const resource = await this.service?.delete(id);
+      await this.service?.delete(id);
 
-      res.status(204).send({
+      res.status(200).json({
         status: "success",
-        data: {
-          resource,
-        },
       });
     }
   );
