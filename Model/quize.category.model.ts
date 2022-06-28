@@ -18,12 +18,11 @@ export default class QuizeCategoryModel implements ModelI {
     },
     updatedDate: {
       type: Date,
-      required: [true, "created date is required"],
     },
   });
 
   model: Model<any, any> = model<QuizeCategorySI>(
-    "quize-category",
+    "quize-categories",
     this.schema
   );
 }

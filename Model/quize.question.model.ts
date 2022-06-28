@@ -10,8 +10,8 @@ export default class QuizeQuestionModel implements ModelI {
   schema: Schema<any> = new mongoose.Schema({
     quizeNameId: {
       type: Schema.Types.ObjectId,
-      required: [true, "quize name id is required"],
-      ref : "quize-name"
+      required: [true, "quizeNameId is required"],
+      ref : "quize-names"
     },
     options: {
       type: Array<String>,
@@ -49,7 +49,7 @@ export default class QuizeQuestionModel implements ModelI {
         values: Object.values(Difficulty),
         message: "{VALUE} is not supported",
       },
-      default: Difficulty.easy,
+      default: Difficulty[Difficulty.easy],
       required: [true, "level is required"],
     },
     choiceType: {
@@ -58,7 +58,7 @@ export default class QuizeQuestionModel implements ModelI {
         values: Object.values(Choice),
         message: "{VALUE} is not supported",
       },
-      default: Choice.single,
+      default: Choice[Choice.single],
       required: [true, "type is required"],
     },
     control: {
@@ -67,7 +67,7 @@ export default class QuizeQuestionModel implements ModelI {
         values: Object.values(Control),
         message: "{VALUE} is not supported",
       },
-      default: Control.radio,
+      default: Control[Control.radio],
       required: [true, "control is required"],
     },
     active: {

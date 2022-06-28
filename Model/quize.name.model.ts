@@ -10,7 +10,7 @@ export default class QuizeNameModel implements ModelI {
     quizeId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      ref: "quize-category",
+      ref: "quize-categories",
     },
   });
 
