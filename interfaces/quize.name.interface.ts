@@ -1,7 +1,7 @@
 import { ObjectId } from "mongoose";
-import { BaseMode_With_TimeStamp_I } from "./base.model.timestamp";
+import { BaseModelI } from "./base.mode.interface";
 
-export default interface QuizeNameSI extends BaseMode_With_TimeStamp_I {
+export default interface QuizeNameSI extends BaseModelI {
   name: string;
   quizeId: ObjectId;
 }

@@ -1,5 +1,5 @@
-import { BaseMode_With_TimeStamp_I } from "./base.model.timestamp";
+import { BaseModelI } from "./base.mode.interface";
 
-export default interface QuizeCategorySI extends BaseMode_With_TimeStamp_I {
+export default interface QuizeCategorySI extends BaseModelI {
   key: string;
 }

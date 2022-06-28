@@ -51,6 +51,10 @@ const findDuplicates = (arry: Array<any>): Array<any> | null => {
     return null;
   }
 
+  arry = arry.map((item) => {
+    return item.replace(/ +(?= )/g, "").trim();
+  });
+
   let duplicates = arry.filter((item, index) => arry.indexOf(item) !== index);
   return duplicates;
 };

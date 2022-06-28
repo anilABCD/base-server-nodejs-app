@@ -1,8 +1,8 @@
 import mongoose, { ObjectId } from "mongoose";
 import { Choice, Control, Difficulty } from "../model.types/quize.model.types";
-import { BaseMode_With_TimeStamp_I } from "./base.model.timestamp";
+import { BaseModelI } from "./base.mode.interface";
 
-export default interface QuizeQuestionSI extends BaseMode_With_TimeStamp_I {
+export default interface QuizeQuestionSI extends BaseModelI {
   quizeNameId: ObjectId;
 
   level: Difficulty;

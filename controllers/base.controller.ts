@@ -72,10 +72,11 @@ export default class BaseController {
     async (req: Request, res: Response, next: NextFunction) => {
       const { id } = req.params;
 
-      await this.service?.delete(id);
+      let resource = await this.service?.delete(id);
 
       res.status(200).json({
         status: "success",
+        resource,
       });
     }
   );

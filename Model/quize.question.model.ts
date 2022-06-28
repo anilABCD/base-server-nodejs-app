@@ -3,7 +3,6 @@ import mongoose, { model, Model, Schema } from "mongoose";
 import ModelI from "../interfaces/model.interface";
 import QuizeQuestionSI from "../interfaces/quize.question.interface";
 import { Choice, Control, Difficulty } from "../model.types/quize.model.types";
-import QuizeNameModel from "./quize.name.model";
 import { hasDuplicates } from "../utils/all.util";
 
 @singleton()
