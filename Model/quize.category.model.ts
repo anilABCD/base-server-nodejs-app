@@ -10,7 +10,15 @@ export default class QuizeCategoryModel implements ModelI {
     key: {
       type: String,
       unique: true,
-      required: [true, "A quiz shold have a key"],
+      required: [true, "key is required"],
+    },
+    createdDate: {
+      type: Date,
+      required: [true, "created date is required"],
+    },
+    updatedDate: {
+      type: Date,
+      required: [true, "created date is required"],
     },
   });
 

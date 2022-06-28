@@ -1,7 +1,7 @@
 import { AnyRecord } from "dns";
 import mongoose from "mongoose";
 import ModelI from "../interfaces/model.interface";
-import filterObject from "../utils/filterObj.util";
+import * as utils from "../utils/all.util";
 
 export default class BaseService<T> {
   model: mongoose.Model<any, any>;
@@ -10,8 +10,8 @@ export default class BaseService<T> {
   }
 
   post = async (data: T) => {
-    const resource = await this.model.create(data);
-
+    let newObj = utils.addCreatedDate(data);
+    const resource = await this.model.create(newObj);
     return resource;
   };
 
@@ -27,13 +27,22 @@ export default class BaseService<T> {
     return resource;
   };
 
-  update = async (id: string, data: T, keys?: [string]): Promise<T> => {
+  update = async (
+    id: string,
+    data: T,
+    onlyKeys?: [string],
+    removeKeys?: [string]
+  ): Promise<T> => {
     let filteredBody: any;
-    if (keys) {
-      filteredBody = filterObject(data, ["key"]);
+    if (onlyKeys) {
+      filteredBody = utils.filterObject(data, onlyKeys);
     } else {
       filteredBody = data;
     }
+
+    filteredBody = utils.removeProperty(filteredBody, ["createdDate"]);
+    filteredBody = utils.addUpdateDate(filteredBody);
+
     const resource = await this.model.findOneAndUpdate(
       { _id: id },
       filteredBody,

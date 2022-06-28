@@ -2,7 +2,7 @@ import "reflect-metadata";
 import * as dotenv from "dotenv";
 import mongoose from "mongoose";
 import app from "./app";
-import "./dependency.injection";
+// import "./dependency.injection";
 dotenv.config({ path: `${__dirname}/config.env` });
 
 const DB =
