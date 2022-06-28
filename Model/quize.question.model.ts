@@ -4,22 +4,27 @@ import ModelI from "../interfaces/model.interface";
 import QuizeQuestionSI from "../interfaces/quize.question.interface";
 import { Choice, Control, Difficulty } from "../model.types/quize.model.types";
 import QuizeNameModel from "./quize.name.model";
+import { hasDuplicates } from "../utils/all.util";
 
 @singleton()
 export default class QuizeQuestionModel implements ModelI {
   schema: Schema<any> = new mongoose.Schema({
     quizeNameId: {
       type: Schema.Types.ObjectId,
-      required: [true, "quizeNameId is required"],
+      required: [true, "is required"],
       ref : "quize-names"
     },
     options: {
       type: Array<String>,
-      required: [true, "options is required"],
+      required: [true, "is required"],
       validate: {
         validator: function (v: Array<String>) {
           if (v) {
             if (v.length !== 4) {
+              return false;
+            }
+
+            if(hasDuplicates(v)){
               return false;
             }
           }
@@ -29,19 +34,23 @@ export default class QuizeQuestionModel implements ModelI {
           if(props.value.length == 0){
              return "is required";
           }
+
+          if(hasDuplicates(props.value)){
+            return "should not have duplicates"
+          }
           else{
-            `${props.value.length}should be only 4!`
+            return `${props.value.length}should be only 4!`
           }
         },
       },
     },
     question: {
       type: String,
-      required: [true, "question is required"],
+      required: [true, "is required"],
     },
     answer: {
       type: String,
-      required: [true, "answer is required"],
+      required: [true, "is required"],
     },
     level: {
       type: String,
@@ -68,13 +77,15 @@ export default class QuizeQuestionModel implements ModelI {
         message: "{VALUE} is not supported",
       },
       default: Control[Control.radio],
-      required: [true, "control is required"],
+      required: [true, "is required"],
     },
     active: {
       type: Boolean,
-      required: [true, "active is required"],
+      required: [true, "is required"],
       default: true,
     },
+    createdDate: Date,
+    updatedDate: Date,
   });
 
   model: Model<any, any> = model<QuizeQuestionSI>(

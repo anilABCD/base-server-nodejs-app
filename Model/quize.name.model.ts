@@ -12,6 +12,8 @@ export default class QuizeNameModel implements ModelI {
       required: true,
       ref: "quize-categories",
     },
+    createdDate: Date,
+    updatedDate: Date,
   });
 
   model: Model<any, any> = model<QuizeNameSI>("quize-name", this.schema);

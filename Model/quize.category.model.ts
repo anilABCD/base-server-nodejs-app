@@ -10,15 +10,10 @@ export default class QuizeCategoryModel implements ModelI {
     key: {
       type: String,
       unique: true,
-      required: [true, "key is required"],
+      required: [true, "is required"],
     },
-    createdDate: {
-      type: Date,
-      required: [true, "created date is required"],
-    },
-    updatedDate: {
-      type: Date,
-    },
+    createdDate: Date,
+    updatedDate: Date,
   });
 
   model: Model<any, any> = model<QuizeCategorySI>(
