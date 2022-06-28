@@ -32,7 +32,32 @@ const addCreatedDate = (bodyObj: any) => {
   return bodyObj;
 };
 
+const hasDuplicates = (arry: Array<any>): boolean | null => {
+  let duplicates = findDuplicates(arry);
+
+  if (!duplicates) {
+    return null;
+  }
+
+  if (duplicates.length > 0) {
+    return true;
+  } else {
+    return false;
+  }
+};
+
+const findDuplicates = (arry: Array<any>): Array<any> | null => {
+  if (!arry || arry.length == 0) {
+    return null;
+  }
+
+  let duplicates = arry.filter((item, index) => arry.indexOf(item) !== index);
+  return duplicates;
+};
+
 export { filterObject };
 export { removeProperty };
 export { addUpdateDate };
 export { addCreatedDate };
+export { findDuplicates };
+export { hasDuplicates };
