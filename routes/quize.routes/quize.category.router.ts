@@ -1,6 +1,6 @@
 import express from "express";
 
-import QuizeCategoryController from "../../controllers/quize.category.controller";
+import QuizeCategoryController from "../../controllers/quize.controllers/quize.category.controller";
 const quizeCategoryController = new QuizeCategoryController();
 const quizeCategoryRouter = express.Router();
 

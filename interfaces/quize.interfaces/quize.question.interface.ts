@@ -1,6 +1,10 @@
 import mongoose, { ObjectId } from "mongoose";
-import { Choice, Control, Difficulty } from "../model.types/quize.model.types";
-import { BaseModelI } from "./base.mode.interface";
+import {
+  Choice,
+  Control,
+  Difficulty,
+} from "../../model.types/quize.model.types";
+import { BaseModelI } from "../base.mode.interface";
 
 export default interface QuizeQuestionSI extends BaseModelI {
   quizeNameId: ObjectId;

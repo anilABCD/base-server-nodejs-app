@@ -5,6 +5,8 @@ import app from "./app";
 // import "./dependency.injection";
 dotenv.config({ path: `${__dirname}/config.env` });
 
+// console.log(process.env?.DATABASE_URL);
+
 const DB =
   process.env?.DATABASE_URL?.replace(
     "<password>",

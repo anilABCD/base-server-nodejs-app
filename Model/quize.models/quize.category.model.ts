@@ -2,7 +2,7 @@ import { singleton } from "tsyringe";
 import mongoose, { model, Model, Schema } from "mongoose";
 import ModelI from "../../interfaces/model.interface";
 
-import QuizeCategorySI from "../../interfaces/quize.category.interface";
+import QuizeCategorySI from "../../interfaces/quize.interfaces/quize.category.interface";
 
 @singleton()
 export default class QuizeCategoryModel implements ModelI {
