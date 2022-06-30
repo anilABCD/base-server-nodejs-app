@@ -42,7 +42,7 @@ export default class UserModelModel implements ModelI {
       validate: {
         // This only works on CREATE and SAVE!!!
         validator: function (el: String) {
-          // @ts-ignore // this.password // NOTE: check once ...
+          // @ts-ignore // this.password // CHECK : check once ...
           return el === this.password;
         },
         message: "Passwords are not the same!",
