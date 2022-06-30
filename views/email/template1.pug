@@ -1,0 +1,92 @@
+doctype html 
+
+html 
+    head 
+        link(rel="stylesheet" href="style.css")
+        style. 
+             p {
+                color :red;
+                text-decoration:"underline"
+             }
+    body 
+
+        h1 Welcome to dcode!
+        p. 
+            this is a paragraph tag 
+            and this is a new line 
+        ul 
+            li This is item #1
+            li This is item #2
+            li This is item #3
+            li This is item #4 
+        h1#pageTitle Page Title Goes Here !
+        p.big-para. 
+
+             Here is big paragraph 
+             Here is big paragraph 
+             Here is big paragraph 
+        .display-box default to div
+
+        #myOnlyDiv default to div 
+
+        input(type="password" name="inpPwd" data-js=`${ 5>2 ? "OK" : "NOT OK"}`)
+
+        span hello world
+        div hello world
+
+        - const myClasses = ["class1", "class2" , "class3"]
+
+        div( class=myClasses  )
+        div.my-div-class(class = myClasses)
+
+        - let myStyles = {"color" : "red" , "background-color" : "blue" }
+
+        div(style=myStyles)
+
+        - myStyles = { "color" : "red"}
+
+        div(style=myStyles)
+
+        - const myAttributes = { "src" : "myPhoto.png" , "alt" : "This is my photo" }
+
+        img&attributes(myAttributes)
+
+        input(type="text" disabled=false)
+
+        input(type="text" disabled)
+
+        p(style="text-align: center; text-decoration:underline;")
+
+        - const pStyles = { "text-align" :"center", "text-transform" : "uppercase" }
+        p(style=pStyles) This is an HTML
+        //
+        //  Each Loop 
+        //
+        h1 Each Loop 
+        each n , i in [50,2,3,4,5]
+             p=n + " : value " +  " - " +  i + " : index"
+        
+        h1 Each Loop 
+        each n , i in ["a" , "b" , "c" , "d"]
+             p= n + " hello " + i
+
+        h1 Each Loop 
+        - const grades = {"web Dev" : 85, "Software Design" : 76}
+        each v, i in grades 
+           p= v  + " - " + i
+        //
+        // For Loop
+        //
+        h1 For Loop
+        for v , i in grades 
+           p= v + " - " + i 
+
+        h1 For Loop
+        //
+        // else in for : if no elements 
+        //
+        for v , i in []
+           p= v + " - " + i 
+        else 
+           strong No values are here         
+
