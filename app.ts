@@ -29,13 +29,16 @@ app.use(limiter);
 // 3) JSON Body Parser + Data Limiter
 app.use(express.json({ limit: "10kb" }));
 
-// 4) Data Sanitization
+// 4) Url Encoded
+app.use(express.urlencoded({ extended: true }));
+
+// 5) Data Sanitization
 app.use(mongoSanitize());
 
-// 5) Data sanitization against xss
+// 6) Data sanitization against xss
 app.use(xss());
 
-// 6) Preventing parameter pollution
+// 7) Preventing parameter pollution
 app.use(
   hpp({
     whitelist: ["duration"],
@@ -46,6 +49,7 @@ const sampleRouter = require("./routes/sampleRouter");
 import quizeCategoryRouter from "./routes/quize.routes/quize.category.router";
 import quizeNameRouter from "./routes/quize.routes/quize.name.router";
 import quizeQuestionRouter from "./routes/quize.routes/quize.question.router";
+
 //#region  V1 Quize API ...
 
 app.use("/api/v1/sampleRoute/", sampleRouter);
