@@ -20,11 +20,18 @@ export default class BaseService<T> {
     return resource;
   };
 
-  getById = async (id: string): Promise<T> => {
-    const resource = (await this.model.find({
+  getById = async (id: string, select?: String): Promise<T> => {
+    if (select) {
+      return (await this.model
+        .find({
+          _id: new mongoose.Types.ObjectId(id),
+        })
+        .select(select)) as T;
+    }
+
+    return (await this.model.find({
       _id: new mongoose.Types.ObjectId(id),
     })) as T;
-    return resource;
   };
 
   update = async (
@@ -58,4 +65,16 @@ export default class BaseService<T> {
   delete = (id: string): void => {
     return this.model.remove({ _id: new mongoose.Types.ObjectId(id) });
   };
+
+  //#region  Other functions
+
+  findOne = (filters: any, select?: String): Promise<T> => {
+    if (select) {
+      return this.model.findOne(filters).select(select);
+    }
+
+    return this.model.findOne(filters);
+  };
+
+  //#endregion
 }
