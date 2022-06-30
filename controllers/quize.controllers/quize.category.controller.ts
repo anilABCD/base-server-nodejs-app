@@ -1,6 +1,6 @@
 import { autoInjectable } from "tsyringe";
-import QuizeCategoryService from "../services/quize.category.service";
-import BaseController from "./base.controller";
+import QuizeCategoryService from "../../services/quize.services/quize.category.service";
+import BaseController from "../base.controller";
 
 @autoInjectable()
 export default class QuizeCategoryController extends BaseController {

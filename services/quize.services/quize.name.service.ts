@@ -1,9 +1,9 @@
 import { injectable } from "tsyringe";
 
-import QuizeNameSI from "../interfaces/quize.name.interface";
-import QuizeNameModel from "../Model/Quize/quize.name.model";
+import QuizeNameSI from "../../interfaces/quize.interfaces/quize.name.interface";
+import QuizeNameModel from "../../Model/quize.models/quize.name.model";
 
-import BaseService from "./base.service";
+import BaseService from "../base.service";
 
 @injectable()
 export default class QuizeNameService extends BaseService<QuizeNameSI> {

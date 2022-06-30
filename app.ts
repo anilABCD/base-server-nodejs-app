@@ -45,14 +45,14 @@ app.use(
   })
 );
 
-const sampleRouter = require("./routes/sampleRouter");
+// const sampleRouter = require("./routes/sample.router");
 import quizeCategoryRouter from "./routes/quize.routes/quize.category.router";
 import quizeNameRouter from "./routes/quize.routes/quize.name.router";
 import quizeQuestionRouter from "./routes/quize.routes/quize.question.router";
 
 //#region  V1 Quize API ...
 
-app.use("/api/v1/sampleRoute/", sampleRouter);
+// app.use("/api/v1/sampleRoute/", sampleRouter);
 app.use("/api/v1/quize-category/", quizeCategoryRouter);
 app.use("/api/v1/quize-name/", quizeNameRouter);
 app.use("/api/v1/quize-question/", quizeQuestionRouter);
