@@ -1,6 +1,6 @@
 import { injectable } from "tsyringe";
 import QuizeCategorySI from "../interfaces/quize.category.interface";
-import QuizeCategoryModel from "../Model/quize.category.model";
+import QuizeCategoryModel from "../Model/Quize/quize.category.model";
 import BaseService from "./base.service";
 
 @injectable()

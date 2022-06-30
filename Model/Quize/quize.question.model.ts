@@ -1,9 +1,9 @@
 import { singleton } from "tsyringe";
 import mongoose, { model, Model, Schema } from "mongoose";
-import ModelI from "../interfaces/model.interface";
-import QuizeQuestionSI from "../interfaces/quize.question.interface";
-import { Choice, Control, Difficulty } from "../model.types/quize.model.types";
-import { hasDuplicates } from "../utils/all.util";
+import ModelI from "../../interfaces/model.interface";
+import QuizeQuestionSI from "../../interfaces/quize.question.interface";
+import { Choice, Control, Difficulty } from "../../model.types/quize.model.types";
+import { hasDuplicates } from "../../utils/all.util";
 
 @singleton()
 export default class QuizeQuestionModel implements ModelI {
@@ -46,6 +46,7 @@ export default class QuizeQuestionModel implements ModelI {
     question: {
       type: String,
       required: [true, "is required"],
+      unique : true,
     },
     answer: {
       type: String,
@@ -88,7 +89,7 @@ export default class QuizeQuestionModel implements ModelI {
   });
 
   model: Model<any, any> = model<QuizeQuestionSI>(
-    "quize-question",
+    "quize-questions",
     this.schema
   );
 }
