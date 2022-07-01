@@ -6,7 +6,7 @@ import { Choice, Control, Difficulty } from "../../model.types/quize.model.types
 import { hasDuplicates } from "../../utils/all.util";
 
 @singleton()
-export default class QuizeQuestionModel implements ModelI {
+export default class QuizeQuestionModel implements ModelI<any,any,any> {
   schema: Schema<any> = new mongoose.Schema({
     quizeNameId: {
       type: Schema.Types.ObjectId,

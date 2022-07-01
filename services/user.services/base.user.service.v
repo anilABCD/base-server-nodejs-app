@@ -1,16 +1,18 @@
-import mongoose, { HydratedDocument } from "mongoose";
-import ModelI from "../interfaces/model.interface";
-import * as utils from "../utils/all.util";
+import { AnyRecord } from "dns";
+import mongoose from "mongoose";
+import BaseService from "../base.service";
+import ModelI from "../../interfaces/model.interface";
+import * as utils from "../../utils/all.util";
+import IUser, {
+  IUserDocument,
+} from "../../interfaces/user.interfaces/user.interface";
 
-export default class BaseService<T, T1, T2> {
-  model: mongoose.Model<T, {}, T2>;
-
-  constructor(modelI: ModelI<T, T1, T2>) {
-    this.model = modelI?.model;
+export default class UserBaseService extends BaseService<UserModelSI> {
+  constructor(modelI: ModelI) {
+    super(modelI);
   }
 
-  post = async (data: any) => {
-    data = data as T;
+  post = async (data: T) => {
     let newObj = utils.addCreatedDate(data);
     const resource = await this.model.create(newObj);
     return resource;
@@ -24,25 +26,23 @@ export default class BaseService<T, T1, T2> {
   getById = async (id: string, select?: String): Promise<T> => {
     if (select) {
       return (await this.model
-        .findOne({
+        .find({
           _id: new mongoose.Types.ObjectId(id),
         })
         .select(select)) as T;
     }
 
-    return (await this.model.findOne({
+    return (await this.model.find({
       _id: new mongoose.Types.ObjectId(id),
     })) as T;
   };
 
   update = async (
     id: string,
-    data: any,
+    data: T,
     onlyKeys?: [string],
     removeKeys?: [string]
   ): Promise<T> => {
-    data = data as T;
-
     let filteredBody: any;
     if (onlyKeys) {
       filteredBody = utils.filterObject(data, onlyKeys);
@@ -62,21 +62,21 @@ export default class BaseService<T, T1, T2> {
       }
     );
 
-    return resource as T;
+    return resource;
   };
 
-  delete = async (id: string): Promise<any> => {
-    return await this.model.remove({ _id: new mongoose.Types.ObjectId(id) });
+  delete = (id: string): void => {
+    return this.model.remove({ _id: new mongoose.Types.ObjectId(id) });
   };
 
   //#region  Other functions
 
-  findOne = async (filters: any, select?: String): Promise<T> => {
+  findOne = (filters: any, select?: String): Promise<T> => {
     if (select) {
-      return (await this.model.findOne(filters).select(select)) as T;
+      return this.model.findOne(filters).select(select);
     }
 
-    return (await this.model.findOne(filters)) as T;
+    return this.model.findOne(filters);
   };
 
   //#endregion

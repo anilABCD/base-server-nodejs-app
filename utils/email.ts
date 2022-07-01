@@ -1,9 +1,8 @@
-import UserModelSI from "../interfaces/user.interfaces/user.interface";
-
 import nodemailer from "nodemailer";
 import pug from "pug";
 import htmlToText from "html-to-text";
 import Mail from "nodemailer/lib/mailer";
+import IUser from "../interfaces/user.interfaces/user.interface";
 
 export default class Email {
   to?: string;
@@ -11,7 +10,8 @@ export default class Email {
   url?: string;
   from?: string;
 
-  constructor(user: UserModelSI, url: String) {
+  constructor(user: any, url: String) {
+    user = user as IUser;
     this.to = String(user.email);
     this.firstName = user.name.split(" ")[0];
     this.url = String(url);

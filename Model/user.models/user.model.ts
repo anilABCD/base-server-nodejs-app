@@ -1,15 +1,22 @@
 import { singleton } from "tsyringe";
 import mongoose, { model, Model, Schema } from "mongoose";
 import ModelI from "../../interfaces/model.interface";
-import UserModelSI from "../../interfaces/user.interfaces/user.interface";
+import IUser, {
+  IUserMethods,
+  UserModel,
+} from "../../interfaces/user.interfaces/user.interface";
 import validator from "validator";
+import { Roles } from "../../model.types/user.model.types";
 
 const crypto = require("crypto");
 const bcrypt = require("bcryptjs");
 
+// Create a new Model type that knows about IUserMethods...
 @singleton()
-export default class UserModelModel implements ModelI {
-  schema: Schema<any> = new mongoose.Schema({
+export default class UserModelModel
+  implements ModelI<IUser, UserModel, IUserMethods>
+{
+  schema: Schema<IUser, UserModel, IUserMethods> = new mongoose.Schema({
     name: {
       type: String,
       required: [true, "Please tell us your name!"],
@@ -27,8 +34,12 @@ export default class UserModelModel implements ModelI {
     },
     role: {
       type: String,
-      enum: ["user", "guide", "lead-guide", "admin"],
-      default: "user",
+      enum: {
+        values: Object.values(Roles),
+        message: "{VALUE} is not supported",
+      },
+      default: Roles[Roles.user],
+      required: [true, "role is required"],
     },
     password: {
       type: String,
@@ -41,7 +52,7 @@ export default class UserModelModel implements ModelI {
       required: [true, "Please confirm your password"],
       validate: {
         // This only works on CREATE and SAVE!!!
-        validator: function (el: String) {
+        validator: function (el: String): boolean {
           // @ts-ignore // this.password // CHECK : check once ...
           return el === this.password;
         },
@@ -60,7 +71,7 @@ export default class UserModelModel implements ModelI {
     updatedDate: Date,
   });
 
-  model: Model<any, any> = model<UserModelSI>("users", this.schema);
+  model = model<IUser, UserModel>("users", this.schema);
 
   constructor() {
     this.schema.pre("save", async function (next) {
@@ -71,19 +82,20 @@ export default class UserModelModel implements ModelI {
       this.password = await bcrypt.hash(this.password, 12);
 
       // Delete passwordConfirm field
-      this.passwordConfirm = undefined;
+      this.passwordConfirm = "";
       next();
     });
 
     this.schema.pre("save", function (next) {
       if (!this.isModified("password") || this.isNew) return next();
 
-      this.passwordChangedAt = Date.now() - 1000;
+      this.passwordChangedAt = new Date(Date.now() - 1000);
       next();
     });
 
     this.schema.pre(/^find/, function (next) {
       // this points to the current query
+      //@ts-ignore
       this.find({ active: { $ne: false } });
       next();
     });
@@ -107,6 +119,10 @@ export default class UserModelModel implements ModelI {
 
       // False means NOT changed
       return false;
+    };
+
+    this.schema.methods.fullName = function () {
+      return "";
     };
 
     this.schema.methods.createPasswordResetToken = function () {
