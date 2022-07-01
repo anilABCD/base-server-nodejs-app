@@ -245,7 +245,8 @@ export default class AuthController extends BaseController<
     } catch (err) {
       user.passwordResetToken = "";
       user.passwordResetExpires = undefined;
-      await user.save({ validateBeforeSave: false });
+      // CHECK :
+      // await user.save({ validateBeforeSave: false });
 
       return next(
         new AppError(
@@ -276,7 +277,8 @@ export default class AuthController extends BaseController<
     user.passwordConfirm = req.body.passwordConfirm;
     user.passwordResetToken = "";
     user.passwordResetExpires = undefined;
-    await user.save();
+    // CHECK :
+    // await user.save();
 
     // 3) Update changedPasswordAt property for the user
     // 4) Log the user in, send JWT

@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from "express";
+import { Model } from "mongoose";
 import AppError from "../ErrorHandling/AppError";
 import catchAsync from "../ErrorHandling/catchAsync";
 import BaseService from "../services/base.service";
 
-export default class BaseController<T, T1, T2> {
+export default class BaseController<T, T1 extends Model<any, any, any>, T2> {
   service?: BaseService<T, T1, T2>;
 
   constructor(service?: BaseService<T, T1, T2>) {

@@ -1,9 +1,9 @@
-import mongoose, { HydratedDocument } from "mongoose";
+import mongoose, { HydratedDocument, Model } from "mongoose";
 import ModelI from "../interfaces/model.interface";
 import * as utils from "../utils/all.util";
 
-export default class BaseService<T, T1, T2> {
-  model: mongoose.Model<T, {}, T2>;
+export default class BaseService<T, T1 extends Model<any, any, any>, T2> {
+  model: T1;
 
   constructor(modelI: ModelI<T, T1, T2>) {
     this.model = modelI?.model;

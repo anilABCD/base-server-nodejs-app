@@ -1,4 +1,4 @@
-import { Model } from "mongoose";
+import { Model, model } from "mongoose";
 import { injectable } from "tsyringe";
 import IUser, {
   IUserMethods,
@@ -13,14 +13,16 @@ export default class AuthService extends BaseService<
   UserModel,
   IUserMethods
 > {
+  model: UserModel;
   constructor(modelI: UserModelModel) {
     super(modelI);
     this.model = modelI.model;
   }
 
-  correctPassword = async (candidatePassword: String, userPassword: String) => {
-    return await this.model;
-  };
+  correctPassword = async (
+    candidatePassword: String,
+    userPassword: String
+  ) => {};
 
   // changedPasswordAfter = function (JWTTimestamp: number) {
   //   if (this.passwordChangedAt) {
