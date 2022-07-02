@@ -30,8 +30,3 @@ export interface IUserMethods {
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
   myStaticMethod(): number;
 }
-
-export type UserDocuemntType =
-  | (mongoose.Document<unknown, any, IUser> &
-      IUser & { _id: mongoose.Types.ObjectId } & IUserMethods)
-  | null;
