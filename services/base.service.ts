@@ -35,6 +35,20 @@ export default class BaseService<T, T1 extends Model<any, any, any>, T2> {
     })) as T;
   };
 
+  getDocumentById = async (id: string, select?: String): Promise<any> => {
+    if (select) {
+      return await this.model
+        .findOne({
+          _id: new mongoose.Types.ObjectId(id),
+        })
+        .select(select);
+    }
+
+    return await this.model.findOne({
+      _id: new mongoose.Types.ObjectId(id),
+    });
+  };
+
   update = async (
     id: string,
     data: any,
@@ -77,6 +91,14 @@ export default class BaseService<T, T1 extends Model<any, any, any>, T2> {
     }
 
     return (await this.model.findOne(filters)) as T;
+  };
+
+  findOneDocument = async (filters: any, select?: String): Promise<any> => {
+    if (select) {
+      return await this.model.findOne(filters).select(select);
+    }
+
+    return await this.model.findOne(filters);
   };
 
   //#endregion
