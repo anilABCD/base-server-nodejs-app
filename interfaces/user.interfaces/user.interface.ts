@@ -1,4 +1,4 @@
-import { Model, ObjectId } from "mongoose";
+import mongoose, { Model, ObjectId } from "mongoose";
 import { Roles } from "../../model.types/user.model.types";
 import { BaseModelI } from "../base.mode.interface";
 
@@ -18,7 +18,7 @@ export default interface IUser extends BaseModelI {
 // Put all user instance methods in this interface:
 export interface IUserMethods {
   fullName(): string;
-  createPasswordResetToken(): void;
+  createPasswordResetToken(): string;
   changedPasswordAfter(JWTTimestamp: number): boolean;
   correctPassword(
     candidatePassword: String,
@@ -30,3 +30,8 @@ export interface IUserMethods {
 export interface UserModel extends Model<IUser, {}, IUserMethods> {
   myStaticMethod(): number;
 }
+
+export type UserDocuemntType =
+  | (mongoose.Document<unknown, any, IUser> &
+      IUser & { _id: mongoose.Types.ObjectId } & IUserMethods)
+  | null;
