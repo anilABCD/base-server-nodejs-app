@@ -89,12 +89,11 @@ export default class AuthController extends BaseController<
         return next(new AppError("Please provide email and password!", 400));
       }
       // 2) Check if user exists && password is correct
-      const user = await this.service?.findOne({ email }, "+password");
-
+      const user = await this.service?.findOneDocument({ email }, "+password");
       // CHECK :
-      // if (!user || !(await user.correctPassword(password, user.password))) {
-      //   return next(new AppError("Incorrect email or password", 401));
-      // }
+      if (!user || !(await user.correctPassword(password, user.password))) {
+        return next(new AppError("Incorrect email or password", 401));
+      }
 
       // 3) If everything ok, send token to client
       this.createSendToken(user, 200, req, res);
@@ -138,7 +137,7 @@ export default class AuthController extends BaseController<
       );
 
       // 3) Check if user still exists
-      const currentUser = await this.service?.getById(decoded.id);
+      const currentUser = await this.service?.getDocumentById(decoded.id);
       if (!currentUser) {
         return next(
           new AppError(
@@ -149,19 +148,19 @@ export default class AuthController extends BaseController<
       }
 
       // CHECK :
-      // // 4) Check if user changed password after the token was issued
-      // if (currentUser.changedPasswordAfter(decoded.iat)) {
-      //   return next(
-      //     new AppError(
-      //       "User recently changed password! Please log in again.",
-      //       401
-      //     )
-      //   );
-      // }
+      // 4)  Check if user changed password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next(
+          new AppError(
+            "User recently changed password! Please log in again.",
+            401
+          )
+        );
+      }
 
       // GRANT ACCESS TO PROTECTED ROUTE
-      req.user = currentUser;
-      res.locals.user = currentUser;
+      req.user = currentUser as IUser;
+      res.locals.user = currentUser as IUser;
       next();
     }
   );
@@ -177,19 +176,19 @@ export default class AuthController extends BaseController<
         );
 
         // 2) Check if user still exists
-        const currentUser = await this.service?.getById(decoded.id);
+        const currentUser = await this.service?.getDocumentById(decoded.id);
         if (!currentUser) {
           return next();
         }
 
         // CHECK :
-        // // 3) Check if user changed password after the token was issued
-        // if (currentUser.changedPasswordAfter(decoded.iat)) {
-        //   return next();
-        // }
+        // 3) Check if user changed password after the token was issued
+        if (currentUser.changedPasswordAfter(decoded.iat)) {
+          return next();
+        }
 
         // THERE IS A LOGGED IN USER
-        res.locals.user = currentUser;
+        res.locals.user = currentUser as IUser;
         return next();
       } catch (err) {
         return next();
@@ -220,16 +219,15 @@ export default class AuthController extends BaseController<
 
   forgotPassword = catchAsync(async (req, res, next) => {
     // 1) Get user based on POSTed email
-    const user = await this.service?.findOne({ email: req.body.email });
+    const user = await this.service?.findOneDocument({ email: req.body.email });
     if (!user) {
       return next(new AppError("There is no user with email address.", 404));
     }
 
     // CHECK :
-    // // 2) Generate the random reset token
-    // const resetToken = user.createPasswordResetToken();
-    // await user.save({ validateBeforeSave: false });
-    const resetToken = ""; //remove
+    // 2) Generate the random reset token
+    const resetToken = user.createPasswordResetToken();
+    await user.save({ validateBeforeSave: false });
 
     // 3) Send it to user's email
     try {
@@ -246,7 +244,7 @@ export default class AuthController extends BaseController<
       user.passwordResetToken = "";
       user.passwordResetExpires = undefined;
       // CHECK :
-      // await user.save({ validateBeforeSave: false });
+      await user.save({ validateBeforeSave: false });
 
       return next(
         new AppError(
@@ -264,7 +262,7 @@ export default class AuthController extends BaseController<
       .update(req.params.token)
       .digest("hex");
 
-    const user = await this.service?.findOne({
+    const user = await this.service?.findOneDocument({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: Date.now() },
     });
@@ -278,7 +276,7 @@ export default class AuthController extends BaseController<
     user.passwordResetToken = "";
     user.passwordResetExpires = undefined;
     // CHECK :
-    // await user.save();
+    await user.save();
 
     // 3) Update changedPasswordAt property for the user
     // 4) Log the user in, send JWT
