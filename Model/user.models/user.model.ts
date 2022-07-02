@@ -1,5 +1,5 @@
 import { singleton } from "tsyringe";
-import mongoose, { model, Model, Schema } from "mongoose";
+import mongoose, { model, Schema } from "mongoose";
 import ModelI from "../../interfaces/model.interface";
 import IUser, {
   IUserMethods,
@@ -9,7 +9,9 @@ import validator from "validator";
 import { Roles } from "../../model.types/user.model.types";
 
 const crypto = require("crypto");
-const bcrypt = require("bcryptjs");
+
+import bcrypt from "bcryptjs";
+// const bcrypt = require("bcryptjs");
 
 // Create a new Model type that knows about IUserMethods...
 @singleton()
@@ -79,7 +81,7 @@ export default class UserModelModel
       if (!this.isModified("password")) return next();
 
       // Hash the password with cost of 12
-      this.password = await bcrypt.hash(this.password, 12);
+      this.password = await bcrypt.hash(String(this.password), 12);
 
       // Delete passwordConfirm field
       this.passwordConfirm = "";
@@ -104,7 +106,10 @@ export default class UserModelModel
       candidatePassword: String,
       userPassword: String
     ) {
-      return await bcrypt.compare(candidatePassword, userPassword);
+      return await bcrypt.compare(
+        String(candidatePassword),
+        String(userPassword)
+      );
     };
 
     this.schema.methods.changedPasswordAfter = function (JWTTimestamp: number) {
@@ -122,7 +127,7 @@ export default class UserModelModel
     };
 
     this.schema.methods.fullName = function () {
-      return "";
+      return "anil kumar potlapally";
     };
 
     this.schema.methods.createPasswordResetToken = function () {
