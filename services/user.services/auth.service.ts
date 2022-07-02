@@ -1,7 +1,9 @@
-import { Model, model } from "mongoose";
+import bcrypt from "bcryptjs";
+import mongoose from "mongoose";
 import { injectable } from "tsyringe";
 import IUser, {
   IUserMethods,
+  UserDocuemntType,
   UserModel,
 } from "../../interfaces/user.interfaces/user.interface";
 import UserModelModel from "../../Model/user.models/user.model";
@@ -19,37 +21,17 @@ export default class AuthService extends BaseService<
     this.model = modelI.model;
   }
 
-  correctPassword = async (
-    candidatePassword: String,
-    userPassword: String
-  ) => {};
+  getDocumentById = async (
+    id: string,
+    select?: String
+  ): Promise<UserDocuemntType> => {
+    return await super.getDocumentById(id, select);
+  };
 
-  // changedPasswordAfter = function (JWTTimestamp: number) {
-  //   if (this.passwordChangedAt) {
-  //     const changedTimestamp = parseInt(
-  //       `${this.passwordChangedAt.getTime() / 1000}`,
-  //       10
-  //     );
-
-  //     return JWTTimestamp < changedTimestamp;
-  //   }
-
-  //   // False means NOT changed
-  //   return false;
-  // };
-
-  // createPasswordResetToken = function () {
-  //   const resetToken = crypto.randomBytes(32).toString("hex");
-
-  //   this.passwordResetToken = crypto
-  //     .createHash("sha256")
-  //     .update(resetToken)
-  //     .digest("hex");
-
-  //   // console.log({ resetToken }, this.passwordResetToken);
-
-  //   this.passwordResetExpires = Date.now() + 10 * 60 * 1000;
-
-  //   return resetToken;
-  // };
+  findOneDocument = async (
+    filters: any,
+    select?: String
+  ): Promise<UserDocuemntType> => {
+    return await super.findOneDocument(filters, select);
+  };
 }
