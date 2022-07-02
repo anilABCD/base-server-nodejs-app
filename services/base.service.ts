@@ -2,7 +2,7 @@ import mongoose, { HydratedDocument, Model } from "mongoose";
 import ModelI from "../interfaces/model.interface";
 import * as utils from "../utils/all.util";
 
-export default class BaseService<T, T1 extends Model<any, any, any>, T2> {
+export default class BaseService<T, T1 extends Model<T, {}, T2>, T2> {
   model: T1;
 
   constructor(modelI: ModelI<T, T1, T2>) {
@@ -33,20 +33,6 @@ export default class BaseService<T, T1 extends Model<any, any, any>, T2> {
     return (await this.model.findOne({
       _id: new mongoose.Types.ObjectId(id),
     })) as T;
-  };
-
-  getDocumentById = async (id: string, select?: String): Promise<any> => {
-    if (select) {
-      return await this.model
-        .findOne({
-          _id: new mongoose.Types.ObjectId(id),
-        })
-        .select(select);
-    }
-
-    return await this.model.findOne({
-      _id: new mongoose.Types.ObjectId(id),
-    });
   };
 
   update = async (
@@ -83,7 +69,7 @@ export default class BaseService<T, T1 extends Model<any, any, any>, T2> {
     return await this.model.remove({ _id: new mongoose.Types.ObjectId(id) });
   };
 
-  //#region  Other functions
+  //#region Query functions :
 
   findOne = async (filters: any, select?: String): Promise<T> => {
     if (select) {
@@ -93,13 +79,50 @@ export default class BaseService<T, T1 extends Model<any, any, any>, T2> {
     return (await this.model.findOne(filters)) as T;
   };
 
-  findOneDocument = async (filters: any, select?: String): Promise<any> => {
+  //#region Docuemnt Functions: for methods and static methods ...
+
+  findOneDocument = async (
+    filters: any,
+    select?: String
+  ): Promise<
+    mongoose.Query<
+      HydratedDocument<T, T2, {}> | null,
+      mongoose.HydratedDocument<T, T2, {}>,
+      {},
+      T
+    >
+  > => {
     if (select) {
       return await this.model.findOne(filters).select(select);
     }
 
     return await this.model.findOne(filters);
   };
+
+  getDocumentById = async (
+    id: string,
+    select?: String
+  ): Promise<
+    mongoose.Query<
+      HydratedDocument<T, T2, {}> | null,
+      mongoose.HydratedDocument<T, T2, {}>,
+      {},
+      T
+    >
+  > => {
+    if (select) {
+      return await this.model
+        .findOne({
+          _id: new mongoose.Types.ObjectId(id),
+        })
+        .select(select);
+    }
+
+    return await this.model.findOne({
+      _id: new mongoose.Types.ObjectId(id),
+    });
+  };
+  //#endregion Docuemnt Functions
 
   //#endregion
 }
