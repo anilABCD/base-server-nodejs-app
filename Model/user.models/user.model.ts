@@ -8,7 +8,9 @@ import IUser, {
 import validator from "validator";
 import { Roles } from "../../model.types/user.model.types";
 
-const crypto = require("crypto");
+// const crypto = require("crypto");
+
+import crypto from "crypto";
 
 import bcrypt from "bcryptjs";
 // const bcrypt = require("bcryptjs");
