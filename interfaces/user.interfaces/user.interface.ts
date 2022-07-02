@@ -18,6 +18,12 @@ export default interface IUser extends BaseModelI {
 // Put all user instance methods in this interface:
 export interface IUserMethods {
   fullName(): string;
+  createPasswordResetToken(): void;
+  changedPasswordAfter(JWTTimestamp: number): boolean;
+  correctPassword(
+    candidatePassword: String,
+    userPassword: String
+  ): Promise<boolean>;
 }
 
 // Create a new Model type that knows about IUserMethods...
