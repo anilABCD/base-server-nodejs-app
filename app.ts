@@ -49,8 +49,11 @@ app.use(
 import quizeCategoryRouter from "./routes/quize.routes/quize.category.router";
 import quizeNameRouter from "./routes/quize.routes/quize.name.router";
 import quizeQuestionRouter from "./routes/quize.routes/quize.question.router";
+import authRouter from "./routes/user.routes/user.router";
 
-//#region  V1 Quize API ...
+//#region V1
+
+//#region  Quize Api ...
 
 // app.use("/api/v1/sampleRoute/", sampleRouter);
 app.use("/api/v1/quize-category/", quizeCategoryRouter);
@@ -61,7 +64,15 @@ app.use("/api/v1/quize-question/", quizeQuestionRouter);
 //   res.status(200).send("<h1>Hello World</h1>");
 // });
 
-//#endregion
+//#endregion Quize
+
+//#region User Api
+
+app.use("/api/v1/user/", authRouter);
+
+//#endregion User Api
+
+//#endregion V1
 
 // 404 NOTE: all("*") : get, post, patch , delete All URLs .
 app.all("*", (req, res, next) => {
