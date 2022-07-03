@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { injectable } from "tsyringe";
 import IUser, {
   IUserMethods,
-  UserModel,
+  IUserModel,
 } from "../../interfaces/user.interfaces/user.interface";
 import UserModelModel from "../../Model/user.models/user.model";
 import BaseService from "../base.service";
@@ -11,10 +11,10 @@ import BaseService from "../base.service";
 @injectable()
 export default class AuthService extends BaseService<
   IUser,
-  UserModel,
+  IUserModel,
   IUserMethods
 > {
-  model: UserModel;
+  model: IUserModel;
   constructor(modelI: UserModelModel) {
     super(modelI);
     this.model = modelI.model;

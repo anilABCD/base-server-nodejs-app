@@ -81,35 +81,15 @@ export default class BaseService<T, T1 extends Model<T, {}, T2>, T2> {
 
   //#region Docuemnt Functions: for methods and static methods ...
 
-  findOneDocument = async (
-    filters: any,
-    select?: String
-  ): Promise<
-    mongoose.Query<
-      HydratedDocument<T, T2, {}> | null,
-      mongoose.HydratedDocument<T, T2, {}>,
-      {},
-      T
-    >
-  > => {
-    if (select) {
-      return await this.model.findOne(filters).select(select);
+  findOneDocument = (filters: any, select?: String) => {
+    if (select && select.trim() !== "") {
+      return this.model.findOne(filters).select(select);
     }
 
-    return await this.model.findOne(filters);
+    return this.model.findOne(filters);
   };
 
-  getDocumentById = async (
-    id: string,
-    select?: String
-  ): Promise<
-    mongoose.Query<
-      HydratedDocument<T, T2, {}> | null,
-      mongoose.HydratedDocument<T, T2, {}>,
-      {},
-      T
-    >
-  > => {
+  getDocumentById = async (id: string, select?: String) => {
     if (select) {
       return await this.model
         .findOne({
