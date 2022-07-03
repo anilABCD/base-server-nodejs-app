@@ -18,7 +18,7 @@ export default class Email {
     this.from = `Jonas Schmedtmann <${process.env.EMAIL_FROM}>`;
   }
 
-  newTransport() {
+  newTransport = () => {
     if (process.env.NODE_ENV === "production") {
       // Sendgrid
       return nodemailer.createTransport({
@@ -29,7 +29,12 @@ export default class Email {
         },
       });
     }
-
+    console.log(
+      String(process.env.EMAIL_HOST),
+      process.env.EMAIL_PORT,
+      process.env.EMAIL_USERNAME,
+      process.env.EMAIL_PASSWORD
+    );
     return nodemailer.createTransport({
       host: String(process.env.EMAIL_HOST),
       port: process.env.EMAIL_PORT,
@@ -38,7 +43,7 @@ export default class Email {
         pass: process.env.EMAIL_PASSWORD,
       },
     });
-  }
+  };
 
   // Send the actual email
   async send(template: String, subject: String) {
@@ -49,6 +54,8 @@ export default class Email {
       subject,
     });
 
+    console.log(html);
+
     // 2) Define email options
     const mailOptions: Mail.Options = {
       from: this.from,
@@ -57,6 +64,8 @@ export default class Email {
       html,
       text: htmlToText.fromString(html),
     };
+
+    console.log(mailOptions);
 
     // 3) Create a transport and send email
     await this.newTransport().sendMail(mailOptions);
