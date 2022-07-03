@@ -3,7 +3,7 @@ import mongoose, { model, Schema } from "mongoose";
 import ModelI from "../../interfaces/model.interface";
 import IUser, {
   IUserMethods,
-  UserModel,
+  IUserModel,
 } from "../../interfaces/user.interfaces/user.interface";
 import validator from "validator";
 import { Roles } from "../../model.types/user.model.types";
@@ -18,9 +18,9 @@ import bcrypt from "bcryptjs";
 // Create a new Model type that knows about IUserMethods...
 @singleton()
 export default class UserModelModel
-  implements ModelI<IUser, UserModel, IUserMethods>
+  implements ModelI<IUser, IUserModel, IUserMethods>
 {
-  schema: Schema<IUser, UserModel, IUserMethods> = new mongoose.Schema({
+  schema: Schema<IUser, IUserModel, IUserMethods> = new mongoose.Schema({
     name: {
       type: String,
       required: [true, "Please tell us your name!"],
@@ -75,8 +75,7 @@ export default class UserModelModel
     updatedDate: Date,
   });
 
-  model = model<IUser, UserModel>("users", this.schema);
-
+  model: IUserModel;
   constructor() {
     this.schema.pre("save", async function (next) {
       // Only run this function if password was actually modified
@@ -146,5 +145,7 @@ export default class UserModelModel
 
       return resetToken;
     };
+
+    this.model = model<IUser, IUserModel>("users", this.schema);
   }
 }
