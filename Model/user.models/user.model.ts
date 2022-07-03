@@ -7,7 +7,7 @@ import IUser, {
 } from "../../interfaces/user.interfaces/user.interface";
 import validator from "validator";
 import { Roles } from "../../model.types/user.model.types";
-
+import console from "../../utils/console";
 // const crypto = require("crypto");
 
 import crypto from "crypto";

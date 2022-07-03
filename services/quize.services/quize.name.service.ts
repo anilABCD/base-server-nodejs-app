@@ -5,6 +5,8 @@ import QuizeNameModel from "../../Model/quize.models/quize.name.model";
 
 import BaseService from "../base.service";
 
+import console from "../../utils/console";
+
 @injectable()
 export default class QuizeNameService extends BaseService<
   QuizeNameSI,

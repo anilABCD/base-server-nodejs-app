@@ -3,6 +3,8 @@ import pug from "pug";
 import htmlToText from "html-to-text";
 import Mail from "nodemailer/lib/mailer";
 import IUser from "../interfaces/user.interfaces/user.interface";
+import console from "./console";
+import isProductionEnvironment from "./isProductionEnvironment";
 
 export default class Email {
   to?: string;
@@ -19,7 +21,7 @@ export default class Email {
   }
 
   newTransport = () => {
-    if (process.env.NODE_ENV === "production") {
+    if (isProductionEnvironment()) {
       // Sendgrid
       return nodemailer.createTransport({
         service: "SendGrid",
@@ -29,12 +31,14 @@ export default class Email {
         },
       });
     }
+
     console.log(
       String(process.env.EMAIL_HOST),
       process.env.EMAIL_PORT,
       process.env.EMAIL_USERNAME,
       process.env.EMAIL_PASSWORD
     );
+
     return nodemailer.createTransport({
       host: String(process.env.EMAIL_HOST),
       port: process.env.EMAIL_PORT,

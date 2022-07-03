@@ -16,6 +16,7 @@ import IUser, {
 } from "../../interfaces/user.interfaces/user.interface";
 import { Roles } from "../../model.types/user.model.types";
 import AuthService from "../../services/user.services/auth.service";
+import console from "../../utils/console";
 
 @autoInjectable()
 export default class AuthController extends BaseController<
@@ -48,7 +49,7 @@ export default class AuthController extends BaseController<
         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
       ),
       httpOnly: true,
-      // @Production : add in production
+      // @Production : add below line in production if commented
       secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     });
 

@@ -3,6 +3,7 @@ import { Model } from "mongoose";
 import AppError from "../ErrorHandling/AppError";
 import catchAsync from "../ErrorHandling/catchAsync";
 import BaseService from "../services/base.service";
+import console from "../utils/console";
 
 export default class BaseController<T, T1 extends Model<any, any, any>, T2> {
   service?: BaseService<T, T1, T2>;
