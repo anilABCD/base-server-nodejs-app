@@ -6,39 +6,49 @@ import { Request, Response, NextFunction } from "express";
 const crypto = require("crypto");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
-// usermodel
+
 import catchAsync from "../../ErrorHandling/catchAsync";
 import AppError from "../../ErrorHandling/AppError";
 import Email from "../../utils/email";
-import AuthService from "../../services/user.services/auth.service";
-import UserModelSI from "../../interfaces/user.interfaces/user.interface";
+import IUser, {
+  IUserMethods,
+  IUserModel,
+} from "../../interfaces/user.interfaces/user.interface";
 import { Roles } from "../../model.types/user.model.types";
+import AuthService from "../../services/user.services/auth.service";
 
 @autoInjectable()
-export default class AuthController extends BaseController {
+export default class AuthController extends BaseController<
+  IUser,
+  IUserModel,
+  IUserMethods
+> {
+  service?: AuthService;
   constructor(service?: AuthService) {
     super(service);
+    this.service = service;
   }
 
   signToken = (id: String) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-      expiresIn: process.env.JWT_EXPIRES_IN,
+    return jwt.sign({ id }, String(process.env.JWT_SECRET), {
+      expiresIn: process.env.JWT_COOKIE_EXPIRES_IN,
     });
   };
 
   createSendToken = (
-    user: UserModelSI,
+    user: any,
     statusCode: number,
     req: Request,
     res: Response
   ) => {
     const token = this.signToken(user._id);
-
+    user = user as IUser;
     res.cookie("jwt", token, {
       expires: new Date(
         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
       ),
       httpOnly: true,
+      // @Production : add in production
       secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     });
 
@@ -65,6 +75,7 @@ export default class AuthController extends BaseController {
 
       const url = `${req.protocol}://${req.get("host")}/me`;
       // console.log(url);
+      //@Production : Email
       await new Email(newUser, url).sendWelcome();
 
       this.createSendToken(newUser, 201, req, res);
@@ -80,8 +91,9 @@ export default class AuthController extends BaseController {
         return next(new AppError("Please provide email and password!", 400));
       }
       // 2) Check if user exists && password is correct
-      const user = await this.service?.findOne({ email }, "+password");
-
+      const user = await this.service?.findOneDocument({ email }, "+password");
+      // CHECK :
+      console.log(user);
       if (!user || !(await user.correctPassword(password, user.password))) {
         return next(new AppError("Incorrect email or password", 401));
       }
@@ -128,7 +140,7 @@ export default class AuthController extends BaseController {
       );
 
       // 3) Check if user still exists
-      const currentUser = await this.service?.getById(decoded.id);
+      const currentUser = await this.service?.getDocumentById(decoded.id);
       if (!currentUser) {
         return next(
           new AppError(
@@ -138,7 +150,8 @@ export default class AuthController extends BaseController {
         );
       }
 
-      // 4) Check if user changed password after the token was issued
+      // CHECK :
+      // 4)  Check if user changed password after the token was issued
       if (currentUser.changedPasswordAfter(decoded.iat)) {
         return next(
           new AppError(
@@ -149,8 +162,8 @@ export default class AuthController extends BaseController {
       }
 
       // GRANT ACCESS TO PROTECTED ROUTE
-      req.user = currentUser;
-      res.locals.user = currentUser;
+      req.user = currentUser as IUser;
+      res.locals.user = currentUser as IUser;
       next();
     }
   );
@@ -166,18 +179,19 @@ export default class AuthController extends BaseController {
         );
 
         // 2) Check if user still exists
-        const currentUser = await this.service?.getById(decoded.id);
+        const currentUser = await this.service?.getDocumentById(decoded.id);
         if (!currentUser) {
           return next();
         }
 
+        // CHECK :
         // 3) Check if user changed password after the token was issued
         if (currentUser.changedPasswordAfter(decoded.iat)) {
           return next();
         }
 
         // THERE IS A LOGGED IN USER
-        res.locals.user = currentUser;
+        res.locals.user = currentUser as IUser;
         return next();
       } catch (err) {
         return next();
@@ -190,13 +204,15 @@ export default class AuthController extends BaseController {
     return (req: Request, res: Response, next: NextFunction) => {
       // roles ['admin', 'lead-guide']. role='user'
       if (req.user) {
-        if (!roles.includes(Roles[req.user.role])) {
-          return next(
-            new AppError(
-              "You do not have permission to perform this action",
-              403
-            )
-          );
+        if (req.user.role) {
+          if (!roles.includes(Roles[req.user.role])) {
+            return next(
+              new AppError(
+                "You do not have permission to perform this action",
+                403
+              )
+            );
+          }
         }
       }
 
@@ -206,11 +222,12 @@ export default class AuthController extends BaseController {
 
   forgotPassword = catchAsync(async (req, res, next) => {
     // 1) Get user based on POSTed email
-    const user = await this.service?.findOne({ email: req.body.email });
+    const user = await this.service?.findOneDocument({ email: req.body.email });
     if (!user) {
       return next(new AppError("There is no user with email address.", 404));
     }
 
+    // CHECK :
     // 2) Generate the random reset token
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
@@ -227,8 +244,9 @@ export default class AuthController extends BaseController {
         message: "Token sent to email!",
       });
     } catch (err) {
-      user.passwordResetToken = undefined;
+      user.passwordResetToken = "";
       user.passwordResetExpires = undefined;
+      // CHECK :
       await user.save({ validateBeforeSave: false });
 
       return next(
@@ -247,7 +265,7 @@ export default class AuthController extends BaseController {
       .update(req.params.token)
       .digest("hex");
 
-    const user = await this.service?.findOne({
+    const user = await this.service?.findOneDocument({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: Date.now() },
     });
@@ -258,8 +276,9 @@ export default class AuthController extends BaseController {
     }
     user.password = req.body.password;
     user.passwordConfirm = req.body.passwordConfirm;
-    user.passwordResetToken = undefined;
+    user.passwordResetToken = "";
     user.passwordResetExpires = undefined;
+    // CHECK :
     await user.save();
 
     // 3) Update changedPasswordAt property for the user
@@ -272,97 +291,25 @@ export default class AuthController extends BaseController {
       // 1) Get user from collection
       const user = await this.service?.getById(req.user?.id, "+password");
 
-      // 2) Check if POSTed current password is correct
-      if (
-        !(await user.correctPassword(req.body.passwordCurrent, user.password))
-      ) {
-        return next(new AppError("Your current password is wrong.", 401));
+      if (user) {
+        // CHECK :
+        // // 2) Check if POSTed current password is correct
+        // if (
+        //   !(await user.correctPassword(req.body.passwordCurrent, user.password))
+        // ) {
+        //   return next(new AppError("Your current password is wrong.", 401));
+        // }
+
+        // 3) If so, update password
+        await this.service?.update(user.id, {
+          password: req.body.password,
+          passwordConfirm: req.body.passwordConfirm,
+        });
+        // User.findByIdAndUpdate will NOT work as intended!
+
+        // 4) Log user in, send JWT
+        this.createSendToken(user, 200, req, res);
       }
-
-      // 3) If so, update password
-      user.password = req.body.password;
-      user.passwordConfirm = req.body.passwordConfirm;
-      await user.save();
-      // User.findByIdAndUpdate will NOT work as intended!
-
-      // 4) Log user in, send JWT
-      this.createSendToken(user, 200, req, res);
     }
   );
 }
-
-//#region  OLD Code :
-// import AppError from "../ErrorHandling/AppError";
-// import catchAsync from "../ErrorHandling/catchAsync";
-// import QuizeCategory from "../Model/quize.category.model";
-// import filterObject from "../utils/filterObj.util";
-
-// import { Request, Response, NextFunction } from "express";
-
-// const getAllQuizes = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const quizeCategories = await QuizeCategory.find();
-//     res.status(200).json(quizeCategories);
-//   }
-// );
-
-// const getQuize = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const quizeCategory = await QuizeCategory.findById(req.params.id);
-
-//     if (!quizeCategory) {
-//       next(new AppError("Quize not found", 404));
-//     }
-
-//     res.status(200).json({
-//       status: "success",
-//       data: {
-//         quizeCategory,
-//       },
-//     });
-//   }
-// );
-
-// const createQuize = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const newQuizeCategory = new QuizeCategory();
-//     newQuizeCategory.key = req.body.topic; //key
-//     await newQuizeCategory.save();
-
-//     // 201 created
-//     res.status(201).json({
-//       status: "success",
-//       data: {
-//         quizeCategory: newQuizeCategory,
-//       },
-//     });
-//   }
-// );
-
-// const updateQuize = catchAsync(
-//   async (req: Request, res: Response, next: NextFunction) => {
-//     const filteredBody = filterObject(req.body, ["key"]);
-
-//     const updatedQuizeCateogry = await QuizeCategory.findByIdAndUpdate(
-//       req.params.id,
-//       filteredBody,
-//       {
-//         new: true,
-//         runValidators: true,
-//       }
-//     );
-
-//     res.status(200).json({
-//       status: "success",
-//       data: {
-//         updatedQuizeCateogry,
-//       },
-//     });
-//   }
-// );
-
-// export { getAllQuizes };
-// export { getQuize };
-// export { createQuize };
-// export { updateQuize };
-//#endregion

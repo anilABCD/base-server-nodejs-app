@@ -3,7 +3,11 @@ import QuizeQuestionService from "../../services/quize.services/quize.question.s
 import BaseController from "../base.controller";
 
 @autoInjectable()
-export default class QuizeQuestionController extends BaseController {
+export default class QuizeQuestionController extends BaseController<
+  any,
+  any,
+  any
+> {
   constructor(service?: QuizeQuestionService) {
     super(service);
   }

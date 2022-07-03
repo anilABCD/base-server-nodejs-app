@@ -1,15 +1,16 @@
-import { AnyRecord } from "dns";
-import mongoose from "mongoose";
+import mongoose, { HydratedDocument, Model } from "mongoose";
 import ModelI from "../interfaces/model.interface";
 import * as utils from "../utils/all.util";
 
-export default class BaseService<T> {
-  model: mongoose.Model<any, any>;
-  constructor(modelI: ModelI) {
+export default class BaseService<T, T1 extends Model<T, {}, T2>, T2> {
+  model: T1;
+
+  constructor(modelI: ModelI<T, T1, T2>) {
     this.model = modelI?.model;
   }
 
-  post = async (data: T) => {
+  post = async (data: any) => {
+    data = data as T;
     let newObj = utils.addCreatedDate(data);
     const resource = await this.model.create(newObj);
     return resource;
@@ -23,23 +24,25 @@ export default class BaseService<T> {
   getById = async (id: string, select?: String): Promise<T> => {
     if (select) {
       return (await this.model
-        .find({
+        .findOne({
           _id: new mongoose.Types.ObjectId(id),
         })
         .select(select)) as T;
     }
 
-    return (await this.model.find({
+    return (await this.model.findOne({
       _id: new mongoose.Types.ObjectId(id),
     })) as T;
   };
 
   update = async (
     id: string,
-    data: T,
+    data: any,
     onlyKeys?: [string],
     removeKeys?: [string]
   ): Promise<T> => {
+    data = data as T;
+
     let filteredBody: any;
     if (onlyKeys) {
       filteredBody = utils.filterObject(data, onlyKeys);
@@ -59,22 +62,47 @@ export default class BaseService<T> {
       }
     );
 
-    return resource;
+    return resource as T;
   };
 
-  delete = (id: string): void => {
-    return this.model.remove({ _id: new mongoose.Types.ObjectId(id) });
+  delete = async (id: string): Promise<any> => {
+    return await this.model.remove({ _id: new mongoose.Types.ObjectId(id) });
   };
 
-  //#region  Other functions
+  //#region Query functions :
 
-  findOne = (filters: any, select?: String): Promise<T> => {
+  findOne = async (filters: any, select?: String): Promise<T> => {
     if (select) {
+      return (await this.model.findOne(filters).select(select)) as T;
+    }
+
+    return (await this.model.findOne(filters)) as T;
+  };
+
+  //#region Docuemnt Functions: for methods and static methods ...
+
+  findOneDocument = (filters: any, select?: String) => {
+    if (select && select.trim() !== "") {
       return this.model.findOne(filters).select(select);
     }
 
     return this.model.findOne(filters);
   };
+
+  getDocumentById = async (id: string, select?: String) => {
+    if (select) {
+      return await this.model
+        .findOne({
+          _id: new mongoose.Types.ObjectId(id),
+        })
+        .select(select);
+    }
+
+    return await this.model.findOne({
+      _id: new mongoose.Types.ObjectId(id),
+    });
+  };
+  //#endregion Docuemnt Functions
 
   //#endregion
 }

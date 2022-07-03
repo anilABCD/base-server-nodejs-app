@@ -5,7 +5,7 @@ import ModelI from "../../interfaces/model.interface";
 import QuizeCategorySI from "../../interfaces/quize.interfaces/quize.category.interface";
 
 @singleton()
-export default class QuizeCategoryModel implements ModelI {
+export default class QuizeCategoryModel implements ModelI<any, any, any> {
   schema: Schema<any> = new mongoose.Schema({
     key: {
       type: String,

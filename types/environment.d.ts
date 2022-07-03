@@ -1,5 +1,4 @@
-import UserModelSI from "../interfaces/user.interfaces/user.interface";
-
+import IUser from "../interfaces/user.interfaces/user.interface";
 declare global {
   namespace NodeJS {
     interface ProcessEnv {
@@ -15,7 +14,7 @@ declare global {
   }
   declare namespace Express {
     export interface Request {
-      user?: UserModelSI;
+      user?: IUser;
     }
   }
 }

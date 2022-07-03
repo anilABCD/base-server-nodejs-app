@@ -1,6 +1,5 @@
-import mongoose from "mongoose";
-
-export interface BaseModelI extends mongoose.Document {
+export interface BaseModelI {
+  id: any;
   createdDate: Date;
   updatedDate: Date;
 }
