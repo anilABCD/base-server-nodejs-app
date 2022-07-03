@@ -48,6 +48,7 @@ export default class AuthController extends BaseController<
         Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
       ),
       httpOnly: true,
+      // @Production : add in production
       secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     });
 
@@ -74,7 +75,8 @@ export default class AuthController extends BaseController<
 
       const url = `${req.protocol}://${req.get("host")}/me`;
       // console.log(url);
-      await new Email(newUser, url).sendWelcome();
+      //@Production : Email
+      //await new Email(newUser, url).sendWelcome();
 
       this.createSendToken(newUser, 201, req, res);
     }
