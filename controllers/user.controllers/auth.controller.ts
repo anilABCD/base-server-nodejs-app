@@ -5,14 +5,14 @@ import { Request, Response, NextFunction } from "express";
 
 const crypto = require("crypto");
 const { promisify } = require("util");
-import jwt from "jsonwebtoken";
+const jwt = require("jsonwebtoken");
 
 import catchAsync from "../../ErrorHandling/catchAsync";
 import AppError from "../../ErrorHandling/AppError";
 import Email from "../../utils/email";
 import IUser, {
   IUserMethods,
-  UserModel,
+  IUserModel,
 } from "../../interfaces/user.interfaces/user.interface";
 import { Roles } from "../../model.types/user.model.types";
 import AuthService from "../../services/user.services/auth.service";
@@ -20,7 +20,7 @@ import AuthService from "../../services/user.services/auth.service";
 @autoInjectable()
 export default class AuthController extends BaseController<
   IUser,
-  UserModel,
+  IUserModel,
   IUserMethods
 > {
   service?: AuthService;
@@ -31,7 +31,7 @@ export default class AuthController extends BaseController<
 
   signToken = (id: String) => {
     return jwt.sign({ id }, String(process.env.JWT_SECRET), {
-      expiresIn: process.env.JWT_EXPIRES_IN,
+      expiresIn: process.env.JWT_COOKIE_EXPIRES_IN,
     });
   };
 
@@ -91,6 +91,7 @@ export default class AuthController extends BaseController<
       // 2) Check if user exists && password is correct
       const user = await this.service?.findOneDocument({ email }, "+password");
       // CHECK :
+      console.log(user);
       if (!user || !(await user.correctPassword(password, user.password))) {
         return next(new AppError("Incorrect email or password", 401));
       }
