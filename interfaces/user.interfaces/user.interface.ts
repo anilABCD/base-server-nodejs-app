@@ -27,6 +27,6 @@ export interface IUserMethods {
 }
 
 // Create a new Model type that knows about IUserMethods...
-export interface UserModel extends Model<IUser, {}, IUserMethods> {
+export interface IUserModel extends Model<IUser, {}, IUserMethods> {
   myStaticMethod(): number;
 }
