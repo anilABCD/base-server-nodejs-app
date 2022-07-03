@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from "express";
+import console from "../utils/console";
 
 const errorController = (
   err: any,

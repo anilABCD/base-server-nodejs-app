@@ -3,6 +3,8 @@ import QuizeQuestionSI from "../../interfaces/quize.interfaces/quize.question.in
 import QuizeQuestionModel from "../../Model/quize.models/quize.question.model";
 import BaseService from "../base.service";
 
+import console from "../../utils/console";
+
 @injectable()
 export default class QuizeQuestionService extends BaseService<
   QuizeQuestionSI,
