@@ -9,6 +9,9 @@ import morgan from "morgan";
 import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
 
+//@ts-ignore
+import cookies from "cookie-parser";
+
 const limiter = rateLimit({
   max: 100,
   windowMs: 60 * 60 * 1000,
@@ -26,19 +29,22 @@ app.use(helmet());
 // 2) Rate Limiter
 app.use(limiter);
 
-// 3) JSON Body Parser + Data Limiter
+// 3) Cookies Parser
+app.use(cookies());
+
+// 4) JSON Body Parser + Data Limiter
 app.use(express.json({ limit: "10kb" }));
 
-// 4) Url Encoded
+// 5) Url Encoded
 app.use(express.urlencoded({ extended: true }));
 
-// 5) Data Sanitization
+// 6) Data Sanitization
 app.use(mongoSanitize());
 
-// 6) Data sanitization against xss
+// 7) Data sanitization against xss
 app.use(xss());
 
-// 7) Preventing parameter pollution
+// 8) Preventing parameter pollution
 app.use(
   hpp({
     whitelist: ["duration"],

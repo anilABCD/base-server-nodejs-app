@@ -23,6 +23,13 @@
       "backgroundColor": "#3498db"
     },
     {
+      "text": "IMPORTANT:",
+      "color": "red",
+      "border": "1px solid #2980b9",
+      "borderRadius": "4px",
+      "backgroundColor": "white"
+    },
+    {
       "text": " HACK :",
       "color": "#ecf0f1",
       "border": "1px solid #8e44ad",

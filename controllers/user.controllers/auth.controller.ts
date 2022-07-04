@@ -1,6 +1,6 @@
 import { autoInjectable } from "tsyringe";
 import BaseController from "../base.controller";
-
+import getEnv from "../../.env/getEnv";
 import { Request, Response, NextFunction } from "express";
 
 const crypto = require("crypto");
@@ -31,8 +31,11 @@ export default class AuthController extends BaseController<
   }
 
   signToken = (id: String) => {
-    return jwt.sign({ id }, String(process.env.JWT_SECRET), {
-      expiresIn: process.env.JWT_COOKIE_EXPIRES_IN,
+    return jwt.sign({ id }, getEnv("JWT_SECRET")?.toString(), {
+      //IMPORTANT: in days ...
+      // WARN : JWT_EXPIRES_IN has d literal : 90d , with d letter in that.
+      // WARN : JWT_COOKIE_EXPIRES_IN is with out d literal (d letter in that)
+      expiresIn: getEnv("JWT_EXPIRES_IN")?.toString(),
     });
   };
 
@@ -46,11 +49,16 @@ export default class AuthController extends BaseController<
     user = user as IUser;
     res.cookie("jwt", token, {
       expires: new Date(
-        Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+        Date.now() +
+          parseInt(getEnv("JWT_COOKIE_EXPIRES_IN")?.toString() || "1") *
+            24 *
+            60 *
+            60 *
+            1000
       ),
       httpOnly: true,
       // @Production : add below line in production if commented
-      secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     });
 
     // Remove password from output
@@ -116,6 +124,7 @@ export default class AuthController extends BaseController<
     async (req: Request, res: Response, next: NextFunction) => {
       // 1) Getting token and check of it's there
       let token;
+      console.log("Protected Entered ", req.cookies);
       if (
         req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")
@@ -124,6 +133,8 @@ export default class AuthController extends BaseController<
       } else if (req.cookies.jwt) {
         token = req.cookies.jwt;
       }
+
+      console.log("token", token);
 
       if (!token) {
         return next(
@@ -135,10 +146,9 @@ export default class AuthController extends BaseController<
       }
 
       // 2) Verification token
-      const decoded = await promisify(jwt.verify)(
-        token,
-        process.env.JWT_SECRET
-      );
+      const decoded = await promisify(jwt.verify)(token, getEnv("JWT_SECRET"));
+
+      console.log(decoded);
 
       // 3) Check if user still exists
       const currentUser = await this.service?.getDocumentById(decoded.id);
@@ -176,7 +186,7 @@ export default class AuthController extends BaseController<
         // 1) verify token
         const decoded = await promisify(jwt.verify)(
           req.cookies.jwt,
-          process.env.JWT_SECRET
+          getEnv("JWT_SECRET")
         );
 
         // 2) Check if user still exists

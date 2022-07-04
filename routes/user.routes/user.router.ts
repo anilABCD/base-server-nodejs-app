@@ -17,7 +17,7 @@ router.patch("/resetPassword/:token", authController.resetPassword);
 router.use(authController.protect);
 
 router.get(
-  "/check-protected",
+  "/check-is-authenticated",
   (req: Request, res: Response, next: NextFunction) => {
     res.status(200).send("Is Authenticated User");
   }
