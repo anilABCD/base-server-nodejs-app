@@ -49,10 +49,18 @@ function checkIfAnyThingMissionInProduction(): boolean {
         //   privateFunctionGetEnvNotForUseThisIsNotTypeSafe(element),
         //   notUsedInProductionValue
         // );
-        return (
-          privateFunctionGetEnvNotForUseThisIsNotTypeSafe(element) ===
-          notUsedInProductionValue
-        );
+
+        let envValue = privateFunctionGetEnvNotForUseThisIsNotTypeSafe(element);
+
+        if (!envValue) {
+          return false;
+        }
+
+        if (envValue.trim() == "") {
+          return false;
+        }
+
+        return envValue === notUsedInProductionValue;
       } else {
         return false;
       }

@@ -51,13 +51,22 @@ export default class Email {
   // Send the actual email
   async send(template: String, subject: String) {
     // 1) Render HTML based on a pug template
-    const html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
-      firstName: this.firstName,
-      url: this.url,
-      subject,
-    });
+    let html;
 
-    console.log(html);
+    try {
+      html = pug.renderFile(`${__dirname}/../views/email/${template}.pug`, {
+        firstName: this.firstName,
+        url: this.url,
+        subject,
+      });
+    } catch (err) {
+      console.log(err);
+      const fallBackTemplates = require("./fallBackTemplates");
+      html = fallBackTemplates.passwordResetTemplate
+        .replace("{subject}", subject)
+        .replace("{firstName}", this.firstName)
+        .replace("{url}", this.url);
+    }
 
     // 2) Define email options
     const mailOptions: Mail.Options = {
@@ -68,7 +77,7 @@ export default class Email {
       text: htmlToText.fromString(html),
     };
 
-    console.log(mailOptions);
+    // console.log(mailOptions);
 
     // 3) Create a transport and send email
     await this.newTransport().sendMail(mailOptions);

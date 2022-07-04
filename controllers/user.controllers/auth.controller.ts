@@ -104,7 +104,7 @@ export default class AuthController extends BaseController<
       // 2) Check if user exists && password is correct
       const user = await this.service?.findOneDocument({ email }, "+password");
       // CHECK :
-      console.log(user);
+
       if (!user || !(await user.correctPassword(password, user.password))) {
         return next(new AppError("Incorrect email or password", 401));
       }
@@ -126,7 +126,7 @@ export default class AuthController extends BaseController<
     async (req: Request, res: Response, next: NextFunction) => {
       // 1) Getting token and check of it's there
       let token;
-      console.log("Protected Entered ", req.cookies);
+      // console.log("Protected Route");
       if (
         req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")
@@ -243,6 +243,7 @@ export default class AuthController extends BaseController<
       return next(new AppError("There is no user with email address.", 404));
     }
 
+    debugger;
     // CHECK :
     // 2) Generate the random reset token
     const resetToken = user.createPasswordResetToken();
@@ -253,6 +254,7 @@ export default class AuthController extends BaseController<
       const resetURL = `${req.protocol}://${req.get(
         "host"
       )}/api/v1/users/resetPassword/${resetToken}`;
+
       await new Email(user, resetURL).sendPasswordReset();
 
       res.status(200).json({
