@@ -78,7 +78,7 @@ function allEmailTemplatesRead(): boolean {
 
   const verifiedFiles = verifiedFilesDataWithoutIndexes.map(
     (fileName, i: number) => {
-      let file = files.filter((file: string) => {
+      const file = files.filter((file: string) => {
         return file === fileName;
       })[0];
 
