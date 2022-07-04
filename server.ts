@@ -3,14 +3,11 @@ import * as dotenv from "dotenv";
 import mongoose from "mongoose";
 import app from "./app";
 import console from "./utils/console";
-import getEnv, {
-  checkIfAnyThingMissionInProduction,
-  EnvEnumType,
-} from "./env/getEnv";
+import getEnv, { allReady, EnvEnumType } from "./env/getEnv";
 // import "./dependency.injection";
 dotenv.config({ path: `${__dirname}/config.env` });
 
-if (checkIfAnyThingMissionInProduction()) {
+if (allReady()) {
   //#region  DB Connect
 
   const DB =
