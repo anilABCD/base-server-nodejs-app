@@ -1,6 +1,6 @@
 import { autoInjectable } from "tsyringe";
 import BaseController from "../base.controller";
-import getEnv from "../../.env/getEnv";
+import getEnv, { EnvEnumType } from "../../env/getEnv";
 import { Request, Response, NextFunction } from "express";
 
 const crypto = require("crypto");
@@ -31,11 +31,11 @@ export default class AuthController extends BaseController<
   }
 
   signToken = (id: String) => {
-    return jwt.sign({ id }, getEnv("JWT_SECRET")?.toString(), {
+    return jwt.sign({ id }, getEnv(EnvEnumType.JWT_SECRET)?.toString(), {
       //IMPORTANT: in days ...
       // WARN : JWT_EXPIRES_IN has d literal : 90d , with d letter in that.
       // WARN : JWT_COOKIE_EXPIRES_IN is with out d literal (d letter in that)
-      expiresIn: getEnv("JWT_EXPIRES_IN")?.toString(),
+      expiresIn: getEnv(EnvEnumType.JWT_EXPIRES_IN)?.toString(),
     });
   };
 
@@ -50,7 +50,9 @@ export default class AuthController extends BaseController<
     res.cookie("jwt", token, {
       expires: new Date(
         Date.now() +
-          parseInt(getEnv("JWT_COOKIE_EXPIRES_IN")?.toString() || "1") *
+          parseInt(
+            getEnv(EnvEnumType.JWT_COOKIE_EXPIRES_IN)?.toString() || "1"
+          ) *
             24 *
             60 *
             60 *
@@ -146,7 +148,10 @@ export default class AuthController extends BaseController<
       }
 
       // 2) Verification token
-      const decoded = await promisify(jwt.verify)(token, getEnv("JWT_SECRET"));
+      const decoded = await promisify(jwt.verify)(
+        token,
+        getEnv(EnvEnumType.JWT_SECRET)
+      );
 
       console.log(decoded);
 
@@ -186,7 +191,7 @@ export default class AuthController extends BaseController<
         // 1) verify token
         const decoded = await promisify(jwt.verify)(
           req.cookies.jwt,
-          getEnv("JWT_SECRET")
+          getEnv(EnvEnumType.JWT_SECRET)
         );
 
         // 2) Check if user still exists

@@ -112,5 +112,12 @@
       "border": "1px solid red",
       "borderRadius": "4px",
       "backgroundColor": "red"
+    },
+    {
+      "text": "@Development",
+      "color": "white",
+      "border": "1px solid black",
+      "borderRadius": "4px",
+      "backgroundColor": "red"
     }
   ],

@@ -6,7 +6,7 @@ import IUser from "../interfaces/user.interfaces/user.interface";
 import console from "./console";
 import isProductionEnvironment from "./isProductionEnvironment";
 
-import getEnv from "../.env/getEnv";
+import getEnv, { EnvEnumType } from "../env/getEnv";
 
 export default class Email {
   to?: string;
@@ -19,7 +19,9 @@ export default class Email {
     this.to = String(`${user.name} <${user.email}>`);
     this.firstName = user.name.split(" ")[0];
     this.url = String(url);
-    this.from = `${getEnv("EMAIL_FROM_FULL_NAME")} <${getEnv("EMAIL_FROM")}>`;
+    this.from = `${getEnv(EnvEnumType.EMAIL_FROM_FULL_NAME)} <${getEnv(
+      EnvEnumType.EMAIL_FROM
+    )}>`;
   }
 
   newTransport = () => {
@@ -29,19 +31,19 @@ export default class Email {
         //@ts-ignore
         service: "SendGrid",
         auth: {
-          user: getEnv("SENDGRID_USERNAME"),
-          pass: getEnv("SENDGRID_PASSWORD"),
+          user: getEnv(EnvEnumType.SENDGRID_USERNAME),
+          pass: getEnv(EnvEnumType.SENDGRID_PASSWORD),
         },
       });
     }
 
     return nodemailer.createTransport({
       //@ts-ignore
-      host: String(getEnv("EMAIL_HOST")),
-      port: getEnv("EMAIL_PORT"),
+      host: String(getEnv(EnvEnumType.EMAIL_HOST)),
+      port: getEnv(EnvEnumType.EMAIL_PORT),
       auth: {
-        user: getEnv("EMAIL_USERNAME"),
-        pass: getEnv("EMAIL_PASSWORD"),
+        user: getEnv(EnvEnumType.EMAIL_USERNAME),
+        pass: getEnv(EnvEnumType.EMAIL_PASSWORD),
       },
     });
   };

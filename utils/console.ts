@@ -1,5 +1,5 @@
 import { singleton } from "tsyringe";
-import getEnv from "../.env/getEnv";
+import getEnv from "../env/getEnv";
 
 @singleton()
 class MyConsole {
