@@ -9,7 +9,7 @@ class MyLogger extends Logger {
 
   resourceNotFoundError = (...extraParam: string[]) => {
     this.error(
-      "Resource not found  ERROR : ",
+      "Resource not found  ERROR :",
       ...extraParam,
       String(ErrorCodeEnumType.ResourceNotFound)
     );

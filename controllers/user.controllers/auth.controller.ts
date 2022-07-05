@@ -253,7 +253,7 @@ export default class AuthController extends BaseController<
     try {
       const resetURL = `${req.protocol}://${req.get(
         "host"
-      )}/api/v1/users/resetPassword/${resetToken}`;
+      )}/api/v1/user/resetPassword/${resetToken}`;
 
       await new Email(user, resetURL).sendPasswordReset();
 
