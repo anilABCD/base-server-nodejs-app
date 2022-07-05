@@ -4,11 +4,11 @@ import mongoose from "mongoose";
 import app from "./app";
 import console from "./utils/console";
 import getEnv, { EnvEnumType } from "./env/getEnv";
-import isServerReady from "./ServerVerify/verifyAll";
+import isAllResourcesReady from "./ResourcesVerify/verifyAll";
 // import "./dependency.injection";
 dotenv.config({ path: `${__dirname}/config.env` });
 
-if (isServerReady()) {
+if (isAllResourcesReady()) {
   //#region  DB Connect
 
   const DB =
