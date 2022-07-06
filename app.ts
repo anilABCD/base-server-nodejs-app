@@ -8,6 +8,7 @@ import hpp from "hpp";
 import morgan from "morgan";
 import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
+import path from "path";
 
 //@ts-ignore
 import cookies from "cookie-parser";
@@ -19,6 +20,17 @@ const limiter = rateLimit({
 });
 
 const app = express();
+
+//#region  EJS
+// // View Engine
+// app.set("views", path.join(__dirname, "views"));
+// app.set("view engine", "ejs");
+
+// // index page
+// app.get("/", function (req, res) {
+//   res.render("index");
+// });
+//#endregion
 
 // Request logger
 app.use(morgan("dev"));
@@ -58,6 +70,12 @@ import quizeQuestionRouter from "./routes/quize.routes/quize.question.router";
 import authRouter from "./routes/user.routes/user.router";
 
 //#region V1
+
+// #region Static Files
+
+app.use(express.static("public"));
+
+//#endregion Static Files
 
 //#region  Quize Api ...
 
