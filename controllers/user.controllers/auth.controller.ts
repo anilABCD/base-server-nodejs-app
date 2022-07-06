@@ -60,7 +60,7 @@ export default class AuthController extends BaseController<
       ),
       httpOnly: true,
       // @Production : add below line in production if commented
-      // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     });
 
     // Remove password from output
@@ -243,7 +243,6 @@ export default class AuthController extends BaseController<
       return next(new AppError("There is no user with email address.", 404));
     }
 
-    debugger;
     // CHECK :
     // 2) Generate the random reset token
     const resetToken = user.createPasswordResetToken();
