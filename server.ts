@@ -1,16 +1,16 @@
 import "reflect-metadata";
 import * as dotenv from "dotenv";
+import getEnv, { EnvEnumType } from "./env/getEnv";
+dotenv.config({ path: `${__dirname}/config.env` });
 import mongoose from "mongoose";
 import app from "./app";
 import console from "./utils/console";
-import getEnv, { EnvEnumType } from "./env/getEnv";
 import isAllResourcesReady from "./ResourcesVerify/verifyAll";
+
 // import "./dependency.injection";
-dotenv.config({ path: `${__dirname}/config.env` });
 
 if (isAllResourcesReady()) {
   //#region  DB Connect
-
   const DB =
     getEnv(EnvEnumType.DATABASE_URL)
       ?.toString()
@@ -22,7 +22,7 @@ if (isAllResourcesReady()) {
     .connect(DB)
     .then((con) => {
       // console.log(con.connections);
-      console.log("\nDB connection successfull!\n");
+      console.log("DB connection successfull!\n");
     })
     .catch((err) => {
       console.log("\nDB Connection Error \n", err);
@@ -32,7 +32,9 @@ if (isAllResourcesReady()) {
   //#region  listen
 
   app.listen(getEnv(EnvEnumType.PORT), () => {
-    console.log("\nListening on port 80");
+    console.log("\n\n\nNode Server:\n");
+    console.log("Listening on port 80");
+    console.log("GrapQL Url :", "http://localhost/graphql");
   });
   //#endregion
 }

@@ -1,5 +1,7 @@
+// @ts-ignore
 import { rateLimit } from "express-rate-limit";
 import express from "express";
+// @ts-ignore
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
 // @ts-ignore
@@ -8,7 +10,21 @@ import hpp from "hpp";
 import morgan from "morgan";
 import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
+import isProductionEnvironment from "./utils/isProductionEnvironment";
+import startApolloSevrver from "./GraphQLAPI/apollo.server";
+
 import path from "path";
+
+// import "./GraphQLAPI/tutorial/apollo-turorial";
+import "./GraphQLAPI/apollo.server";
+import { graphqlHTTP } from "express-graphql";
+
+// const sampleRouter = require("./routes/sample.router");
+import quizeCategoryRouter from "./routes/quize.routes/quize.category.router";
+import quizeNameRouter from "./routes/quize.routes/quize.name.router";
+import quizeQuestionRouter from "./routes/quize.routes/quize.question.router";
+import authRouter from "./routes/user.routes/user.router";
+import schema from "./GraphQLAPI/tutorial/at-app-ts.schema";
 
 //@ts-ignore
 import cookies from "cookie-parser";
@@ -21,93 +37,107 @@ const limiter = rateLimit({
 
 const app = express();
 
-//#region  EJS
-// // View Engine
-// app.set("views", path.join(__dirname, "views"));
-// app.set("view engine", "ejs");
+startApolloSevrver().then((apolloServer) => {
+  //#region  EJS
+  // // View Engine
+  // app.set("views", path.join(__dirname, "views"));
+  // app.set("view engine", "ejs");
 
-// // index page
-// app.get("/", function (req, res) {
-//   res.render("index");
-// });
-//#endregion
-
-// Request logger
-app.use(morgan("dev"));
-
-// 1) Setting Security HTTP Headers
-app.use(helmet());
-
-// 2) Rate Limiter
-app.use(limiter);
-
-// 3) Cookies Parser
-app.use(cookies());
-
-// 4) JSON Body Parser + Data Limiter
-app.use(express.json({ limit: "10kb" }));
-
-// 5) Url Encoded
-app.use(express.urlencoded({ extended: true }));
-
-// 6) Data Sanitization
-app.use(mongoSanitize());
-
-// 7) Data sanitization against xss
-app.use(xss());
-
-// 8) Preventing parameter pollution
-app.use(
-  hpp({
-    whitelist: ["duration"],
-  })
-);
-
-// const sampleRouter = require("./routes/sample.router");
-import quizeCategoryRouter from "./routes/quize.routes/quize.category.router";
-import quizeNameRouter from "./routes/quize.routes/quize.name.router";
-import quizeQuestionRouter from "./routes/quize.routes/quize.question.router";
-import authRouter from "./routes/user.routes/user.router";
-
-//#region V1
-
-// #region Static Files
-
-app.use(express.static("public"));
-
-//#endregion Static Files
-
-//#region  Quize Api ...
-
-// app.use("/api/v1/sampleRoute/", sampleRouter);
-app.use("/api/v1/quize-category/", quizeCategoryRouter);
-app.use("/api/v1/quize-name/", quizeNameRouter);
-app.use("/api/v1/quize-question/", quizeQuestionRouter);
-
-// app.get("/api/v1/", (req, res, next) => {
-//   res.status(200).send("<h1>Hello World</h1>");
-// });
-
-//#endregion Quize
-
-//#region User Api
-
-app.use("/api/v1/user/", authRouter);
-
-//#endregion User Api
-
-//#endregion V1
-
-// 404 NOTE: all("*") : get, post, patch , delete All URLs .
-app.all("*", (req, res, next) => {
-  // res.status(404).json({
-  //   status: "fail",
-  //   message: `Can't find ${req.originalUrl} on this server.`,
+  // // index page
+  // app.get("/", function (req, res) {
+  //   res.render("index");
   // });
-  next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
-});
+  //#endregion
 
-// Final Operational/Non Operational Error Handling ...
-app.use(errorController);
+  // Request logger
+  app.use(morgan("dev"));
+
+  // 1) Setting Security HTTP Headers
+  if (isProductionEnvironment()) app.use(helmet());
+
+  // 2) Rate Limiter
+  app.use(limiter);
+
+  // 3) Cookies Parser
+  app.use(cookies());
+
+  // 4) JSON Body Parser + Data Limiter
+  app.use(express.json({ limit: "10kb" }));
+
+  // 5) Url Encoded
+  app.use(express.urlencoded({ extended: true }));
+
+  // 6) Data Sanitization
+  app.use(mongoSanitize());
+
+  // 7) Data sanitization against xss
+  app.use(xss());
+
+  // 8) Preventing parameter pollution
+  app.use(
+    hpp({
+      whitelist: ["duration"],
+    })
+  );
+
+  //#region V1
+
+  //#region Static Files
+
+  app.use(express.static("public"));
+
+  //#endregion End Static Files
+
+  //#region  Graph QL
+
+  app.use(
+    "/v1/graphql",
+    graphqlHTTP({
+      schema: schema,
+      graphiql: true,
+    })
+  );
+
+  //#endregion End Graph QL
+
+  //#region  Quize Api ...
+
+  // app.use("/api/v1/sampleRoute/", sampleRouter);
+  app.use("/api/v1/quize-category/", quizeCategoryRouter);
+  app.use("/api/v1/quize-name/", quizeNameRouter);
+  app.use("/api/v1/quize-question/", quizeQuestionRouter);
+
+  // app.get("/api/v1/", (req, res, next) => {
+  //   res.status(200).send("<h1>Hello World</h1>");
+  // });
+
+  //#endregion End Quize Api
+
+  //#region User Api
+
+  app.use("/api/v1/user/", authRouter);
+
+  //#endregion End User Api
+
+  //#region Apollo GraphQL
+
+  apolloServer.applyMiddleware({ app, path: "/graphql" });
+
+  //#endregion End Apollo GraphQL
+
+  //#endregion V1
+
+  // 404 NOTE: all("*") : get, post, patch , delete All URLs .
+  app.all("*", (req, res, next) => {
+    // res.status(404).json({
+    //   status: "fail",
+    //   message: `Can't find ${req.originalUrl} on this server.`,
+    // });
+    next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
+  });
+
+  // Final Operational/Non Operational Error Handling ...
+  app.use(errorController);
+});
 
 export default app;
