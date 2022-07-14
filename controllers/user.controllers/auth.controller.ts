@@ -187,6 +187,24 @@ export default class AuthController extends BaseController<
 
   protectGrqphQL = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
+      let isAuthRequired: any = req.query.req;
+
+      console.log("is Auth Required ", isAuthRequired);
+
+      if (!isAuthRequired) {
+        return next();
+      }
+
+      // IMPORTANT: 891218775666826437ec6c0ac
+      // if this string is equal : then authentication is not required for
+      // the query . just to bypass the authentication process ... if not required .
+      // instead of wasting the processing resources .
+      if (isAuthRequired === "891218775666826437ec6c0ac") {
+        return next();
+      }
+
+      console.log("Is Auth Skipped :", false);
+
       // 1) Getting token and check of it's there
       let token;
       // console.log("Protected Route");
@@ -207,10 +225,16 @@ export default class AuthController extends BaseController<
       }
 
       // 2) Verification token
-      const decoded = await promisify(jwt.verify)(
-        token,
-        getEnv(EnvEnumType.JWT_SECRET)
-      );
+      let decoded: any;
+      try {
+        decoded = await promisify(jwt.verify)(
+          token,
+          getEnv(EnvEnumType.JWT_SECRET)
+        );
+      } catch (ex) {
+        authorized = false;
+        decoded = { id: "############" };
+      }
 
       // console.log(decoded);
 
@@ -231,6 +255,7 @@ export default class AuthController extends BaseController<
         req.user = currentUser as IUser;
         res.locals.user = currentUser as IUser;
       }
+
       console.log("authorized GraphQL", authorized);
       // console.log(req.user);
       next();
