@@ -7,7 +7,10 @@ import resolvers from "./resolvers.js";
 async function startApolloServer() {
   const typeDefs = await readFile(`${__dirname}/schema.graphql`, "utf-8");
 
-  const apolloServer = new ApolloServer({ typeDefs, resolvers });
+  //@ts-ignore
+  const context = ({ req }) => ({ user: req.user });
+
+  const apolloServer = new ApolloServer({ typeDefs, resolvers, context });
 
   await apolloServer.start();
 

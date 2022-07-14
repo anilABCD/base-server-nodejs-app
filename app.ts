@@ -13,10 +13,16 @@ import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import startApolloSevrver from "./GraphQLAPI/apollo.server";
 
+// for : /graphql
+import AuthController from "./controllers/user.controllers/auth.controller";
+let authController = new AuthController();
+//////////////////////
+
+import { promisify } from "util";
+
 import path from "path";
 
 // import "./GraphQLAPI/tutorial/apollo-turorial";
-import "./GraphQLAPI/apollo.server";
 import { graphqlHTTP } from "express-graphql";
 
 // const sampleRouter = require("./routes/sample.router");
@@ -36,6 +42,10 @@ const limiter = rateLimit({
 });
 
 const app = express();
+
+const toUseTopLevelAwait = promisify(() => true);
+
+toUseTopLevelAwait().then((_result) => {});
 
 startApolloSevrver().then((apolloServer) => {
   //#region  EJS
@@ -121,6 +131,7 @@ startApolloSevrver().then((apolloServer) => {
 
   //#region Apollo GraphQL
 
+  app.post("/graphql", authController.protectGrqphQL);
   apolloServer.applyMiddleware({ app, path: "/graphql" });
 
   //#endregion End Apollo GraphQL

@@ -7,7 +7,13 @@ import app from "./app";
 import console from "./utils/console";
 import isAllResourcesReady from "./ResourcesVerify/verifyAll";
 
-// import "./dependency.injection";
+//////////////////////////////////////////////////////////////////////
+// NOTE :
+// IMPORTANT: Just executes async but without waiting ...
+// (async () => {
+//   let text = await fs.promises.readFile(`${__dirname}/README.md`);
+// })();
+//////////////////////////////////////////////////////////////////////
 
 if (isAllResourcesReady()) {
   //#region  DB Connect
