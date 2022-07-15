@@ -1,5 +1,6 @@
 import AppError from "../ErrorHandling/AppError";
 import console from "../utils/console";
+import QuizeCategoryController from "../controllers/quize.controllers/quize.category.controller";
 
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -21,10 +22,12 @@ const checkAuthenticated = (context: any) => {
   }
 };
 
-function protectedQuery(fn: (_root: any, {}: any, context: any) => any): any {
-  return (_root: any, {}: any, context: any) => {
+function protectedQuery(
+  fn: (_root: any, {}: any, context: any) => Promise<any>
+): any {
+  return async (_root: any, {}: any, context: any) => {
     checkAuthenticated(context);
-    return fn(_root, {}, context);
+    return await fn(_root, {}, context);
   };
 }
 
@@ -32,11 +35,19 @@ function protectedQuery(fn: (_root: any, {}: any, context: any) => any): any {
 
 //#region Query Resolvers .
 
+const quizeController = new QuizeCategoryController();
+
 const resolvers = {
   Query: {
-    greeting: protectedQuery((_root: any, {}: any, context: any) => {
-      return "New Hello World";
-    }),
+    // someField : protectedQuery(
+    //   async (_root: any, {}: any, context: any) => {
+    //     return await someService().
+    //   }
+    // ),
+
+    quizeCategories: async (_root: any, {}: any, context: any) => {
+      return await quizeController.service?.get();
+    },
   },
 };
 

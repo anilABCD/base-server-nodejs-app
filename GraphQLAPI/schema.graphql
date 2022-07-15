@@ -3,5 +3,9 @@ schema {
 }
 
 type Query {
-  greeting: String
+  quizeCategories: [QuizeCategory!]
+}
+
+type QuizeCategory {
+  key: String!
 }

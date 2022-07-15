@@ -250,7 +250,6 @@ export default class AuthController extends BaseController<
           console.log(req.user);
         }
       }
-
       next();
     }
   );
