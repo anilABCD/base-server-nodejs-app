@@ -148,10 +148,15 @@ export default class AuthController extends BaseController<
       }
 
       // 2) Verification token
-      const decoded = await promisify(jwt.verify)(
-        token,
-        getEnv(EnvEnumType.JWT_SECRET)
-      );
+      let decoded: any;
+      try {
+        decoded = await promisify(jwt.verify)(
+          token,
+          getEnv(EnvEnumType.JWT_SECRET)
+        );
+      } catch (err) {
+        decoded = { id: "            " };
+      }
 
       console.log(decoded);
 
@@ -218,51 +223,34 @@ export default class AuthController extends BaseController<
         token = req.cookies.jwt;
       }
 
-      // console.log("token", token);
-
-      if (!token) {
-        return next(
-          new AppError(
-            "You are not logged in! Please log in to get access.",
-            401
-          )
-        );
-      }
-
       // 2) Verification token
-      const decoded = await promisify(jwt.verify)(
-        token,
-        getEnv(EnvEnumType.JWT_SECRET)
-      );
+      let decoded: any;
+      try {
+        decoded = await promisify(jwt.verify)(
+          token,
+          getEnv(EnvEnumType.JWT_SECRET)
+        );
+      } catch (err) {
+        decoded = { id: "            " };
+      }
 
       // console.log(decoded);
 
       // 3) Check if user still exists
       const currentUser = await this.service?.getDocumentById(decoded.id);
-      if (!currentUser) {
-        return next(
-          new AppError(
-            "The user belonging to this token does no longer exist.",
-            401
-          )
-        );
-      }
 
       // CHECK :
       // 4)  Check if user changed password after the token was issued
-      if (currentUser.changedPasswordAfter(decoded.iat)) {
-        return next(
-          new AppError(
-            "User recently changed password! Please log in again.",
-            401
-          )
-        );
+      if (currentUser) {
+        if (currentUser.changedPasswordAfter(decoded.iat)) {
+        } else {
+          // GRANT ACCESS TO PROTECTED ROUTE
+          req.user = currentUser as IUser;
+          res.locals.user = currentUser as IUser;
+          console.log(req.user);
+        }
       }
 
-      // GRANT ACCESS TO PROTECTED ROUTE
-      req.user = currentUser as IUser;
-      res.locals.user = currentUser as IUser;
-      console.log(req.user);
       next();
     }
   );

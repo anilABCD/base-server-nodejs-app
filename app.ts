@@ -36,7 +36,7 @@ import schema from "./GraphQLAPI/tutorial/at-app-ts.schema";
 import cookies from "cookie-parser";
 
 const limiter = rateLimit({
-  max: 100,
+  max: 120,
   windowMs: 60 * 60 * 1000,
   message: "Too many requests from this IP , Please try again in a hour",
 });
