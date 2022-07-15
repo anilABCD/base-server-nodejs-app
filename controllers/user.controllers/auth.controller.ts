@@ -187,7 +187,7 @@ export default class AuthController extends BaseController<
 
   protectGrqphQL = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      let isAuthRequired: any = req.query.req;
+      let isAuthRequired: any = req.query.auth;
 
       console.log("is Auth Required ", isAuthRequired);
 
@@ -199,7 +199,8 @@ export default class AuthController extends BaseController<
       // if this string is equal : then authentication is not required for
       // the query . just to bypass the authentication process ... if not required .
       // instead of wasting the processing resources .
-      if (isAuthRequired === "891218775666826437ec6c0ac") {
+
+      if (isAuthRequired === "false") {
         return next();
       }
 
@@ -219,45 +220,49 @@ export default class AuthController extends BaseController<
 
       // console.log("token", token);
 
-      let authorized = true;
       if (!token) {
-        authorized = false;
+        return next(
+          new AppError(
+            "You are not logged in! Please log in to get access.",
+            401
+          )
+        );
       }
 
       // 2) Verification token
-      let decoded: any;
-      try {
-        decoded = await promisify(jwt.verify)(
-          token,
-          getEnv(EnvEnumType.JWT_SECRET)
-        );
-      } catch (ex) {
-        authorized = false;
-        decoded = { id: "############" };
-      }
+      const decoded = await promisify(jwt.verify)(
+        token,
+        getEnv(EnvEnumType.JWT_SECRET)
+      );
 
       // console.log(decoded);
 
       // 3) Check if user still exists
       const currentUser = await this.service?.getDocumentById(decoded.id);
       if (!currentUser) {
-        authorized = false;
-      } else {
-        // CHECK :
-        // 4)  Check if user changed password after the token was issued
-        if (currentUser.changedPasswordAfter(decoded.iat)) {
-          authorized = false;
-        }
+        return next(
+          new AppError(
+            "The user belonging to this token does no longer exist.",
+            401
+          )
+        );
       }
 
-      if (authorized == true) {
-        // GRANT ACCESS TO PROTECTED ROUTE
-        req.user = currentUser as IUser;
-        res.locals.user = currentUser as IUser;
+      // CHECK :
+      // 4)  Check if user changed password after the token was issued
+      if (currentUser.changedPasswordAfter(decoded.iat)) {
+        return next(
+          new AppError(
+            "User recently changed password! Please log in again.",
+            401
+          )
+        );
       }
 
-      console.log("authorized GraphQL", authorized);
-      // console.log(req.user);
+      // GRANT ACCESS TO PROTECTED ROUTE
+      req.user = currentUser as IUser;
+      res.locals.user = currentUser as IUser;
+      console.log(req);
       next();
     }
   );
