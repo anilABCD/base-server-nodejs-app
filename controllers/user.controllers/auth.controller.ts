@@ -262,7 +262,7 @@ export default class AuthController extends BaseController<
       // GRANT ACCESS TO PROTECTED ROUTE
       req.user = currentUser as IUser;
       res.locals.user = currentUser as IUser;
-      console.log(req);
+      console.log(req.user);
       next();
     }
   );
