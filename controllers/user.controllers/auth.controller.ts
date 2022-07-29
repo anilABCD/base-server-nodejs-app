@@ -148,10 +148,15 @@ export default class AuthController extends BaseController<
       }
 
       // 2) Verification token
-      const decoded = await promisify(jwt.verify)(
-        token,
-        getEnv(EnvEnumType.JWT_SECRET)
-      );
+      let decoded: any;
+      try {
+        decoded = await promisify(jwt.verify)(
+          token,
+          getEnv(EnvEnumType.JWT_SECRET)
+        );
+      } catch (err) {
+        decoded = { id: "            " };
+      }
 
       console.log(decoded);
 
@@ -180,6 +185,71 @@ export default class AuthController extends BaseController<
       // GRANT ACCESS TO PROTECTED ROUTE
       req.user = currentUser as IUser;
       res.locals.user = currentUser as IUser;
+      console.log(req);
+      next();
+    }
+  );
+
+  protectGrqphQL = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      let isAuthRequired: any = req.query.auth;
+
+      console.log("is Auth Required ", isAuthRequired);
+
+      if (!isAuthRequired) {
+        return next();
+      }
+
+      // IMPORTANT: 891218775666826437ec6c0ac
+      // if this string is equal : then authentication is not required for
+      // the query . just to bypass the authentication process ... if not required .
+      // instead of wasting the processing resources .
+
+      if (isAuthRequired === "false") {
+        return next();
+      }
+
+      console.log("Is Auth Skipped :", false);
+
+      // 1) Getting token and check of it's there
+      let token;
+      // console.log("Protected Route");
+      if (
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+      ) {
+        token = req.headers.authorization.split(" ")[1];
+      } else if (req.cookies.jwt) {
+        token = req.cookies.jwt;
+      }
+
+      // 2) Verification token
+      let decoded: any;
+      try {
+        decoded = await promisify(jwt.verify)(
+          token,
+          getEnv(EnvEnumType.JWT_SECRET)
+        );
+      } catch (err) {
+        decoded = { id: "            " };
+      }
+
+      // console.log(decoded);
+
+      // 3) Check if user still exists
+      const currentUser = await this.service?.getDocumentById(decoded.id);
+
+      // CHECK :
+      // 4)  Check if user changed password after the token was issued
+      if (currentUser) {
+        if (currentUser.changedPasswordAfter(decoded.iat)) {
+        } else {
+          // GRANT ACCESS TO PROTECTED ROUTE
+          req.user = currentUser as IUser;
+          res.locals.user = currentUser as IUser;
+          console.log(req.user);
+        }
+      }
       next();
     }
   );

@@ -3,18 +3,11 @@ import mongoose, { model, Model, Schema } from "mongoose";
 import ModelI from "../../interfaces/model.interface";
 
 import QuizeCategorySI from "../../interfaces/quize.interfaces/quize.category.interface";
+import quizeCategorySchema from "../quize.schemas/quize.category.schema";
 
 @singleton()
 export default class QuizeCategoryModel implements ModelI<any, any, any> {
-  schema: Schema<any> = new mongoose.Schema({
-    key: {
-      type: String,
-      unique: true,
-      required: [true, "is required"],
-    },
-    createdDate: Date,
-    updatedDate: Date,
-  });
+  schema: Schema<any> = quizeCategorySchema;
 
   model: Model<any, any> = model<QuizeCategorySI>(
     "quize-categories",
