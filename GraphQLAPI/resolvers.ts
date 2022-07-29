@@ -49,6 +49,12 @@ function protectedQuery(
   };
 }
 
+function query(fn: (_root: any, {}: any, context: any) => Promise<any>): any {
+  return async (_root: any, {}: any, context: any) => {
+    return await fn(_root, {}, context);
+  };
+}
+
 //#endregion Protected Query End
 
 //#region Query Resolvers .
@@ -57,18 +63,24 @@ const quizeController = new QuizeCategoryController();
 
 const resolvers = {
   Query: {
-    // someField : protectedQuery(
+    // field : protectedQuery(
     //   async (_root: any, {}: any, context: any) => {
-    //     return await someService().
+    //     return await someService().get() ...
     //   }
+    // "admin" // this is a role ... can pass multiple roles ...
     // ),
 
-    quizeCategories: protectedQuery(
+    // Protected Query sample :
+    protectedSampleQuery: protectedQuery(
       async (_root: any, {}: any, context: any) => {
         return await quizeController.service?.get();
       },
-      "admin"
+      "user" // this is a role ... can pass multiple roles ...
     ),
+
+    quizeCategories: query(async (_root: any, {}: any, context: any) => {
+      return await quizeController.service?.get();
+    }),
   },
 };
 

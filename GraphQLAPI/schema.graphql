@@ -3,6 +3,7 @@ schema {
 }
 
 type Query {
+  protectedSampleQuery: [QuizeCategory!]
   quizeCategories: [QuizeCategory!]
 }
 
