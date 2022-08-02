@@ -66,7 +66,7 @@ startApolloSevrver().then((apolloServer) => {
   if (isProductionEnvironment()) app.use(helmet());
 
   // 2) Rate Limiter
-  app.use(limiter);
+  if (isProductionEnvironment()) app.use(limiter);
 
   // 3) Cookies Parser
   app.use(cookies());
