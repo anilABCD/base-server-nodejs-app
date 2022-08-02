@@ -1,12 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import console from "../utils/console";
 
-const errorController = (
-  err: any,
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
+const errorController = (err: any, req: Request, res: Response, next: NextFunction) => {
   console.log("**********From Error Controller ********");
   console.log(err.stack);
   err.statusCode = err.statusCode || 500;

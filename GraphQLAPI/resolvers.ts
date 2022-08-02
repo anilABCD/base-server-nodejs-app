@@ -16,10 +16,7 @@ import { Roles } from "../model.types/user.model.types";
 const checkAuthenticated = (context: any) => {
   console.log("Check Authenticated");
   if (!context.user) {
-    throw new AppError(
-      "You are not logged in! Please log in to get access.",
-      401
-    );
+    throw new AppError("You are not logged in! Please log in to get access.", 401);
   }
 };
 
@@ -29,29 +26,36 @@ const restrictTo = (role: Roles, ...roles: String[]) => {
     let userRole = Roles[roleIndex];
 
     if (!roles.includes(userRole)) {
-      throw new AppError(
-        "You do not have permission to perform this action",
-        403
-      );
+      throw new AppError("You do not have permission to perform this action", 403);
     }
   }
 };
 
-function protectedQuery(
-  fn: (_root: any, {}: any, context: any) => Promise<any>,
-  ...roles: String[]
-): any {
+function protectedQuery(fn: (_root: any, {}: any, context: any) => Promise<any>, ...roles: String[]): any {
   return async (_root: any, {}: any, context: any) => {
     checkAuthenticated(context);
     var userRole: Roles = <Roles>context.user.role;
     restrictTo(userRole, ...roles);
-    return await fn(_root, {}, context);
+
+    try {
+      throw new AppError("abc", 403);
+      let result = await fn(_root, {}, context);
+      return result;
+    } catch (err) {
+      throw new AppError("", 403, err);
+    }
   };
 }
 
 function query(fn: (_root: any, {}: any, context: any) => Promise<any>): any {
   return async (_root: any, {}: any, context: any) => {
-    return await fn(_root, {}, context);
+    try {
+      throw new AppError("abc", 403);
+      let result = await fn(_root, {}, context);
+      return result;
+    } catch (err) {
+      throw new AppError("", 403, err);
+    }
   };
 }
 
