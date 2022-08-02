@@ -20,7 +20,9 @@ async function startApolloServer() {
     resolvers,
     context,
     formatError: (err) => {
-      if (isProductionEnvironment()) delete err.extensions["exception"].stacktrace;
+      if (isProductionEnvironment()) {
+        delete err.extensions["exception"].stacktrace;
+      }
 
       return err;
     },

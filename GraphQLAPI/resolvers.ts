@@ -38,11 +38,12 @@ function protectedQuery(fn: (_root: any, {}: any, context: any) => Promise<any>,
     restrictTo(userRole, ...roles);
 
     try {
-      throw new AppError("abc", 403);
+      throw new AppError("Error", 403);
       let result = await fn(_root, {}, context);
       return result;
-    } catch (err) {
-      throw new AppError("", 403, err);
+    } catch (err: any) {
+      console.log("exception ", err);
+      throw new AppError(err.message, err.statusCode);
     }
   };
 }
@@ -50,11 +51,12 @@ function protectedQuery(fn: (_root: any, {}: any, context: any) => Promise<any>,
 function query(fn: (_root: any, {}: any, context: any) => Promise<any>): any {
   return async (_root: any, {}: any, context: any) => {
     try {
-      throw new AppError("abc", 403);
+      throw new AppError("Error", 403);
       let result = await fn(_root, {}, context);
       return result;
-    } catch (err) {
-      throw new AppError("", 403, err);
+    } catch (err: any) {
+      console.log("exception ", err.message);
+      throw new AppError(err.message, err.statusCode);
     }
   };
 }
