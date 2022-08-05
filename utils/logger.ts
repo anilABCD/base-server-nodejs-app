@@ -44,6 +44,6 @@ enum ErrorCodeEnumType {
   ResourceNotFound = 10003,
 }
 
-logger.exceptionError("hello exception");
+// logger.exceptionError("hello exception");
 
 export default logger;

@@ -5,7 +5,7 @@ declare global {
       PORT: number;
       DATABASE_URL: string;
       DATABASE_PASSWORD: string;
-      ENV: "test" | "dev" | "prod";
+      ENV: "test" | "development" | "production";
       USER: number;
       EMAIL_HOST: String;
       EMAIL_PORT: number;

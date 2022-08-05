@@ -3,6 +3,8 @@ import path from "path";
 import util from "util";
 import EmailTemplatesEnumType from "../enums/EmailTemplatesEnumType";
 
+import console from "../utils/console";
+
 const templateFilesRequiredForEmail = path.join(__dirname, "../views/email/");
 
 export default function verifyEmailTemplates(): boolean {
@@ -18,6 +20,7 @@ export default function verifyEmailTemplates(): boolean {
     if (isNaN(parseInt(fileName))) {
       return true;
     }
+
     return false;
   });
 
@@ -29,6 +32,11 @@ export default function verifyEmailTemplates(): boolean {
 
       return file;
     }
+  );
+
+  console.verify(
+    "Template File Name Verify Ok",
+    verifiedFiles.length === verifiedFilesDataWithoutIndexes.length
   );
 
   return verifiedFiles.length === verifiedFilesDataWithoutIndexes.length;

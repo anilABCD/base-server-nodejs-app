@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import app from "./app";
 import console from "./utils/console";
 import isAllResourcesReady from "./ResourcesVerify/verifyAll";
+import isProductionEnvironment from "./utils/isProductionEnvironment";
 
 //////////////////////////////////////////////////////////////////////
 // NOTE :
@@ -17,6 +18,7 @@ import isAllResourcesReady from "./ResourcesVerify/verifyAll";
 
 if (isAllResourcesReady()) {
   //#region  DB Connect
+  console.log("\n\n*********** All Ready ***************");
   const DB =
     getEnv(EnvEnumType.DATABASE_URL)
       ?.toString()
@@ -41,6 +43,7 @@ if (isAllResourcesReady()) {
     console.log("\n\n\nNode Server:\n");
     console.log("Listening on port 80");
     console.log("GrapQL Url :", "http://localhost/graphql");
+    console.log("isProduction", isProductionEnvironment());
   });
   //#endregion
 }

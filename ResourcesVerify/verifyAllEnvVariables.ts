@@ -2,6 +2,7 @@
 
 import isProductionEnvironment from "../utils/isProductionEnvironment";
 import { EnvEnumType } from "../env/getEnv";
+import console from "../utils/console";
 
 //IMPORTANT: I did not export this function for safety .
 function privateFunctionGetEnvNotForUseThisIsNotTypeSafe(name: string) {
@@ -20,10 +21,14 @@ function verifyAllEnvVariables(): boolean {
         let envValue = privateFunctionGetEnvNotForUseThisIsNotTypeSafe(element);
 
         if (!envValue) {
+          if (envValue !== undefined) {
+            console.verify("Env Value", envValue);
+          }
           return false;
         }
 
         if (envValue.trim() == "") {
+          console.verify("Env Value", envValue);
           return false;
         }
 
@@ -34,10 +39,13 @@ function verifyAllEnvVariables(): boolean {
     });
 
     if (wrongEnvElements.length > 0) {
+      console.verify(wrongEnvElements);
+      console.verify("Env Failed");
       return false;
     }
   }
 
+  console.verify("Env Ok", true);
   return true;
 }
 

@@ -3,6 +3,7 @@ import console from "../utils/console";
 import QuizeCategoryController from "../controllers/quize.controllers/quize.category.controller";
 import IUser from "../interfaces/user.interfaces/user.interface";
 import { Roles } from "../model.types/user.model.types";
+import errorController from "../ErrorHandling/error.controller";
 
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -16,7 +17,10 @@ import { Roles } from "../model.types/user.model.types";
 const checkAuthenticated = (context: any) => {
   console.log("Check Authenticated");
   if (!context.user) {
-    throw new AppError("You are not logged in! Please log in to get access.", 401);
+    throw new AppError(
+      "You are not logged in! Please log in to get access.",
+      401
+    );
   }
 };
 
@@ -26,37 +30,34 @@ const restrictTo = (role: Roles, ...roles: String[]) => {
     let userRole = Roles[roleIndex];
 
     if (!roles.includes(userRole)) {
-      throw new AppError("You do not have permission to perform this action", 403);
+      throw new AppError(
+        "You do not have permission to perform this action",
+        403
+      );
     }
   }
 };
 
-function protectedQuery(fn: (_root: any, {}: any, context: any) => Promise<any>, ...roles: String[]): any {
+function protectedQuery(
+  fn: (_root: any, {}: any, context: any) => Promise<any>,
+  ...roles: String[]
+): any {
   return async (_root: any, {}: any, context: any) => {
     checkAuthenticated(context);
     var userRole: Roles = <Roles>context.user.role;
     restrictTo(userRole, ...roles);
 
-    try {
-      throw new AppError("Error", 403);
-      let result = await fn(_root, {}, context);
-      return result;
-    } catch (err: any) {
-      console.log("exception ", err);
-      throw new AppError(err.message, err.statusCode);
-    }
+    return await query(fn);
   };
 }
 
 function query(fn: (_root: any, {}: any, context: any) => Promise<any>): any {
   return async (_root: any, {}: any, context: any) => {
     try {
-      throw new AppError("Error", 403);
-      let result = await fn(_root, {}, context);
-      return result;
+      return await fn(_root, {}, context);
     } catch (err: any) {
-      console.log("exception ", err.message);
-      throw new AppError(err.message, err.statusCode);
+      err.statusCode = 400;
+      return errorController(err);
     }
   };
 }

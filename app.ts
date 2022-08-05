@@ -151,4 +151,6 @@ startApolloSevrver().then((apolloServer) => {
   app.use(errorController);
 });
 
+// console.log(app);
+
 export default app;
