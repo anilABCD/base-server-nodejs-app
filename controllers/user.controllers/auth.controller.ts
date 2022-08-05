@@ -194,7 +194,7 @@ export default class AuthController extends BaseController<
     async (req: Request, res: Response, next: NextFunction) => {
       let isAuthRequired: any = req.query.auth;
 
-      console.log("is Auth Required ", isAuthRequired);
+      // console.log("is Auth Required ", isAuthRequired);
 
       if (!isAuthRequired) {
         return next();
