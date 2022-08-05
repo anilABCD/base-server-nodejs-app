@@ -1,12 +1,15 @@
 import { singleton } from "tsyringe";
-import getEnv from "../env/getEnv";
 
-const showVerfify = false;
+let showVerfify = false;
 
 @singleton()
 class MyConsole {
   clear = () => {
     console.clear();
+  };
+
+  setShowVerify = () => {
+    showVerfify = true;
   };
 
   log = (message?: any, ...extras: any[]) => {

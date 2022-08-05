@@ -15,8 +15,16 @@ import isProductionEnvironment from "./utils/isProductionEnvironment";
 //   let text = await fs.promises.readFile(`${__dirname}/README.md`);
 // })();
 //////////////////////////////////////////////////////////////////////
-console.clear();
-if (isAllResourcesReady()) {
+
+const isAllReady = isAllResourcesReady();
+
+if (!isAllReady) {
+  console.log("setShowVerify");
+  console.setShowVerify();
+  isAllResourcesReady();
+}
+
+if (isAllReady) {
   //#region  DB Connect
   const DB =
     getEnv(EnvEnumType.DATABASE_URL)
@@ -39,7 +47,7 @@ if (isAllResourcesReady()) {
   //#region  listen
 
   app.listen(getEnv(EnvEnumType.PORT), () => {
-    console.log("\n\n\n******** Node Server STARTED *************\n\n");
+    console.log("\n\n\n******** NODE SERVER STARTED *************\n\n");
     console.log("Listening on port 80");
     console.log("GrapQL Url :", "http://localhost/graphql");
     console.log("isProduction", isProductionEnvironment());

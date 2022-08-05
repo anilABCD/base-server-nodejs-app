@@ -3,6 +3,7 @@
 import isProductionEnvironment from "../utils/isProductionEnvironment";
 import { EnvEnumType } from "../env/getEnv";
 import console from "../utils/console";
+import { env } from "process";
 
 //IMPORTANT: I did not export this function for safety .
 function privateFunctionGetEnvNotForUseThisIsNotTypeSafe(name: string) {
@@ -14,35 +15,33 @@ function privateFunctionGetEnvNotForUseThisIsNotTypeSafe(name: string) {
 }
 
 function verifyAllEnvVariables(): boolean {
-  if (isProductionEnvironment()) {
-    const notUsedInProductionValue = "This:IsADefaultValue";
-    let wrongEnvElements = Object.keys(EnvEnumType).filter((element) => {
-      if (isNaN(parseInt(element))) {
-        let envValue = privateFunctionGetEnvNotForUseThisIsNotTypeSafe(element);
+  const notUsedInProductionValue = "This:IsADefaultValue";
 
-        if (!envValue) {
-          if (envValue !== undefined) {
-            console.verify("Env Value", envValue);
-          }
-          return false;
-        }
+  let wrongEnvElements = Object.keys(EnvEnumType).filter((element) => {
+    if (isNaN(parseInt(element))) {
+      let envValue = privateFunctionGetEnvNotForUseThisIsNotTypeSafe(element);
 
-        if (envValue.trim() == "") {
-          console.verify("Env Value", envValue);
-          return false;
-        }
+      if (!envValue) {
+        console.verify("Env Value", envValue);
 
-        return envValue === notUsedInProductionValue;
-      } else {
         return false;
       }
-    });
 
-    if (wrongEnvElements.length > 0) {
-      console.verify(wrongEnvElements);
-      console.verify("Env Failed");
+      if (envValue.trim() == "") {
+        console.verify("Env Value", envValue);
+        return false;
+      }
+
+      return envValue === notUsedInProductionValue;
+    } else {
       return false;
     }
+  });
+
+  if (wrongEnvElements.length > 0) {
+    console.verify(wrongEnvElements);
+    console.verify("Env Failed");
+    return false;
   }
 
   console.verify("Env Ok", true);
