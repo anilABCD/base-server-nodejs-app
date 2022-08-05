@@ -5,6 +5,10 @@ const showVerfify = false;
 
 @singleton()
 class MyConsole {
+  clear = () => {
+    console.clear();
+  };
+
   log = (message?: any, ...extras: any[]) => {
     // IMPORTANT: dont use getEnv("ENV") here because : process.env.ENV has type in environment.d.ts
     if (process.env.ENV === "development" || process.env.ENV === "production") {
