@@ -7,7 +7,7 @@ import QuizeNameSI from "../../../interfaces/quize.app/quize.interfaces/quize.na
 export default class QuizeNameModel implements ModelI<any, any, any> {
   schema: Schema<any> = new mongoose.Schema({
     name: { type: String, required: true, unique: true },
-    quizeId: {
+    quizeCategoryId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
       ref: "quize-categories",

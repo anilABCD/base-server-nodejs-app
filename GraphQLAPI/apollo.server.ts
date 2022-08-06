@@ -8,7 +8,10 @@ import AppError from "../ErrorHandling/AppError.js";
 import isProductionEnvironment from "../utils/isProductionEnvironment.js";
 
 async function startApolloServer() {
-  const typeDefs = await readFile(`${__dirname}/schema.graphql`, "utf-8");
+  const typeDefs = await readFile(
+    `${__dirname}/quize.app/schema.graphql`,
+    "utf-8"
+  );
 
   //@ts-ignore
   const context = ({ req }) => ({

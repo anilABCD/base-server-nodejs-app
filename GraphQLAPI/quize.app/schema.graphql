@@ -8,5 +8,12 @@ type Query {
 }
 
 type QuizeCategory {
+  id: ID!
   key: String!
+}
+
+type QuizeName {
+  id: ID!
+  name: String
+  quizeCategoryId: ID!
 }

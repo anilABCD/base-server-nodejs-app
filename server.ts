@@ -16,6 +16,10 @@ import isProductionEnvironment from "./utils/isProductionEnvironment";
 // })();
 //////////////////////////////////////////////////////////////////////
 
+console.log(process.env.ENV);
+console.log(process.env.PORT);
+console.log("isAllReady");
+
 const isAllReady = isAllResourcesReady();
 
 if (!isAllReady) {
