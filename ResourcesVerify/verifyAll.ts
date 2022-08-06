@@ -5,7 +5,7 @@ import console from "../utils/console";
 
 function isAllResourcesReady(): boolean {
   try {
-    console.log("\n\n******** START VERIFICATION ************\n\n");
+    console.verify("\n\n******** START VERIFICATION ************\n\n");
     let envOk = verifyAllEnvVariables();
     let emailTemplatesOk = verifyEmailTemplates();
 
@@ -20,7 +20,7 @@ function isAllResourcesReady(): boolean {
     }
 
     if (envOk && emailTemplatesOk) {
-      console.log("All Verify OK");
+      console.verify("All Verify OK");
       return true;
     } else {
       logger.programmingError("CANT START SERVER");

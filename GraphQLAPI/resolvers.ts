@@ -46,8 +46,12 @@ function protectedQuery(
     checkAuthenticated(context);
     var userRole: Roles = <Roles>context.user.role;
     restrictTo(userRole, ...roles);
-
-    return await query(fn);
+    try {
+      return await fn(_root, {}, context);
+    } catch (err: any) {
+      err.statusCode = 400;
+      return errorController(err);
+    }
   };
 }
 
