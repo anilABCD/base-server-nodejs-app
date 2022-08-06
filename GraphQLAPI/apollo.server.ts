@@ -2,7 +2,7 @@ import { readFile } from "fs/promises";
 
 import { ApolloServer } from "apollo-server-express";
 
-import resolvers from "./resolvers.js";
+import resolvers from "./quize.app/resolvers.js";
 import console from "../utils/console.js";
 import AppError from "../ErrorHandling/AppError.js";
 import isProductionEnvironment from "../utils/isProductionEnvironment.js";

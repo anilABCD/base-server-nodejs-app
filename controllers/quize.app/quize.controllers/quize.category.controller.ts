@@ -1,14 +1,14 @@
 import { autoInjectable } from "tsyringe";
-import QuizeQuestionService from "../../services/quize.services/quize.question.service";
-import BaseController from "../base.controller";
+import QuizeCategoryService from "../../../services/quize.app/quize.services/quize.category.service";
+import BaseController from "../../base.controller";
 
 @autoInjectable()
-export default class QuizeQuestionController extends BaseController<
+export default class QuizeCategoryController extends BaseController<
   any,
   any,
   any
 > {
-  constructor(service?: QuizeQuestionService) {
+  constructor(service?: QuizeCategoryService) {
     super(service);
   }
 }

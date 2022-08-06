@@ -26,9 +26,9 @@ import path from "path";
 import { graphqlHTTP } from "express-graphql";
 
 // const sampleRouter = require("./routes/sample.router");
-import quizeCategoryRouter from "./routes/quize.routes/quize.category.router";
-import quizeNameRouter from "./routes/quize.routes/quize.name.router";
-import quizeQuestionRouter from "./routes/quize.routes/quize.question.router";
+import quizeCategoryRouter from "./routes/quize.app/quize.routes/quize.category.router";
+import quizeNameRouter from "./routes/quize.app/quize.routes/quize.name.router";
+import quizeQuestionRouter from "./routes/quize.app/quize.routes/quize.question.router";
 import authRouter from "./routes/user.routes/user.router";
 import schema from "./GraphQLAPI/tutorial/at-app-ts.schema";
 

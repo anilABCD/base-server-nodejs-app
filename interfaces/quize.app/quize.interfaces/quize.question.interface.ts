@@ -3,8 +3,8 @@ import {
   Choice,
   Control,
   Difficulty,
-} from "../../model.types/quize.model.types";
-import { BaseModelI } from "../base.mode.interface";
+} from "../../../model.types/quize.app/quize.model.types";
+import { BaseModelI } from "../../base.mode.interface";
 
 export default interface QuizeQuestionSI extends BaseModelI {
   quizeNameId: ObjectId;

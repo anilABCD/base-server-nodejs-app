@@ -1,5 +1,5 @@
 import mongoose, { Model, ObjectId } from "mongoose";
-import { Roles } from "../../model.types/user.model.types";
+import { Roles } from "../../model.types/quize.app/user.model.types";
 import { BaseModelI } from "../base.mode.interface";
 
 export default interface IUser extends BaseModelI {

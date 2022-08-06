@@ -1,6 +1,6 @@
 import express from "express";
 
-import QuizeQuestionController from "../../controllers/quize.controllers/quize.question.controller";
+import QuizeQuestionController from "../../../controllers/quize.app/quize.controllers/quize.question.controller";
 const quizeQuestionController = new QuizeQuestionController();
 const quizeQuestionRouter = express.Router();
 

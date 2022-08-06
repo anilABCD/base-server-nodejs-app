@@ -1,9 +1,9 @@
 import { singleton } from "tsyringe";
 import mongoose, { model, Model, Schema } from "mongoose";
-import ModelI from "../../interfaces/model.interface";
-import QuizeQuestionSI from "../../interfaces/quize.interfaces/quize.question.interface";
-import { Choice, Control, Difficulty } from "../../model.types/quize.model.types";
-import { hasDuplicates } from "../../utils/all.util";
+import ModelI from "../../../interfaces/model.interface";
+import QuizeQuestionSI from "../../../interfaces/quize.app/quize.interfaces/quize.question.interface";
+import { Choice, Control, Difficulty } from "../../../model.types/quize.app/quize.model.types";
+import { hasDuplicates } from "../../../utils/all.util";
 
 @singleton()
 export default class QuizeQuestionModel implements ModelI<any,any,any> {
