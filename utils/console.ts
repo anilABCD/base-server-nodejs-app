@@ -1,4 +1,6 @@
 import { singleton } from "tsyringe";
+import isOnlyDevelopmentEnvironment from "./isOnlyDevelopmentEnvironment";
+import isProductionEnvironment from "./isProductionEnvironment";
 
 let showVerfify = false;
 
@@ -13,7 +15,7 @@ class MyConsole {
   };
 
   required = (message?: any, ...extras: any[]) => {
-    if (process.env.ENV === "development" || process.env.ENV === "production") {
+    if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
       if (extras.length > 0) {
         return console.log(message, extras);
       } else {
@@ -23,8 +25,7 @@ class MyConsole {
   };
 
   log = (message?: any, ...extras: any[]) => {
-    // IMPORTANT: dont use getEnv("ENV") here because : process.env.ENV has type in environment.d.ts
-    if (process.env.ENV === "development" || process.env.ENV === "production") {
+    if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
       if (extras.length > 0) {
         return console.log(message, extras);
       } else {

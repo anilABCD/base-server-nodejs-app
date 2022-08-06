@@ -1,5 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import console from "../utils/console";
+import isOnlyDevelopmentEnvironment from "../utils/isOnlyDevelopmentEnvironment";
+import isProductionEnvironment from "../utils/isProductionEnvironment";
 import AppError from "./AppError";
 
 const handleCastErrorDB = (err: any) => {
@@ -109,9 +111,9 @@ const errorController = (
   err.statusCode = err.statusCode || 500;
   err.status = err.status || "error";
 
-  if (process.env.ENV === "development") {
+  if (isOnlyDevelopmentEnvironment()) {
     return sendErrorDev(err, res);
-  } else if (process.env.ENV === "production") {
+  } else if (isProductionEnvironment()) {
     let error = { ...err };
 
     if (error.name === "CastError") error = handleCastErrorDB(error);
