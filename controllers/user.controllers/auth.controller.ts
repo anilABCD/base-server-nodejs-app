@@ -14,7 +14,7 @@ import IUser, {
   IUserMethods,
   IUserModel,
 } from "../../interfaces/user.interfaces/user.interface";
-import { Roles } from "../../model.types/quize.app/user.model.types";
+import { Roles } from "../../model.types/user.types/user.model.types";
 import AuthService from "../../services/user.services/auth.service";
 import console from "../../utils/console";
 
@@ -82,6 +82,7 @@ export default class AuthController extends BaseController<
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
+        gender: req.body.gender,
       });
 
       const url = `${req.protocol}://${req.get("host")}/me`;

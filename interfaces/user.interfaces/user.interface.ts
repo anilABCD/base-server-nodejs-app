@@ -1,5 +1,5 @@
 import mongoose, { Model, ObjectId } from "mongoose";
-import { Roles } from "../../model.types/quize.app/user.model.types";
+import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import { BaseModelI } from "../base.mode.interface";
 
 export default interface IUser extends BaseModelI {
@@ -12,6 +12,7 @@ export default interface IUser extends BaseModelI {
   passwordChangedAt?: Date;
   passwordResetToken?: String;
   passwordResetExpires?: Date;
+  gender?: Gender;
   active: Boolean;
 }
 

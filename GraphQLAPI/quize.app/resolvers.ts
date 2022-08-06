@@ -2,7 +2,7 @@ import AppError from "../../ErrorHandling/AppError";
 import console from "../../utils/console";
 import QuizeCategoryController from "../../controllers/quize.app/quize.controllers/quize.category.controller";
 import IUser from "../../interfaces/user.interfaces/user.interface";
-import { Roles } from "../../model.types/quize.app/user.model.types";
+import { Roles } from "../../model.types/user.types/user.model.types";
 import errorController from "../../ErrorHandling/error.controller";
 
 /////////////////////////////////////////////////////////////////////////////

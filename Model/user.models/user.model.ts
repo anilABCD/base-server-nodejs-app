@@ -6,7 +6,7 @@ import IUser, {
   IUserModel,
 } from "../../interfaces/user.interfaces/user.interface";
 import validator from "validator";
-import { Roles } from "../../model.types/quize.app/user.model.types";
+import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import console from "../../utils/console";
 // const crypto = require("crypto");
 
@@ -66,6 +66,14 @@ export default class UserModelModel
     passwordChangedAt: Date,
     passwordResetToken: String,
     passwordResetExpires: Date,
+    gender: {
+      type: String,
+      enum: {
+        values: Object.values(Gender),
+        message: "{VALUE} is not supported",
+      },
+      required: [true, "is required"],
+    },
     active: {
       type: Boolean,
       default: true,
