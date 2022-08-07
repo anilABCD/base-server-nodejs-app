@@ -71,6 +71,15 @@ export default class BaseService<T, T1 extends Model<T, {}, T2>, T2> {
 
   //#region Query functions :
 
+  getByParent = async (filters: any, select?: String): Promise<T[]> => {
+    console.log("parent filters", filters);
+    if (select) {
+      return (await this.model.find(filters).select(select)) as T[];
+    }
+
+    return (await this.model.find(filters)) as T[];
+  };
+
   findOne = async (filters: any, select?: String): Promise<T> => {
     if (select) {
       return (await this.model.findOne(filters).select(select)) as T;
