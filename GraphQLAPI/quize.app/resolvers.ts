@@ -25,7 +25,7 @@ const resolvers = {
     //
     //
     quizeName: query(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args, context);
+      // console.log("params", _root, args, context);
       return await quizeNameController.service?.getById(args.id);
     }),
 
