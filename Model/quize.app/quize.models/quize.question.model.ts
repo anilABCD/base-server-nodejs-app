@@ -4,6 +4,7 @@ import ModelI from "../../../interfaces/model.interface";
 import QuizeQuestionSI from "../../../interfaces/quize.app/quize.interfaces/quize.question.interface";
 import { Choice, Control, Difficulty } from "../../../model.types/quize.app/quize.model.types";
 import { hasDuplicates } from "../../../utils/all.util";
+import isCurrentApp from "../../../utils/isCurrentApp";
 
 @singleton()
 export default class QuizeQuestionModel implements ModelI<any,any,any> {
@@ -88,8 +89,8 @@ export default class QuizeQuestionModel implements ModelI<any,any,any> {
     updatedDate: Date,
   });
 
-  model: Model<any, any> = model<QuizeQuestionSI>(
-    "quize-questions",
+  model: Model<any, any> | null = isCurrentApp("QuizeApp") ? model<QuizeQuestionSI>(
+   "quize-questions",
     this.schema
-  );
+  ) : null;
 }

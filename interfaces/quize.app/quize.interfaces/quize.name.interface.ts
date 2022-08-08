@@ -1,7 +1,7 @@
 import { ObjectId } from "mongoose";
-import { BaseModelI } from "../../base.mode.interface";
+import { IBaseModel_With_Time } from "../../base.mode.interface";
 
-export default interface QuizeNameSI extends BaseModelI {
+export default interface QuizeNameSI extends IBaseModel_With_Time {
   name: string;
   quizeCategoryId: ObjectId;
 }

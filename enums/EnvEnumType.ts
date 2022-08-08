@@ -19,6 +19,7 @@ enum EnvEnumType {
   // SEND GRID : @Production
   "SENDGRID_USERNAME",
   "SENDGRID_PASSWORD",
+  "CURRENT_PROJECT",
 }
 
 export default EnvEnumType;

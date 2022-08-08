@@ -4,9 +4,9 @@ import {
   Control,
   Difficulty,
 } from "../../../model.types/quize.app/quize.model.types";
-import { BaseModelI } from "../../base.mode.interface";
+import { IBaseModel_With_Time } from "../../base.mode.interface";
 
-export default interface QuizeQuestionSI extends BaseModelI {
+export default interface QuizeQuestionSI extends IBaseModel_With_Time {
   quizeNameId: ObjectId;
 
   level: Difficulty;

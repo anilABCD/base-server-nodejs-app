@@ -1,8 +1,8 @@
 import mongoose, { Model, ObjectId } from "mongoose";
 import { Gender, Roles } from "../../model.types/user.types/user.model.types";
-import { BaseModelI } from "../base.mode.interface";
+import { IBaseModel_With_Time } from "../base.mode.interface";
 
-export default interface IUser extends BaseModelI {
+export default interface IUser extends IBaseModel_With_Time {
   name: String;
   email: String;
   photo: String;

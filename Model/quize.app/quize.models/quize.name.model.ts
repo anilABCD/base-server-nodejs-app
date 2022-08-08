@@ -2,6 +2,7 @@ import { singleton } from "tsyringe";
 import mongoose, { model, Model, Schema } from "mongoose";
 import ModelI from "../../../interfaces/model.interface";
 import QuizeNameSI from "../../../interfaces/quize.app/quize.interfaces/quize.name.interface";
+import isCurrentApp from "../../../utils/isCurrentApp";
 
 @singleton()
 export default class QuizeNameModel implements ModelI<any, any, any> {
@@ -16,5 +17,7 @@ export default class QuizeNameModel implements ModelI<any, any, any> {
     updatedDate: Date,
   });
 
-  model: Model<any, any> = model<QuizeNameSI>("quize-name", this.schema);
+  model: Model<any, any> | null = isCurrentApp("QuizeApp")
+    ? model<QuizeNameSI>("quize-name", this.schema)
+    : null;
 }

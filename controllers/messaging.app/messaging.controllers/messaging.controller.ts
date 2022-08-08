@@ -3,11 +3,7 @@ import MessagingService from "../../../services/messaging.app/messaging.services
 import BaseController from "../../base.controller";
 
 @autoInjectable()
-export default class QuizeCategoryController extends BaseController<
-  any,
-  any,
-  any
-> {
+export default class MessagingController extends BaseController<any, any, any> {
   constructor(service?: MessagingService) {
     super(service);
   }

@@ -2,12 +2,27 @@ import mongoose from "mongoose";
 import { Schema } from "mongoose";
 
 let messagingSchema = new mongoose.Schema({
-  userId: {
+  senderId: {
     type: Schema.Types.ObjectId,
     required: [true, "is required"],
   },
-  createdDate: Date,
-  updatedDate: Date,
+
+  receiverId: {
+    type: Schema.Types.ObjectId,
+    required: [true, "is required"],
+  },
+
+  message: {
+    type: String,
+    default: "",
+    required: [true, "is required"],
+  },
+
+  time: {
+    type: Date,
+    default: Date.now(),
+    required: [true, "is required"],
+  },
 });
 
 export default messagingSchema;
