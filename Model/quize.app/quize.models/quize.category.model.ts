@@ -10,7 +10,7 @@ import isCurrentApp from "../../../utils/isCurrentApp";
 export default class QuizeCategoryModel implements ModelI<any, any, any> {
   schema: Schema<any> = quizeCategorySchema;
 
-  model: Model<any, any> | null = isCurrentApp()
+  model: Model<any, any> | null = isCurrentApp("QuizeApp")
     ? model<QuizeCategorySI>("quize-categories", this.schema)
     : null;
 }
