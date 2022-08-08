@@ -10,7 +10,7 @@ import isCurrentApp from "../../../utils/isCurrentApp";
 export default class MessagingModel implements ModelI<any, any, any> {
   schema: Schema<any> = messagingSchema;
 
-  model: Model<any, any> | null = isCurrentApp("MessagingApp")
+  model: Model<any, any> | null = isCurrentApp("messaging.app")
     ? model<MessagingSI>("messages", this.schema)
     : null;
 }

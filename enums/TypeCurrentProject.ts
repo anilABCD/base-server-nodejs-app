@@ -1,3 +1,3 @@
-type TypeCurrentProject = "MessagingApp" | "QuizeApp";
+type TypeCurrentProject = "messaging.app" | "quize.app";
 
 export default TypeCurrentProject;
