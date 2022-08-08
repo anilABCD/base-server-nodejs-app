@@ -7,7 +7,7 @@
     "start": "npm run postbuild & nodemon --ext js --no-warnings --harmony-top-level-await ./dist/server.js",
     "build": "tsc -p ./",
     "postbuild-with-config": "cpy **/*.graphql **/*.html **/*.env **/*.pug *.graphql *.html *.env *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents",
-    "postbuild": "cpy **/*.graphql **/*.html **/*.pug *.graphql *.html *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents"
+    "postbuild": "cpy  **/*.env *.env  **/*.graphql **/*.html **/*.pug *.graphql *.html *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents"
   },
   "keywords": [],
   "author": "",
