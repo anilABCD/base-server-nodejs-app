@@ -5,6 +5,9 @@ cpy :
 npm i cpy-cli
 "postbuild": "cpy **/_.env _.env **/_.graphql \*\*/_.html **/_.pug _.graphql _.html _.pug '!node_modules/**/_' '!dist/\*\*/_' dist/ --cwd=./ --parents",
 
+extension :
+restoreTerminals : restoreTerminals
+
 ###################################
 
 watch-all-other-files :
@@ -13,3 +16,6 @@ watch-all-other-files :
 cpy :
 npm i cpy-cli
 "postbuild": "cpy **/_.env _.env **/_.graphql \*\*/_.html **/_.pug _.graphql _.html _.pug '!node_modules/**/_' '!dist/\*\*/_' dist/ --cwd=./ --parents",
+
+extension :
+restoreTerminals : restoreTerminals
