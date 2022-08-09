@@ -8,6 +8,8 @@ import console from "./utils/console";
 import isAllResourcesReady from "./ResourcesVerify/verifyAll";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import logger from "./utils/logger";
+import TypeDevMode from "./enums/TypeDevMode";
+import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 
 //////////////////////////////////////////////////////////////////////
 // NOTE :
@@ -31,7 +33,7 @@ if (!isAllReady) {
 
 if (isAllReady) {
   //#region  DB Connect
-  const DB =
+  let DB_URL =
     getEnv(EnvEnumType.DATABASE_URL)
       ?.toString()
       .replace(
@@ -39,10 +41,24 @@ if (isAllReady) {
         getEnv(EnvEnumType.DATABASE_PASSWORD)?.toString() || ""
       ) || "";
 
-  if (!(DB.indexOf("_MODE_") > -1)) {
+  if (!(DB_URL.indexOf("_MODE_") > -1)) {
     console.log("_MODE_ doesnot exists in the config.env");
     logger.resourceNotFoundError("_MODE_ doesnot exists in the config.env");
   } else {
+    let projectMode: TypeDevMode;
+
+    projectMode = "development";
+
+    if (isProductionEnvironment()) {
+      projectMode = "production";
+    } else if (isOnlyDevelopmentEnvironment()) {
+      projectMode = "development";
+    }
+
+    DB_URL = DB_URL.replace("_MODE_", projectMode);
+
+    const DB = DB_URL;
+
     mongoose
       .connect(DB)
       .then((con) => {
