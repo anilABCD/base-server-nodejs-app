@@ -22,7 +22,7 @@
       {
         "splitTerminals": [
           {
-            "name": "watch all files",
+            "name": "watch graph-ql",
             "commands": ["pwd", "clear"]
           }
         ]
