@@ -6,9 +6,7 @@
   "scripts": {
     "start": "nodemon --ext js,graphql,html,json,pug,env --no-warnings --harmony-top-level-await ./dist/server.js",
     "build": "tsc -p ./",
-    "postbuild": "cpy **/*.env *.env  **/*.graphql **/*.html **/*.pug *.graphql *.html *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents",
-    "watch-all-other-files": "copy to terminal and run this command : watch -p '**/*.env' -p '*.env' -p '**/*.graphql' -p '**/*.html' -p '**/*.pug'  -c  'npm run postbuild'",
-    "postbuild-with-config": "cpy **/*.graphql **/*.html **/*.env **/*.pug *.graphql *.html *.env *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents"
+    "watch-gql": "watch -p './GraphQLAPI/**/*.graphql' -c  'clear & curl -X POST http://localhost/api/v1/generate'"
   },
   "keywords": [],
   "author": "",
@@ -30,7 +28,8 @@
     "pug-cli": "^1.0.0-alpha6",
     "ts-node": "^10.8.1",
     "tslib": "^2.4.0",
-    "typescript": "^4.7.4"
+    "typescript": "^4.7.4",
+    "watch-cli": "^0.2.3"
   },
   "dependencies": {
     "@types/express-graphql": "^0.9.0",

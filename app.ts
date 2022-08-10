@@ -39,6 +39,8 @@ import generateRouter from "./routes/generate.routes/generate.router";
 import getEnv, { EnvEnumType } from "./env/getEnv";
 import isCurrentApp from "./utils/isCurrentApp";
 import console from "./utils/console";
+import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
+import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
 
 const limiter = rateLimit({
   max: 120,
@@ -132,7 +134,9 @@ startApolloSevrver().then((apolloServer) => {
 
   // Generate GraphQL for Current Application ...
 
-  app.use("/api/v1/generate/", generateRouter);
+  if (isOnlyDevelopmentEnvironment() || isOnlyTestEnvironment()) {
+    app.use("/api/v1/generate/", generateRouter);
+  }
 
   ///////////////
 

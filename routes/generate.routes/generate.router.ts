@@ -5,6 +5,6 @@ const generateRouter = express.Router();
 
 const generateController = new GenerateController();
 
-generateRouter.route("/").get(generateController.generate);
+generateRouter.route("/").post(generateController.generate);
 
 export default generateRouter;
