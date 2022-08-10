@@ -15,15 +15,17 @@ async function startApolloServer() {
   //   "utf-8"
   // );
 
-  const currentProjectName = getEnv(EnvEnumType.CURRENT_PROJECT);
+  const CURRENT_APP = getEnv(EnvEnumType.CURRENT_APP) || "";
+
+  const pathForCurrentApp = CURRENT_APP?.replace("-", ".");
 
   let currentProjectTypeDefs = await readFile(
-    `${__dirname}/${currentProjectName}/schema.graphql`,
+    `${__dirname}/${pathForCurrentApp}/schema.graphql`,
     "utf-8"
   );
 
   let currentProjectResolvers =
-    require(`${__dirname}/${currentProjectName}/resolvers.js`).default;
+    require(`${__dirname}/${pathForCurrentApp}/resolvers.js`).default;
 
   // console.log(currentProjectResolvers);
   // console.log(currentProjectTypeDefs);

@@ -17,7 +17,7 @@ export default class QuizeNameModel implements ModelI<any, any, any> {
     updatedDate: Date,
   });
 
-  model: Model<any, any> | null = isCurrentApp("quize.app")
+  model: Model<any, any> | null = isCurrentApp("quize-app")
     ? model<QuizeNameSI>("quize-name", this.schema)
     : null;
 }

@@ -16,9 +16,21 @@
           {
             "name": "npm start",
             "commands": ["pwd", "clear"]
-          },
+          }
+        ]
+      },
+      {
+        "splitTerminals": [
           {
             "name": "watch all files",
+            "commands": ["pwd", "clear"]
+          }
+        ]
+      },
+      {
+        "splitTerminals": [
+          {
+            "name": "git",
             "commands": ["pwd", "clear"]
           }
         ]

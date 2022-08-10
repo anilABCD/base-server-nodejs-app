@@ -1,8 +1,8 @@
-import TypeCurrentProject from "../enums/TypeCurrentProject";
+import TypeCurrentAppNames from "../enums/TypeCurrentAppNames";
 import getEnv, { EnvEnumType } from "../env/getEnv";
 
-export default function isCurrentApp(myCurrentApp: TypeCurrentProject) {
-  if (getEnv(EnvEnumType.CURRENT_PROJECT) === myCurrentApp) {
+export default function isCurrentApp(currentApp: TypeCurrentAppNames) {
+  if (getEnv(EnvEnumType.CURRENT_APP) === currentApp) {
     return true;
   }
 

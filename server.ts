@@ -33,6 +33,9 @@ if (!isAllReady) {
 
 if (isAllReady) {
   //#region  DB Connect
+
+  const CURRENT_APP = getEnv(EnvEnumType.CURRENT_APP) || "";
+
   let DB_URL =
     getEnv(EnvEnumType.DATABASE_URL)
       ?.toString()
@@ -41,8 +44,14 @@ if (isAllReady) {
         getEnv(EnvEnumType.DATABASE_PASSWORD)?.toString() || ""
       ) || "";
 
-  if (!(DB_URL.indexOf("_MODE_") > -1)) {
-    console.log("_MODE_ doesnot exists in the config.env");
+  if (
+    !(DB_URL.indexOf("[CURRENT_APP]") > -1) ||
+    !(DB_URL.indexOf("[DEV_MODE]") > -1) ||
+    CURRENT_APP === ""
+  ) {
+    console.log(
+      "[CURRENT_APP] or [DEV_MODE] or getEnv(EnvEnumType.CURRENT_APP) is empty , doesnot exists in the config.env"
+    );
     logger.resourceNotFoundError("_MODE_ doesnot exists in the config.env");
   } else {
     let projectMode: TypeDevMode;
@@ -55,7 +64,8 @@ if (isAllReady) {
       projectMode = "development";
     }
 
-    DB_URL = DB_URL.replace("_MODE_", projectMode);
+    DB_URL = DB_URL.replace("[DEV_MODE]", "-" + projectMode);
+    DB_URL = DB_URL.replace("[CURRENT_APP]", CURRENT_APP);
 
     const DB = DB_URL;
 

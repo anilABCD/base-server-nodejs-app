@@ -3,7 +3,7 @@ import verifyEmailTemplates from "./verifyAllEmailTemplates";
 import verifyAllEnvVariables from "./verifyAllEnvVariables";
 import console from "../utils/console";
 import getEnv, { EnvEnumType } from "../env/getEnv";
-import TypeCurrentProject from "../enums/TypeCurrentProject";
+import TypeCurrentAppNames from "../enums/TypeCurrentAppNames";
 
 function isAllResourcesReady(): boolean {
   try {
@@ -46,13 +46,13 @@ function isAllResourcesReady(): boolean {
 }
 
 function verifyProjectNameOK() {
-  let values: TypeCurrentProject[] = ["messaging.app", "quize.app"];
+  let values: TypeCurrentAppNames[] = ["messaging-app", "quize-app"];
 
   const allProjectNames = values.join(",").split(",");
 
-  const currneProject = getEnv(EnvEnumType.CURRENT_PROJECT) || "";
+  const CURRENT_APP = getEnv(EnvEnumType.CURRENT_APP) || "";
 
-  if (allProjectNames.indexOf(currneProject) > -1) {
+  if (allProjectNames.indexOf(CURRENT_APP) > -1) {
     return true;
   }
 

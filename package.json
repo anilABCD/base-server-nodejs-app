@@ -6,9 +6,9 @@
   "scripts": {
     "start": "nodemon --ext js --no-warnings --harmony-top-level-await ./dist/server.js",
     "build": "tsc -p ./",
-    "postbuild-with-config": "cpy **/*.graphql **/*.html **/*.env **/*.pug *.graphql *.html *.env *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents",
     "postbuild": "cpy **/*.env *.env  **/*.graphql **/*.html **/*.pug *.graphql *.html *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents",
-    "watch-all-other-files": "copy to terminal and run this command : watch -p '**/*.env' -p '*.env' -p '**/*.graphql' -p '**/*.html' -p '**/*.pug'  -c  'npm run postbuild'"
+    "watch-all-other-files": "copy to terminal and run this command : watch -p '**/*.env' -p '*.env' -p '**/*.graphql' -p '**/*.html' -p '**/*.pug'  -c  'npm run postbuild'",
+    "postbuild-with-config": "cpy **/*.graphql **/*.html **/*.env **/*.pug *.graphql *.html *.env *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents"
   },
   "keywords": [],
   "author": "",
