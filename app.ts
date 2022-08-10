@@ -35,6 +35,7 @@ import schema from "./GraphQLAPI/tutorial/at-app-ts.schema";
 
 //@ts-ignore
 import cookies from "cookie-parser";
+import generateRouter from "./routes/generate.routes/generate.router";
 
 const limiter = rateLimit({
   max: 120,
@@ -123,6 +124,12 @@ startApolloSevrver().then((apolloServer) => {
   // });
 
   //#endregion End Quize Api
+
+  // Generate GraphQL for Current Application ...
+
+  app.use("/api/v1/generate/", generateRouter);
+
+  ///////////////
 
   //#region User Api
 
