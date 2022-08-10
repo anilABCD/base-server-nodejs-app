@@ -12,7 +12,6 @@ import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import startApolloSevrver from "./GraphQLAPI/apollo.server";
-import File from "./utils/File";
 
 // for : /graphql
 import AuthController from "./controllers/user.controllers/auth.controller";
@@ -64,11 +63,6 @@ startApolloSevrver().then((apolloServer) => {
   //   res.render("index");
   // });
   //#endregion
-
-  const fileObj = new File();
-
-  const directories: string[] = ["."];
-  console.log(fileObj.readDirectorySync(directories), "result Directories");
 
   // Request logger
   app.use(morgan("dev"));

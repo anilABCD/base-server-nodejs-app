@@ -1,6 +1,7 @@
+import { dir } from "console";
 import fs, { readdirSync } from "fs";
 
-import path from "path";
+import path, { dirname } from "path";
 
 // const directoryPath = path.join("__dirname", 'Documents');
 // //passsing directoryPath and callback function
@@ -21,6 +22,10 @@ class File {
     // console.log(directoryName);
 
     directoryName.forEach((dirName) => {
+      if (dirName.indexOf("..") > -1) {
+        return;
+      }
+
       // console.log(dirName);
       const directoryNameResult = readdirSync(dirName, { withFileTypes: true })
         .filter(
@@ -57,5 +62,16 @@ class File {
     // } )
   }
 }
+
+//
+// Example :
+//
+// const fileObj = new File();
+//
+// We can send multiple directories :
+//
+// const directories: string[] = [".", "."];
+// console.log(fileObj.readDirectorySync(directories), "result Directories");
+//
 
 export default File;
