@@ -1,4 +1,5 @@
-input SendMessageInput {
+type Message {
+  id: ID!
   senderId: ID!
   receiverId: ID!
   message: String!

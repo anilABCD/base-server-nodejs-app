@@ -36,6 +36,8 @@ import schema from "./GraphQLAPI/tutorial/at-app-ts.schema";
 //@ts-ignore
 import cookies from "cookie-parser";
 import generateRouter from "./routes/generate.routes/generate.router";
+import getEnv, { EnvEnumType } from "./env/getEnv";
+import isCurrentApp from "./utils/isCurrentApp";
 
 const limiter = rateLimit({
   max: 120,
@@ -112,18 +114,20 @@ startApolloSevrver().then((apolloServer) => {
 
   //#endregion End Graph QL
 
-  //#region  Quize Api ...
+  if (isCurrentApp("quize-app")) {
+    //#region  Quize Api ...
 
-  // app.use("/api/v1/sampleRoute/", sampleRouter);
-  app.use("/api/v1/quize-category/", quizeCategoryRouter);
-  app.use("/api/v1/quize-name/", quizeNameRouter);
-  app.use("/api/v1/quize-question/", quizeQuestionRouter);
+    // app.use("/api/v1/sampleRoute/", sampleRouter);
+    app.use("/api/v1/quize-category/", quizeCategoryRouter);
+    app.use("/api/v1/quize-name/", quizeNameRouter);
+    app.use("/api/v1/quize-question/", quizeQuestionRouter);
 
-  // app.get("/api/v1/", (req, res, next) => {
-  //   res.status(200).send("<h1>Hello World</h1>");
-  // });
+    // app.get("/api/v1/", (req, res, next) => {
+    //   res.status(200).send("<h1>Hello World</h1>");
+    // }); 
 
-  //#endregion End Quize Api
+    //#endregion End Quize Api
+  }
 
   // Generate GraphQL for Current Application ...
 
