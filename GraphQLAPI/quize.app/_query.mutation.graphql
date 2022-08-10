@@ -1,0 +1,21 @@
+schema {
+  query: Query
+}
+
+type Query {
+  protectedSampleQuery: [QuizeCategory!]
+  quizeCategories: [QuizeCategory!]
+  quizeName(id: ID!): QuizeName
+}
+
+type QuizeCategory {
+  id: ID!
+  key: String!
+  quizeNames: [QuizeName]
+}
+
+type QuizeName {
+  id: ID!
+  name: String
+  quizeCategoryId: ID
+}
