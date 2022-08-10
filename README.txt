@@ -13,8 +13,8 @@ watch -p '**/*.env' -p '*.env' -p '**/*.graphql' -p '**/*.html' -p '**\*.pug' -c
 
 ###################################
 
-
- "start": "nodemon --ext js --no-warnings --harmony-top-level-await ./dist/server.js",
+"start": "nodemon --watch **/*.graphql --watch **/*.env --ext js --no-warnings --harmony-top-level-await ./dist/server.js",
+"old-used-start": "nodemon --ext js --no-warnings --harmony-top-level-await ./dist/server.js",
     "build": "tsc -p ./",
     "postbuild": "cpy **/*.env *.env  **/*.graphql **/*.html **/*.pug *.graphql *.html *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents",
     "watch-all-other-files": "copy to terminal and run this command : watch -p '**/*.env' -p '*.env' -p '**/*.graphql' -p '**/*.html' -p '**/*.pug'  -c  'npm run postbuild'",

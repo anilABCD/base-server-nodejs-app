@@ -12,6 +12,7 @@ import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import startApolloSevrver from "./GraphQLAPI/apollo.server";
+import File from "./utils/File";
 
 // for : /graphql
 import AuthController from "./controllers/user.controllers/auth.controller";
@@ -38,6 +39,7 @@ import cookies from "cookie-parser";
 import generateRouter from "./routes/generate.routes/generate.router";
 import getEnv, { EnvEnumType } from "./env/getEnv";
 import isCurrentApp from "./utils/isCurrentApp";
+import console from "./utils/console";
 
 const limiter = rateLimit({
   max: 120,
@@ -62,6 +64,11 @@ startApolloSevrver().then((apolloServer) => {
   //   res.render("index");
   // });
   //#endregion
+
+  const fileObj = new File();
+
+  const directories: string[] = ["."];
+  console.log(fileObj.readDirectorySync(directories), "result Directories");
 
   // Request logger
   app.use(morgan("dev"));
@@ -124,7 +131,7 @@ startApolloSevrver().then((apolloServer) => {
 
     // app.get("/api/v1/", (req, res, next) => {
     //   res.status(200).send("<h1>Hello World</h1>");
-    // }); 
+    // });
 
     //#endregion End Quize Api
   }
