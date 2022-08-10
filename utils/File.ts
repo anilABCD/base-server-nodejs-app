@@ -52,7 +52,7 @@ class File {
     return result;
 
     // path.join("__dirname", "Documents");
-
+    //
     // dirNames.forEach( function (directory) {
     //     const files = readdirSync(directory);
     //     files.forEach(function (file) {
