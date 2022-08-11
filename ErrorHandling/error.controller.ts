@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import console from "../utils/console";
 import isOnlyDevelopmentEnvironment from "../utils/isOnlyDevelopmentEnvironment";
 import isProductionEnvironment from "../utils/isProductionEnvironment";
+import logger from "../utils/logger";
 import AppError from "./AppError";
 
 const handleCastErrorDB = (err: any) => {
@@ -39,6 +40,9 @@ const sendErrorDev = (err: AppError, res?: Response) => {
     statusCode: err.statusCode,
   };
 
+  // 1) Log error
+  console.error("ERROR 💥", err);
+
   if (res) {
     return res.status(err.statusCode).json({
       ...errorInfo,
@@ -64,6 +68,9 @@ const sendErrorProd = (err: AppError, res?: Response) => {
     message: "Something went very wrong!",
     statusCode: 500,
   };
+
+  // logger to file
+  logger.errorControllerError(JSON.stringify(err));
 
   if (res) {
     if (err.isOperational) {

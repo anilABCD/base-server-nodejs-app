@@ -1,6 +1,7 @@
 import { singleton } from "tsyringe";
 import isOnlyDevelopmentEnvironment from "./isOnlyDevelopmentEnvironment";
 import isProductionEnvironment from "./isProductionEnvironment";
+import logger from "./logger";
 
 let showVerfify = false;
 
@@ -83,9 +84,13 @@ class MyConsole {
     // IMPORTANT: dont use getEnv("ENV") here because : process.env.ENV has type in environment.d.ts
     if (process.env.ENV === "development") {
       if (extras.length > 0) {
+        logger.exceptionError(message, ...extras);
+
         //@ts-ignore
         return console.error2(message, extras);
       } else {
+        logger.exceptionError(message);
+
         //@ts-ignore
         return console.error2(message);
       }

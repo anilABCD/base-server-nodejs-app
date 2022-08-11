@@ -23,6 +23,14 @@ class MyLogger extends Logger {
     );
   };
 
+  errorControllerError = (...extraParam: string[]) => {
+    this.error(
+      "EROOR CONTROLLER ERROR : (errorControllerError) : ",
+      ...extraParam,
+      String(ErrorCodeEnumType.Exception)
+    );
+  };
+
   programmingError = (...extraParam: string[]) => {
     this.error(
       "Programming ERROR : by coder :",
