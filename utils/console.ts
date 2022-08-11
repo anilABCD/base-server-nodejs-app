@@ -18,9 +18,8 @@ console.error2 = function () {
   //@ts-ignore
   this.error.apply(console, arguments);
   // Print the stack trace
-  if (arguments[0] === "trace") {
-    console.trace();
-  }
+
+  console.trace();
 };
 
 @singleton()

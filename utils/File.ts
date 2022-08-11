@@ -26,7 +26,7 @@ export { FileParams };
 class File {
   getNames(directoryName: string[], params: FileParams = { namesOf: "file" }) {
     let resultNames = this.getDirectoryNames(directoryName);
-    console.log(resultNames);
+    // console.log(resultNames);
     if (params.namesOf === "file") {
       resultNames.push(directoryName[0]);
       resultNames = this.getFileNames(resultNames);
@@ -87,7 +87,7 @@ class File {
     result: string[] = [],
     extensions: string[] = []
   ) {
-    console.log("getFileNames", directoryName);
+    // console.log("getFileNames", directoryName);
 
     directoryName.forEach((dirName) => {
       if (dirName.indexOf("..") > -1) {
@@ -117,7 +117,7 @@ class File {
 
     result = result.sort();
 
-    console.log(result);
+    // console.log(result);
 
     return result;
 
