@@ -24,19 +24,22 @@ type FileParams = {
 export { FileParams };
 
 class File {
-  getDirectoryOrFileNames(directoryName: string[], params: FileParams) {
-    let resultNames = this.getDirectoryNames(directoryName);
+  getDirectoryOrFileNamesSync(directoryName: string[], params: FileParams) {
+    let resultNames = this.getDirectoryNamesSync(directoryName);
     // console.log("directory names :", resultNames);
     if (params.namesOf === "file") {
       resultNames.push(directoryName[0]);
-      resultNames = this.getFileNames(resultNames, ["graphql"]);
+      resultNames = this.getFileNamesSync(resultNames, ["graphql"]);
       // console.log("file names :", resultNames);
     }
 
     return resultNames;
   }
 
-  private getDirectoryNames(directoryName: string[], result: string[] = []) {
+  private getDirectoryNamesSync(
+    directoryName: string[],
+    result: string[] = []
+  ) {
     // console.log(directoryName);
 
     directoryName.forEach((dirName) => {
@@ -62,7 +65,7 @@ class File {
 
       if (directoryNameResult.length > 0) {
         result.push(...directoryNameResult);
-        this.getDirectoryNames(directoryNameResult, result);
+        this.getDirectoryNamesSync(directoryNameResult, result);
         // console.log(result);
       }
     });
@@ -82,7 +85,7 @@ class File {
 
   //
   //
-  private getFileNames(
+  private getFileNamesSync(
     directoryName: string[],
     extensions: string[] = [],
     excludeFileNames = "schema.graphql"
@@ -138,7 +141,7 @@ class File {
     //
   }
 
-  getFilesData(fileNames: string[]) {
+  getFilesDataSync(fileNames: string[]) {
     let filesData: string[] = [];
 
     fileNames.forEach((file) => {
@@ -150,7 +153,7 @@ class File {
     return filesData;
   }
 
-  writeToFile(filesData: string[], outFilePath: string) {
+  writeToFileSync(filesData: string[], outFilePath: string) {
     const data = filesData.join("");
 
     // if (outFilePath.lastIndexOf(".graphql") > -1) {

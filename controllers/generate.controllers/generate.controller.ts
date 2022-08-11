@@ -20,18 +20,18 @@ export default class GenerateController {
         namesOf: "file",
       };
 
-      const fileNames = fileObj.getDirectoryOrFileNames(
+      const fileNames = fileObj.getDirectoryOrFileNamesSync(
         ["./GraphQLAPI/" + getEnv(EnvEnumType.CURRENT_APP)?.replace("-", ".")],
         fileParams
       );
 
       // console.log("FileNames :", fileNames);
 
-      const filesData = fileObj.getFilesData(fileNames);
+      const filesData = fileObj.getFilesDataSync(fileNames);
 
       console.log(filesData);
 
-      const resultAfterWrite = fileObj.writeToFile(
+      const resultAfterWrite = fileObj.writeToFileSync(
         filesData,
         "./GraphQLAPI/" +
           getEnv(EnvEnumType.CURRENT_APP)?.replace("-", ".") +
