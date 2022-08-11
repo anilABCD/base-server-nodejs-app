@@ -143,7 +143,7 @@ startApolloSevrver().then((apolloServer) => {
       "./GraphQLAPI/" + getEnv(EnvEnumType.CURRENT_APP)?.replace("-", "."),
     ]);
 
-    // console.log("trace");
+    // console.error("trace");
 
     app.use("/api/v1/generate/", generateRouter);
   }

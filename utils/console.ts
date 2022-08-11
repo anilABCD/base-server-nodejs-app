@@ -7,9 +7,9 @@ let showVerfify = false;
 var log = console.log;
 
 //@ts-ignore
-console.log2 = function () {
+console.error2 = function () {
   //@ts-ignore
-  log.apply(console, arguments);
+  this.error.apply(console, arguments);
   // Print the stack trace
   if (arguments[0] === "trace") {
     console.trace();
@@ -39,11 +39,9 @@ class MyConsole {
   log = (message?: any, ...extras: any[]) => {
     if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
       if (extras.length > 0) {
-        //@ts-ignore
-        return console.log2(message, extras);
+        return console.log(message, extras);
       } else {
-        //@ts-ignore
-        return console.log2(message);
+        return console.log(message);
       }
     }
   };
@@ -79,9 +77,11 @@ class MyConsole {
     // IMPORTANT: dont use getEnv("ENV") here because : process.env.ENV has type in environment.d.ts
     if (process.env.ENV === "development") {
       if (extras.length > 0) {
-        return console.error(message, extras);
+        //@ts-ignore
+        return console.error2(message, extras);
       } else {
-        return console.error(message);
+        //@ts-ignore
+        return console.error2(message);
       }
     }
   };
