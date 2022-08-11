@@ -17,8 +17,26 @@ import path, { dirname } from "path";
 //     });
 // });
 
+type FileParams = {
+  namesOf: "file" | "directories";
+};
+
+export { FileParams };
+
 class File {
-  readDirectorySync(directoryName: string[], result: string[] = []) {
+  getNames(directoryName: string[], params: FileParams = { namesOf: "file" }) {
+    let resultNames = this.getDirectoryNames(directoryName);
+    console.log(resultNames);
+    if (params.namesOf === "file") {
+      resultNames.push(directoryName[0]);
+      resultNames = this.getFileNames(resultNames);
+      // console.log(resultNames);
+    }
+
+    return resultNames;
+  }
+
+  getDirectoryNames(directoryName: string[], result: string[] = []) {
     // console.log(directoryName);
 
     directoryName.forEach((dirName) => {
@@ -44,7 +62,7 @@ class File {
 
       if (directoryNameResult.length > 0) {
         result.push(...directoryNameResult);
-        this.readDirectorySync(directoryNameResult, result);
+        this.getDirectoryNames(directoryNameResult, result);
         // console.log(result);
       }
     });
@@ -61,6 +79,82 @@ class File {
     //       });
     // } )
   }
+
+  //
+  //
+  getFileNames(
+    directoryName: string[],
+    result: string[] = [],
+    extensions: string[] = []
+  ) {
+    console.log("getFileNames", directoryName);
+
+    directoryName.forEach((dirName) => {
+      if (dirName.indexOf("..") > -1) {
+        return;
+      }
+
+      // console.log(dirName);
+      const fileNameResult = readdirSync(dirName, { withFileTypes: true })
+        .filter((dir) => {
+          let isExtensionPassed = false;
+
+          extensions.forEach((ext) => {
+            const currentFileExt = dir.name.substring(
+              dir.name.lastIndexOf(".")
+            );
+            if (dir.name.substring(dir.name.lastIndexOf(".") + 1) === ext) {
+              isExtensionPassed = true;
+            }
+          });
+
+          return isExtensionPassed && dir.isFile();
+        })
+        .map((dirname) => dirName + "/" + dirname.name);
+
+      result.push(...fileNameResult);
+    });
+
+    result = result.sort();
+
+    console.log(result);
+
+    return result;
+
+    //
+    // path.join("__dirname", "Documents");
+    //
+    // dirNames.forEach( function (directory) {
+    //     const files = readdirSync(directory);
+    //     files.forEach(function (file) {
+    //         // Do whatever you want to do with the file
+    //         console.log(file);
+    //       });
+    // } )
+    //
+  }
+
+  getFilesData(fileNames: string[]) {
+    let filesData: string[] = [];
+
+    fileNames.forEach((file) => {
+      filesData.push(fs.readFileSync(file, { encoding: "utf8", flag: "r" }));
+    });
+
+    return filesData;
+  }
+
+  //////////////////////////////////////////////
+  // fs.readFile('./input1.txt',
+  //         {encoding:'utf8', flag:'r'},
+  //         function(err, data) {
+  //     if(err)
+  //         console.log(err);
+  //     else
+  //         console.log(data);
+  // });
+  /////////////////////////////////////////////
+  //
 }
 
 //

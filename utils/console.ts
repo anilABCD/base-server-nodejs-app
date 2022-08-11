@@ -4,10 +4,22 @@ import isProductionEnvironment from "./isProductionEnvironment";
 
 let showVerfify = false;
 
+var log = console.log;
+
+//@ts-ignore
+console.log2 = function () {
+  //@ts-ignore
+  log.apply(console, arguments);
+  // Print the stack trace
+  if (arguments[0] === "trace") {
+    console.trace();
+  }
+};
+
 @singleton()
 class MyConsole {
   clear = () => {
-    console.clear();
+    // console.clear();
   };
 
   setShowVerify = () => {
@@ -27,12 +39,24 @@ class MyConsole {
   log = (message?: any, ...extras: any[]) => {
     if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
       if (extras.length > 0) {
-        return console.log(message, extras);
+        //@ts-ignore
+        return console.log2(message, extras);
       } else {
-        return console.log(message);
+        //@ts-ignore
+        return console.log2(message);
       }
     }
   };
+
+  // log = (message?: any, ...extras: any[]) => {
+  //   if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
+  //     if (extras.length > 0) {
+  //       return console.log(message, extras);
+  //     } else {
+  //       return console.log(message);
+  //     }
+  //   }
+  // };
 
   verify = (message?: any, ...extras: any[]) => {
     // IMPORTANT: dont use getEnv("ENV") here because : process.env.ENV has type in environment.d.ts
