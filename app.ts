@@ -13,6 +13,8 @@ import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import startApolloSevrver from "./GraphQLAPI/apollo.server";
 
+import { FileParams } from "./utils/File";
+
 import File from "./utils/File";
 
 // for : /graphql
@@ -137,14 +139,6 @@ startApolloSevrver().then((apolloServer) => {
   // Generate GraphQL for Current Application ...
 
   if (isOnlyDevelopmentEnvironment() || isOnlyTestEnvironment()) {
-    const fileObj = new File();
-
-    fileObj.getNames([
-      "./GraphQLAPI/" + getEnv(EnvEnumType.CURRENT_APP)?.replace("-", "."),
-    ]);
-
-    // console.error("trace");
-
     app.use("/api/v1/generate/", generateRouter);
   }
 

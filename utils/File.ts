@@ -24,19 +24,19 @@ type FileParams = {
 export { FileParams };
 
 class File {
-  getNames(directoryName: string[], params: FileParams = { namesOf: "file" }) {
+  getDirectoryOrFileNames(directoryName: string[], params: FileParams) {
     let resultNames = this.getDirectoryNames(directoryName);
-    // console.log(resultNames);
+    // console.log("directory names :", resultNames);
     if (params.namesOf === "file") {
       resultNames.push(directoryName[0]);
-      resultNames = this.getFileNames(resultNames);
-      // console.log(resultNames);
+      resultNames = this.getFileNames(resultNames, ["graphql"]);
+      // console.log("file names :", resultNames);
     }
 
     return resultNames;
   }
 
-  getDirectoryNames(directoryName: string[], result: string[] = []) {
+  private getDirectoryNames(directoryName: string[], result: string[] = []) {
     // console.log(directoryName);
 
     directoryName.forEach((dirName) => {
@@ -82,12 +82,13 @@ class File {
 
   //
   //
-  getFileNames(
+  private getFileNames(
     directoryName: string[],
-    result: string[] = [],
-    extensions: string[] = []
+    extensions: string[] = [],
+    excludeFileNames = "schema.graphql"
   ) {
-    // console.log("getFileNames", directoryName);
+    let result: string[] = [];
+    console.log("getFileNames", directoryName);
 
     directoryName.forEach((dirName) => {
       if (dirName.indexOf("..") > -1) {
@@ -103,7 +104,10 @@ class File {
             const currentFileExt = dir.name.substring(
               dir.name.lastIndexOf(".")
             );
-            if (dir.name.substring(dir.name.lastIndexOf(".") + 1) === ext) {
+            if (
+              dir.name.substring(dir.name.lastIndexOf(".") + 1) === ext &&
+              !(dir.name.lastIndexOf(excludeFileNames) > -1)
+            ) {
               isExtensionPassed = true;
             }
           });
@@ -138,10 +142,26 @@ class File {
     let filesData: string[] = [];
 
     fileNames.forEach((file) => {
-      filesData.push(fs.readFileSync(file, { encoding: "utf8", flag: "r" }));
+      filesData.push(
+        fs.readFileSync(file, { encoding: "utf8", flag: "r" }) + "\r\n\r\n"
+      );
     });
 
     return filesData;
+  }
+
+  writeToFile(filesData: string[], outFilePath: string) {
+    const data = filesData.join("");
+
+    // if (outFilePath.lastIndexOf(".graphql") > -1) {
+    //   fs.unlinkSync(outFilePath);
+    // }
+
+    console.log("written", data);
+
+    const result = fs.writeFileSync(outFilePath, data, { flag: "w" });
+
+    return result;
   }
 
   //////////////////////////////////////////////
