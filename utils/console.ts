@@ -6,6 +6,12 @@ let showVerfify = false;
 
 var log = console.log;
 
+//
+// eg: to use in console.error()
+// console.error("trace");
+// "trace" message is compulsory to show trace ...
+//
+
 //@ts-ignore
 console.error2 = function () {
   //@ts-ignore
