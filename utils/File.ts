@@ -21,6 +21,14 @@ type FileParams = {
   namesOf: "file" | "directories";
 };
 
+type TypeOfGraphQLFile = "input" | "type";
+
+type FileAndData = {
+  fileName: string;
+  type: TypeOfGraphQLFile;
+  data: string;
+};
+
 export { FileParams };
 
 class File {
@@ -153,6 +161,65 @@ class File {
     return filesData;
   }
 
+  getFilesData_GraphQLtoTsFileTypesSync(fileNames: string[]) {
+    const fileNameAndData: FileAndData[] = [];
+
+    fileNames.forEach((file) => {
+      const filePathIndex = file.lastIndexOf("/");
+      let fileName = file;
+
+      if (filePathIndex > -1) {
+        fileName = file.substring(filePathIndex + 1);
+      }
+
+      // removing extesnion
+      fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".ts";
+
+      let fileData = "";
+
+      let fileDataArray = (
+        fs.readFileSync(file, { encoding: "utf8", flag: "r" }) + "\r\n\r\n"
+      ).split("\n");
+
+      fileDataArray.forEach((data) => {
+        if (data.indexOf("type") > -1) {
+          const typeData = data.split(" ");
+          const typeName = typeData[1];
+          fileData = `\r\n export { ${typeName} }` + `\r\n\r\n` + data;
+        } else {
+          fileData += data;
+        }
+      });
+
+      let typeType: TypeOfGraphQLFile;
+      let typeName = "";
+      if (!(fileName.lastIndexOf(".graphql") > -1))
+        throw new Error("incorect type of file : not a graphql file");
+
+      if (fileName.indexOf("input") > -1) {
+        typeType = "input";
+
+        typeName = fileName.substring(0, fileName.indexOf("." + typeType));
+      } else if (fileName.indexOf("type") > -1) {
+        typeType = "type";
+
+        typeName = fileName.substring(0, fileName.indexOf("." + typeType));
+      } else {
+        throw new Error("incorect type of file : not a graphql file");
+      }
+
+      const fileAndData: FileAndData = {
+        fileName: fileName,
+        type: typeType,
+        data: fileData,
+      };
+
+      fileNameAndData.push(fileAndData);
+    });
+
+    return fileNameAndData;
+  }
+
   writeToFileSync(filesData: string[], outFilePath: string) {
     const data = filesData.join("");
 
@@ -160,7 +227,7 @@ class File {
     //   fs.unlinkSync(outFilePath);
     // }
 
-    console.log("written", data);
+    // console.log("written", data);
 
     const result = fs.writeFileSync(outFilePath, data, { flag: "w" });
 

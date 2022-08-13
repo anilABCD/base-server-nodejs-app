@@ -19,9 +19,11 @@ import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 // })();
 //////////////////////////////////////////////////////////////////////
 
+const PORT = getEnv(EnvEnumType.PORT);
+
 console.log("\n\n******************************************\n\n");
 console.log(process.env.ENV);
-console.log(process.env.PORT);
+console.log(PORT);
 
 const isAllReady = isAllResourcesReady();
 
@@ -82,10 +84,10 @@ if (isAllReady) {
 
     //#region  listen
 
-    app.listen(getEnv(EnvEnumType.PORT), () => {
+    app.listen(PORT, () => {
       console.log("\n\n\n******** NODE SERVER STARTED *************\n\n");
-      console.log("Listening on port 80");
-      console.log("GrapQL Url :", "http://localhost/graphql");
+      console.log("Listening on port : " + PORT);
+      console.log("GrapQL Url :", "http://localhost:" + PORT + "/graphql");
       console.log("isProduction", isProductionEnvironment());
     });
     //#endregion

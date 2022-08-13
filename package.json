@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon --ext js,graphql,html,json,pug,env --ignore './node_modules/'  --no-warnings --harmony-top-level-await ./dist/server.js",
     "build": "tsc -p ./",
-    "watch-gql": "watch -p './GraphQLAPI/**/*.graphql' -c  'clear & curl -X POST http://localhost/api/v1/generate'"
+    "watch-gql": "watch -p './GraphQLAPI/**/*.graphql' -c  'clear & curl -X POST http://localhost/api/v1/generate'",
+    "watch-cpy": "watch -p '**/*.env' -p '*.env' -p '**/*.graphql' -p '**/*.html' -p '***.pug' -c 'cpy **/*.env *.env  **/*.graphql **/*.html **/*.pug *.graphql *.html *.pug '!node_modules/**/*' '!dist/**/*' dist/ --cwd=./ --parents'"
   },
   "keywords": [],
   "author": "",
