@@ -21,12 +21,13 @@ type FileParams = {
   namesOf: "file" | "directories";
 };
 
-type TypeOfGraphQLFile = "input" | "type";
+type TypeOfGraphQLFile = "input" | "type" | "mutation";
 
 type FileAndData = {
   fileName: string;
   type: TypeOfGraphQLFile;
   data: string;
+  typeNameToCreate: string;
 };
 
 export { FileParams };
@@ -172,29 +173,88 @@ class File {
         fileName = file.substring(filePathIndex + 1);
       }
 
-      // removing extesnion
-      fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".ts";
-
       let fileData = "";
 
-      let fileDataArray = (
-        fs.readFileSync(file, { encoding: "utf8", flag: "r" }) + "\r\n\r\n"
-      ).split("\n");
+      let fileDataArray = fs
+        .readFileSync(file, { encoding: "utf8", flag: "r" })
+        .split("\n");
 
-      fileDataArray.forEach((data) => {
-        if (data.indexOf("type") > -1) {
+      fileDataArray.forEach((data, index) => {
+        console.log(data, index);
+
+        data = data.replace("schema ", "type Schema ");
+        data = data.replace("input ", "type ");
+
+        if (data.indexOf("type ") > -1) {
           const typeData = data.split(" ");
           const typeName = typeData[1];
-          fileData = `\r\n export { ${typeName} }` + `\r\n\r\n` + data;
-        } else {
-          fileData += data;
+          if (typeName !== "{") {
+            data = `\r\n export { ${typeName} }` + `\r\n` + data;
+          }
         }
+        // Int, Float, String, Boolean, and ID, Date
+
+        if (data.indexOf("input ") > -1) {
+          const typeData = data.split(" ");
+          const typeName = typeData[1];
+          data = data.replace("input ", "type ");
+          data = `\r\n export { ${typeName} }` + `\r\n\r\n` + data;
+        }
+
+        if (data.indexOf("schema ") > -1) {
+          const typeData = data.split(" ");
+          const typeName = typeData[1];
+          data = data.replace("schema ", "type ");
+          data = `\r\n export { ${typeName} }` + `\r\n\r\n` + data;
+        }
+
+        if (!(data.indexOf("}") > -1)) {
+          if (data.indexOf("{") > -1) {
+            data = data.replace("{", "= {");
+          }
+
+          if (data.indexOf(" Query") > -1) {
+            data = data.replace(/Query./, "any");
+          }
+
+          if (data.indexOf(" Mutation") > -1) {
+            data = data.replace(/Mutation./, "any");
+          }
+
+          if (data.indexOf(" ID") > -1) {
+            data = data.replace(/ID./, "string");
+          }
+
+          if (data.indexOf(" String") > -1) {
+            data = data.replace(/String./, "string");
+          }
+
+          if (data.indexOf(" Float") > -1) {
+            data = data.replace(/Float./, "number");
+          }
+
+          if (data.indexOf(" Boolean") > -1) {
+            data = data.replace(/Boolean./, "boolean");
+          }
+
+          if (data.indexOf(" Int") > -1) {
+            data = data.replace(/Int./, "number");
+          }
+
+          if (!(data.indexOf("{") > -1)) {
+            data += ";";
+          }
+        }
+
+        fileData += data;
       });
 
       let typeType: TypeOfGraphQLFile;
       let typeName = "";
       if (!(fileName.lastIndexOf(".graphql") > -1))
-        throw new Error("incorect type of file : not a graphql file");
+        throw new Error(
+          `incorect type of file : not a graphql file ${fileName}`
+        );
 
       if (fileName.indexOf("input") > -1) {
         typeType = "input";
@@ -204,18 +264,34 @@ class File {
         typeType = "type";
 
         typeName = fileName.substring(0, fileName.indexOf("." + typeType));
+      } else if (fileName.indexOf("mutation") > -1) {
+        typeType = "mutation";
+
+        typeName = fileName.substring(0, fileName.indexOf("." + typeType));
       } else {
-        throw new Error("incorect type of file : not a graphql file");
+        throw new Error("incorect type of file : not a graphql file : phase 2");
       }
+
+      let typeNameToCreate = "";
+
+      fileName.split(".").forEach((data) => {
+        if (data.toLowerCase() !== "graphql")
+          typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
+      });
+
+      fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".ts";
 
       const fileAndData: FileAndData = {
         fileName: fileName,
         type: typeType,
         data: fileData,
+        typeNameToCreate: typeNameToCreate,
       };
 
       fileNameAndData.push(fileAndData);
     });
+
+    console.log("graphql to ts file generator", fileNameAndData);
 
     return fileNameAndData;
   }

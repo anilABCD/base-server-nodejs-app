@@ -25,9 +25,16 @@ export default class GenerateController {
         fileParams
       );
 
-      // console.log("FileNames :", fileNames);
+      console.log("getFilesDataSync To generate:", fileNames);
 
       const filesData = fileObj.getFilesDataSync(fileNames);
+
+      console.log(
+        "getFilesData_GraphQLtoTsFileTypesSync To generate :",
+        fileNames
+      );
+      const filesDataTs =
+        fileObj.getFilesData_GraphQLtoTsFileTypesSync(fileNames);
 
       console.log(filesData);
 
