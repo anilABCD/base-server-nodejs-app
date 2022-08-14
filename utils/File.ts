@@ -21,13 +21,22 @@ type FileParams = {
   namesOf: "file" | "directories";
 };
 
-type TypeOfGraphQLFile = "input" | "type" | "mutation";
+type TypeOfGraphQLFile =
+  | "input"
+  | "type"
+  | "mutation"
+  | ".querys.and.mutations";
+
+type GraphQLToTS = {
+  appName: string;
+  fileAndData: FileAndData[];
+};
 
 type FileAndData = {
   fileName: string;
   type: TypeOfGraphQLFile;
   data: string;
-  typeNameToCreate: string;
+  folderToCreate: string;
 };
 
 export { FileParams };
@@ -162,7 +171,7 @@ class File {
     return filesData;
   }
 
-  getFilesData_GraphQLtoTsFileTypesSync(fileNames: string[]) {
+  getFilesData_GraphQLtoTsFileTypesSync(fileNames: string[], appName: string) {
     const fileNameAndData: FileAndData[] = [];
 
     fileNames.forEach((file) => {
@@ -258,43 +267,72 @@ class File {
             }
 
             if (!(data.indexOf("{") > -1)) {
-              data += ";";
+              data += ";\r\n";
             }
           }
         }
+
+        // type Mutation = {  sendMessage(input: SendMessageInput): Message;\r\n' +
+        // Resultant :
+        // const RESULTANT_GQL = gql`
+        //   mutation sendMessage($input : SendMessageInput!){
+        //         message : sendMessage( input: $input ) {
+        //
+        //             Message type loop ...
+        //
+        //        }
+        //      }
+        //   }
+        //`
 
         fileData += data;
       });
 
       let typeType: TypeOfGraphQLFile;
-      let typeName = "";
+      let folderToCreate = "";
       if (!(fileName.lastIndexOf(".graphql") > -1))
         throw new Error(
           `incorect type of file : not a graphql file ${fileName}`
         );
 
-      if (fileName.indexOf("input") > -1) {
+      if (fileName.indexOf(".querys.and.mutations") > -1) {
+        typeType = ".querys.and.mutations";
+
+        folderToCreate = fileName.substring(
+          0,
+          fileName.indexOf("." + typeType)
+        );
+      } else if (fileName.indexOf("input") > -1) {
         typeType = "input";
 
-        typeName = fileName.substring(0, fileName.indexOf("." + typeType));
+        folderToCreate = fileName.substring(
+          0,
+          fileName.indexOf("." + typeType)
+        );
       } else if (fileName.indexOf("type") > -1) {
         typeType = "type";
 
-        typeName = fileName.substring(0, fileName.indexOf("." + typeType));
+        folderToCreate = fileName.substring(
+          0,
+          fileName.indexOf("." + typeType)
+        );
       } else if (fileName.indexOf("mutation") > -1) {
         typeType = "mutation";
 
-        typeName = fileName.substring(0, fileName.indexOf("." + typeType));
+        folderToCreate = fileName.substring(
+          0,
+          fileName.indexOf("." + typeType)
+        );
       } else {
         throw new Error("incorect type of file : not a graphql file : phase 2");
       }
 
-      let typeNameToCreate = "";
+      // let typeNameToCreate = "";
 
-      fileName.split(".").forEach((data) => {
-        if (data.toLowerCase() !== "graphql")
-          typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
-      });
+      // fileName.split(".").forEach((data) => {
+      //   if (data.toLowerCase() !== "graphql")
+      //     typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
+      // });
 
       fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".ts";
 
@@ -302,15 +340,20 @@ class File {
         fileName: fileName,
         type: typeType,
         data: fileData,
-        typeNameToCreate: typeNameToCreate,
+        folderToCreate: folderToCreate,
       };
 
       fileNameAndData.push(fileAndData);
     });
 
-    console.log("graphql to ts file generator", fileNameAndData);
+    const graphQLToTs: GraphQLToTS = {
+      appName: appName,
+      fileAndData: fileNameAndData,
+    };
 
-    return fileNameAndData;
+    console.log("graphql to ts file generator", graphQLToTs);
+
+    return graphQLToTs;
   }
 
   writeToFileSync(filesData: string[], outFilePath: string) {

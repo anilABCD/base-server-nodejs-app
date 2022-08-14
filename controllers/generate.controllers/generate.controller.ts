@@ -20,8 +20,14 @@ export default class GenerateController {
         namesOf: "file",
       };
 
+      const CURRENT_APP = getEnv(EnvEnumType.CURRENT_APP)?.replace("-", ".");
+
+      if (CURRENT_APP === undefined || CURRENT_APP === "") {
+        throw new Error("CURRENT_APP IS NOT SPECIFIED");
+      }
+
       const fileNames = fileObj.getDirectoryOrFileNamesSync(
-        ["./GraphQLAPI/" + getEnv(EnvEnumType.CURRENT_APP)?.replace("-", ".")],
+        ["./GraphQLAPI/" + CURRENT_APP],
         fileParams
       );
 
@@ -33,8 +39,10 @@ export default class GenerateController {
         "getFilesData_GraphQLtoTsFileTypesSync To generate :",
         fileNames
       );
-      const filesDataTs =
-        fileObj.getFilesData_GraphQLtoTsFileTypesSync(fileNames);
+      const filesDataTs = fileObj.getFilesData_GraphQLtoTsFileTypesSync(
+        fileNames,
+        CURRENT_APP
+      );
 
       console.log(filesData);
 
