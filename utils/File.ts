@@ -37,6 +37,8 @@ type FileAndData = {
   type: TypeOfGraphQLFile;
   data: string;
   folderToCreate: string;
+  allTypesInSingleFile: string[];
+  countAllTypesInSingleFile: number;
 };
 
 export { FileParams };
@@ -178,6 +180,8 @@ class File {
       const filePathIndex = file.lastIndexOf("/");
       let fileName = file;
 
+      let allTypesInSingleFile: string[] = [];
+
       if (filePathIndex > -1) {
         fileName = file.substring(filePathIndex + 1);
       }
@@ -201,6 +205,7 @@ class File {
             const typeName = typeData[1];
             if (typeName !== "{") {
               exportData = `export { ${typeName} }`;
+              allTypesInSingleFile.push(typeName);
             }
             console.log(exportData);
           }
@@ -211,6 +216,7 @@ class File {
             const typeName = typeData[1];
             data = data.replace("input ", "type ");
             exportData = `export { ${typeName} }`;
+            allTypesInSingleFile.push(typeName);
             console.log(exportData);
           }
 
@@ -219,6 +225,7 @@ class File {
             const typeName = typeData[1];
             data = data.replace("schema ", "type ");
             exportData = `export { ${typeName} }`;
+            allTypesInSingleFile.push(typeName);
             console.log(exportData);
           }
 
@@ -336,11 +343,14 @@ class File {
 
       fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".ts";
 
+      console.log("allTypesInSingleFile", allTypesInSingleFile);
       const fileAndData: FileAndData = {
         fileName: fileName,
         type: typeType,
         data: fileData,
         folderToCreate: folderToCreate,
+        allTypesInSingleFile: allTypesInSingleFile,
+        countAllTypesInSingleFile: allTypesInSingleFile.length,
       };
 
       fileNameAndData.push(fileAndData);
