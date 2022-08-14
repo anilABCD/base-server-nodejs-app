@@ -14,6 +14,8 @@ export default class GenerateController {
     async (req: Request, res: Response, next: NextFunction) => {
       let result = true;
 
+      let outPath = req.query.path;
+
       const fileObj = new File();
 
       const fileParams: FileParams = {
@@ -48,9 +50,7 @@ export default class GenerateController {
 
       const resultAfterWrite = fileObj.writeToFileSync(
         filesData,
-        "./GraphQLAPI/" +
-          getEnv(EnvEnumType.CURRENT_APP)?.replace("-", ".") +
-          "/schema.graphql"
+        "./GraphQLAPI/" + CURRENT_APP + "/schema.graphql"
       );
 
       let dataOfTsFiles = "";
@@ -60,7 +60,10 @@ export default class GenerateController {
 
       const resultAfterWriteTs = fileObj.writeToFileSync(
         [dataOfTsFiles],
-        "./graphql-generated.me.ts"
+        "./../base-react-native-app/" +
+          "App/" +
+          CURRENT_APP +
+          "/graphql-types-generated.ts"
       );
 
       console.log("File Written", resultAfterWrite);
