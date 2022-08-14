@@ -254,23 +254,23 @@ class File {
             // }
 
             if (data.indexOf(" ID") > -1) {
-              data = data.replace(/ID./, "string");
+              data = data.replace(" ID", " string");
             }
 
             if (data.indexOf(" String") > -1) {
-              data = data.replace(/String./, "string");
+              data = data.replace(" String", " string");
             }
 
             if (data.indexOf(" Float") > -1) {
-              data = data.replace(/Float./, "number");
+              data = data.replace(" Float", " number");
             }
 
             if (data.indexOf(" Boolean") > -1) {
-              data = data.replace(/Boolean./, "boolean");
+              data = data.replace(" Boolean", " boolean");
             }
 
             if (data.indexOf(" Int") > -1) {
-              data = data.replace(/Int./, "number");
+              data = data.replace(" Int", " number");
             }
 
             if (!(data.indexOf("{") > -1)) {
@@ -291,6 +291,10 @@ class File {
         //      }
         //   }
         //`
+
+        if (data.indexOf("!") > -1) {
+          data = data.replace(":", "?:").replace("!", "");
+        }
 
         fileData += data;
       });
