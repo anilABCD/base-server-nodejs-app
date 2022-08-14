@@ -53,6 +53,16 @@ export default class GenerateController {
           "/schema.graphql"
       );
 
+      let dataOfTsFiles = "";
+      filesDataTs.fileAndData.forEach((value) => {
+        dataOfTsFiles += value.data;
+      });
+
+      const resultAfterWriteTs = fileObj.writeToFileSync(
+        [dataOfTsFiles],
+        "./graphql-generated.me.ts"
+      );
+
       console.log("File Written", resultAfterWrite);
 
       // console.error("trace");

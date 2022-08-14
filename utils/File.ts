@@ -228,14 +228,14 @@ class File {
             }
 
             if (exportData !== "") {
-              data += "\r\n" + exportData + "\r\n";
+              data += "\r\n\r\n" + exportData + "\r\n\r\n";
               exportData = "";
             }
           }
 
           if (!(data.indexOf("}") > -1)) {
             if (data.indexOf("{") > -1) {
-              data = data.replace("{", "= {");
+              data = data.replace("{", "= { \r\n");
             }
 
             // if (data.indexOf(" Query") > -1) {
