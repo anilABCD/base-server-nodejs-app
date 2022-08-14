@@ -179,70 +179,87 @@ class File {
         .readFileSync(file, { encoding: "utf8", flag: "r" })
         .split("\n");
 
+      let exportData = "";
       fileDataArray.forEach((data, index) => {
         console.log(data, index);
 
-        data = data.replace("schema ", "type Schema ");
+        data = data.replace("schema", "type Schema ");
         data = data.replace("input ", "type ");
 
-        if (data.indexOf("type ") > -1) {
-          const typeData = data.split(" ");
-          const typeName = typeData[1];
-          if (typeName !== "{") {
-            data = `\r\n export { ${typeName} }` + `\r\n` + data;
+        if (data.trim() !== "") {
+          if (data.indexOf("type ") > -1) {
+            const typeData = data.split(" ");
+            const typeName = typeData[1];
+            if (typeName !== "{") {
+              exportData = `export { ${typeName} }`;
+            }
+            console.log(exportData);
           }
-        }
-        // Int, Float, String, Boolean, and ID, Date
+          // Int, Float, String, Boolean, and ID, Date
 
-        if (data.indexOf("input ") > -1) {
-          const typeData = data.split(" ");
-          const typeName = typeData[1];
-          data = data.replace("input ", "type ");
-          data = `\r\n export { ${typeName} }` + `\r\n\r\n` + data;
-        }
-
-        if (data.indexOf("schema ") > -1) {
-          const typeData = data.split(" ");
-          const typeName = typeData[1];
-          data = data.replace("schema ", "type ");
-          data = `\r\n export { ${typeName} }` + `\r\n\r\n` + data;
-        }
-
-        if (!(data.indexOf("}") > -1)) {
-          if (data.indexOf("{") > -1) {
-            data = data.replace("{", "= {");
+          if (data.indexOf("input ") > -1) {
+            const typeData = data.split(" ");
+            const typeName = typeData[1];
+            data = data.replace("input ", "type ");
+            exportData = `export { ${typeName} }`;
+            console.log(exportData);
           }
 
-          if (data.indexOf(" Query") > -1) {
-            data = data.replace(/Query./, "any");
+          if (data.indexOf("schema ") > -1) {
+            const typeData = data.split(" ");
+            const typeName = typeData[1];
+            data = data.replace("schema ", "type ");
+            exportData = `export { ${typeName} }`;
+            console.log(exportData);
           }
 
-          if (data.indexOf(" Mutation") > -1) {
-            data = data.replace(/Mutation./, "any");
+          if (data.indexOf("}") > -1) {
+            if (exportData === "") {
+              throw new Error("exportData is empty");
+            }
+
+            if (exportData !== "") {
+              data += "\r\n" + exportData + "\r\n";
+              exportData = "";
+            }
           }
 
-          if (data.indexOf(" ID") > -1) {
-            data = data.replace(/ID./, "string");
-          }
+          if (!(data.indexOf("}") > -1)) {
+            if (data.indexOf("{") > -1) {
+              data = data.replace("{", "= {");
+            }
 
-          if (data.indexOf(" String") > -1) {
-            data = data.replace(/String./, "string");
-          }
+            // if (data.indexOf(" Query") > -1) {
+            //   data = data.replace(/Query./, "any");
+            // }
 
-          if (data.indexOf(" Float") > -1) {
-            data = data.replace(/Float./, "number");
-          }
+            // if (data.indexOf(" Mutation") > -1) {
+            //   data = data.replace(/Mutation./, "any");
+            // }
 
-          if (data.indexOf(" Boolean") > -1) {
-            data = data.replace(/Boolean./, "boolean");
-          }
+            if (data.indexOf(" ID") > -1) {
+              data = data.replace(/ID./, "string");
+            }
 
-          if (data.indexOf(" Int") > -1) {
-            data = data.replace(/Int./, "number");
-          }
+            if (data.indexOf(" String") > -1) {
+              data = data.replace(/String./, "string");
+            }
 
-          if (!(data.indexOf("{") > -1)) {
-            data += ";";
+            if (data.indexOf(" Float") > -1) {
+              data = data.replace(/Float./, "number");
+            }
+
+            if (data.indexOf(" Boolean") > -1) {
+              data = data.replace(/Boolean./, "boolean");
+            }
+
+            if (data.indexOf(" Int") > -1) {
+              data = data.replace(/Int./, "number");
+            }
+
+            if (!(data.indexOf("{") > -1)) {
+              data += ";";
+            }
           }
         }
 
