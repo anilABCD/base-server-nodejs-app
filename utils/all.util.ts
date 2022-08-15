@@ -68,6 +68,8 @@ const compareAndRemoveDuplicates = (
   removeFromThisArray: string[],
   duplicatesToRemove: string[]
 ) => {
+  // removeFromThisArray = removeFromThisArray.filter(val => !duplicatesToRemove.includes(val));
+
   return removeFromThisArray.filter(function (val) {
     return duplicatesToRemove.indexOf(val) == -1;
   });
