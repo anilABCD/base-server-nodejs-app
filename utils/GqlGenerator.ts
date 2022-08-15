@@ -63,7 +63,7 @@ export default class GqlGenerator {
         // console.log(data, index);
 
         data = data.replace("schema", "type Schema ");
-        data = data.replace("input ", "type ");
+        // data = data.replace("input ", "type ");
 
         if (data.trim() !== "") {
           if (data.indexOf("type ") > -1) {
@@ -71,6 +71,7 @@ export default class GqlGenerator {
               properties: [],
               typeName: "",
             };
+
             const typeData = data.split(" ");
             const typeName = typeData[1].trim();
             if (typeName !== "{") {
@@ -126,6 +127,8 @@ export default class GqlGenerator {
           if (!(data.indexOf("}") > -1)) {
             if (data.indexOf("{") > -1) {
               data = data.replace("{", "= { \r\n");
+              // if (isType === true) {
+              // }
             }
 
             const lastIndexOfCollon = data.lastIndexOf(":");
