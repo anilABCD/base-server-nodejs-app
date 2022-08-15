@@ -55,7 +55,7 @@ export default class GenerateController {
       dataOfTsFiles =
         `
 //
-// @Athor : Anil Kumar Potlapally 
+// @Author : Anil Kumar Potlapally 
 // @Email : 786.anil.potlapally@gmail.com
 //
 // @Generated For : @App_Name : @${CURRENT_APP}
