@@ -37,14 +37,8 @@ export default class GenerateController {
 
       const filesData = fileObj.getFilesDataSync(fileNames);
 
-      console.log(
-        "getFilesData_GraphQLtoTsFileTypesSync To generate :",
-        fileNames
-      );
-      const filesDataTs = fileObj.getFilesData_GraphQLtoTsFileTypesSync(
-        fileNames,
-        CURRENT_APP
-      );
+      console.log("GenerateGraphQLToTs To generate :", fileNames);
+      const filesDataTs = fileObj.generateGraphQLToTs(fileNames, CURRENT_APP);
 
       console.log(filesData);
 

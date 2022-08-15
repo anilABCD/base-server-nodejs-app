@@ -32,13 +32,25 @@ type GraphQLToTS = {
   fileAndData: FileAndData[];
 };
 
+type PropertyInfo = {
+  propertyName: string;
+  typeName: string;
+};
+
+type TypeInfo = {
+  properties: PropertyInfo[];
+  typeName: string;
+};
+
 type FileAndData = {
   fileName: string;
   type: TypeOfGraphQLFile;
   data: string;
   folderToCreate: string;
   allTypesInSingleFile: string[];
-  countAllTypesInSingleFile: number;
+  allTypesInSingleFileCount: number;
+  typesAndProperties: TypeInfo[];
+  typesAndPropertiesCount: number;
 };
 
 export { FileParams };
@@ -173,7 +185,7 @@ class File {
     return filesData;
   }
 
-  getFilesData_GraphQLtoTsFileTypesSync(fileNames: string[], appName: string) {
+  generateGraphQLToTs(fileNames: string[], appName: string) {
     const fileNameAndData: FileAndData[] = [];
 
     fileNames.forEach((file) => {
@@ -181,6 +193,7 @@ class File {
       let fileName = file;
 
       let allTypesInSingleFile: string[] = [];
+      let typesAndProperties: TypeInfo[] = [];
 
       if (filePathIndex > -1) {
         fileName = file.substring(filePathIndex + 1);
@@ -192,41 +205,61 @@ class File {
         .readFileSync(file, { encoding: "utf8", flag: "r" })
         .split("\n");
 
+      let typeAndProperty: TypeInfo = {
+        properties: [],
+        typeName: "",
+      };
+
       let exportData = "";
       fileDataArray.forEach((data, index) => {
-        console.log(data, index);
+        // console.log(data, index);
 
         data = data.replace("schema", "type Schema ");
         data = data.replace("input ", "type ");
 
         if (data.trim() !== "") {
           if (data.indexOf("type ") > -1) {
+            typeAndProperty = {
+              properties: [],
+              typeName: "",
+            };
             const typeData = data.split(" ");
-            const typeName = typeData[1];
+            const typeName = typeData[1].trim();
             if (typeName !== "{") {
               exportData = `export { ${typeName} }`;
               allTypesInSingleFile.push(typeName);
+              typeAndProperty.typeName = typeName;
             }
-            console.log(exportData);
+            // console.log(exportData);
           }
           // Int, Float, String, Boolean, and ID, Date
 
           if (data.indexOf("input ") > -1) {
+            typeAndProperty = {
+              properties: [],
+              typeName: "",
+            };
             const typeData = data.split(" ");
-            const typeName = typeData[1];
+            const typeName = typeData[1].trim();
             data = data.replace("input ", "type ");
             exportData = `export { ${typeName} }`;
             allTypesInSingleFile.push(typeName);
-            console.log(exportData);
+            typeAndProperty.typeName = typeName;
+            // console.log(exportData);
           }
 
           if (data.indexOf("schema ") > -1) {
+            typeAndProperty = {
+              properties: [],
+              typeName: "",
+            };
             const typeData = data.split(" ");
-            const typeName = typeData[1];
+            const typeName = typeData[1].trim();
             data = data.replace("schema ", "type ");
             exportData = `export { ${typeName} }`;
             allTypesInSingleFile.push(typeName);
-            console.log(exportData);
+            typeAndProperty.typeName = typeName;
+            // console.log(exportData);
           }
 
           if (data.indexOf("}") > -1) {
@@ -238,11 +271,34 @@ class File {
               data += "\r\n\r\n" + exportData + "\r\n\r\n";
               exportData = "";
             }
+            typesAndProperties.push(typeAndProperty);
+            console.log("typeAndProperty", typeAndProperty);
           }
 
           if (!(data.indexOf("}") > -1)) {
             if (data.indexOf("{") > -1) {
               data = data.replace("{", "= { \r\n");
+            }
+
+            const lastIndexOfCollon = data.lastIndexOf(":");
+
+            if (
+              !(
+                data.indexOf(" ID") > -1 ||
+                data.indexOf(" String") > -1 ||
+                data.indexOf(" Float") > -1 ||
+                data.indexOf(" Boolean") > -1 ||
+                data.indexOf(" Int") > -1
+              )
+            ) {
+              if (data.indexOf(":") > -1) {
+                let propInfo: PropertyInfo = {
+                  propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                  typeName: data.substring(lastIndexOfCollon).trim(),
+                };
+
+                typeAndProperty.properties.push(propInfo);
+              }
             }
 
             // if (data.indexOf(" Query") > -1) {
@@ -255,22 +311,52 @@ class File {
 
             if (data.indexOf(" ID") > -1) {
               data = data.replace(" ID", " string");
+              let propInfo: PropertyInfo = {
+                propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon).trim(),
+              };
+
+              typeAndProperty.properties.push(propInfo);
             }
 
             if (data.indexOf(" String") > -1) {
               data = data.replace(" String", " string");
+              let propInfo: PropertyInfo = {
+                propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon).trim(),
+              };
+
+              typeAndProperty.properties.push(propInfo);
             }
 
             if (data.indexOf(" Float") > -1) {
               data = data.replace(" Float", " number");
+              let propInfo: PropertyInfo = {
+                propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon).trim(),
+              };
+
+              typeAndProperty.properties.push(propInfo);
             }
 
             if (data.indexOf(" Boolean") > -1) {
               data = data.replace(" Boolean", " boolean");
+              let propInfo: PropertyInfo = {
+                propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon).trim(),
+              };
+
+              typeAndProperty.properties.push(propInfo);
             }
 
             if (data.indexOf(" Int") > -1) {
               data = data.replace(" Int", " number");
+              let propInfo: PropertyInfo = {
+                propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon).trim(),
+              };
+
+              typeAndProperty.properties.push(propInfo);
             }
 
             if (!(data.indexOf("{") > -1)) {
@@ -284,16 +370,18 @@ class File {
         // const RESULTANT_GQL = gql`
         //   mutation sendMessage($input : SendMessageInput!){
         //         message : sendMessage( input: $input ) {
-        //
         //             Message type loop ...
-        //
         //        }
         //      }
         //   }
         //`
 
-        if (data.indexOf("!") > -1) {
-          data = data.replace(":", "?:").replace("!", "");
+        if (!(data.indexOf("!") > -1)) {
+          if (data.indexOf(":") > -1) {
+            data = data.replace(":", "?:");
+          }
+        } else {
+          data = data.replace("!", "");
         }
 
         fileData += data;
@@ -354,7 +442,9 @@ class File {
         data: fileData,
         folderToCreate: folderToCreate,
         allTypesInSingleFile: allTypesInSingleFile,
-        countAllTypesInSingleFile: allTypesInSingleFile.length,
+        allTypesInSingleFileCount: allTypesInSingleFile.length,
+        typesAndProperties: typesAndProperties,
+        typesAndPropertiesCount: typesAndProperties.length,
       };
 
       fileNameAndData.push(fileAndData);
