@@ -59,23 +59,7 @@ export default class GenerateController {
         dataOfTsFiles += value.data;
       });
 
-      dataOfTsFiles =
-        `
-//
-// @Author : Anil Kumar Potlapally 
-// @Email : 786.anil.potlapally@gmail.com
-//
-// @Generated For : @App_Name : @${CURRENT_APP}
-// 
-// @Code_Generated_Project_Name : /base-server-nodejs-app :
-//
-// @Code_Generated_Controller : ./base-server-nodejs-app/controllers/generate.controllers/generate.controller.ts
-//
-// @Code_Generated_API_End_Point : http://localhost:${getEnv(
-          EnvEnumType.PORT
-        )}/api/v1/generate/
-//
-\r\n\r\n` + dataOfTsFiles;
+      dataOfTsFiles = fileAuthorAndHeaderInformation + dataOfTsFiles;
 
       const resultAfterWriteTs = fileObj.writeToFileSync(
         [dataOfTsFiles],
@@ -104,3 +88,21 @@ export default class GenerateController {
     }
   );
 }
+
+const fileAuthorAndHeaderInformation = `
+//
+// @Author : Anil Kumar Potlapally 
+//
+// @Email : 786.anil.potlapally@gmail.com
+//
+// @Generated For : @App_Name : @${getEnv(EnvEnumType.CURRENT_APP)}
+// 
+// @Code_Generated_Project_Name : /base-server-nodejs-app :
+//
+// @Code_Generated_Controller : ./base-server-nodejs-app/controllers/generate.controllers/generate.controller.ts
+//
+// @Code_Generated_API_End_Point : http://localhost:${getEnv(
+  EnvEnumType.PORT
+)}/api/v1/generate/
+//
+\r\n\r\n`;

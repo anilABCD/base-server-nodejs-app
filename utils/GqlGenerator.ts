@@ -30,6 +30,7 @@ type FileAndData = {
   allTypesInSingleFileCount: number;
   typesAndProperties: TypeInfo[];
   typesAndPropertiesCount: number;
+  importPath: string;
 };
 
 export default class GqlGenerator {
@@ -284,11 +285,11 @@ export default class GqlGenerator {
       //     typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
       // });
 
-      fileName = fileName.substring(0, fileName.lastIndexOf(".")) + ".ts";
+      fileName = fileName.substring(0, fileName.lastIndexOf("."));
 
       console.log("allTypesInSingleFile", allTypesInSingleFile);
       const fileAndData: FileAndData = {
-        fileName: fileName,
+        fileName: fileName + ".ts",
         type: typeType,
         data: fileData,
         folderToCreate: folderToCreate,
@@ -296,6 +297,11 @@ export default class GqlGenerator {
         allTypesInSingleFileCount: allTypesInSingleFile.length,
         typesAndProperties: typesAndProperties,
         typesAndPropertiesCount: typesAndProperties.length,
+        importPath:
+          'import { TYPE_NAME } from "../' +
+          (folderToCreate.trim() !== "" ? folderToCreate + "/" : "") +
+          fileName +
+          '"',
       };
 
       fileNameAndData.push(fileAndData);
