@@ -6,6 +6,7 @@ import EnvEnumType from "../../enums/EnvEnumType";
 import getEnv from "../../env/getEnv";
 
 import console from "../../utils/console";
+import GqlGenerator from "../../utils/GqlGenerator";
 
 export default class GenerateController {
   constructor() {}
@@ -38,7 +39,13 @@ export default class GenerateController {
       const filesData = fileObj.getFilesDataSync(fileNames);
 
       console.log("GenerateGraphQLToTs To generate :", fileNames);
-      const filesDataTs = fileObj.generateGraphQLToTs(fileNames, CURRENT_APP);
+
+      let gqlGenerator = new GqlGenerator();
+
+      const filesDataTs = gqlGenerator.generateGraphQLToTs(
+        fileNames,
+        CURRENT_APP
+      );
 
       console.log(filesData);
 
@@ -76,8 +83,13 @@ export default class GenerateController {
           "App/" +
           CURRENT_APP +
           "/graphql/graphql.types/" +
-          "/types.ts"
+          "types.ts"
       );
+
+      // "./../base-react-native-app/" +
+      // "App/" +
+      // "{CURRENT_APP}" +
+      // "/graphql/graphql.types/"
 
       console.log("File Written", resultAfterWrite);
 
