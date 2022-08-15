@@ -59,9 +59,25 @@ const findDuplicates = (arry: Array<any>): Array<any> | null => {
   return duplicates;
 };
 
+const removeDuplicates = (array: string[]) => {
+  let uniqueChars = [...new Set(array)];
+  return uniqueChars;
+};
+
+const compareAndRemoveDuplicates = (
+  removeFromThisArray: string[],
+  duplicatesToRemove: string[]
+) => {
+  return removeFromThisArray.filter(function (val) {
+    return duplicatesToRemove.indexOf(val) == -1;
+  });
+};
+
 export { filterObject };
 export { removeProperty };
 export { addUpdateDate };
 export { addCreatedDate };
 export { findDuplicates };
 export { hasDuplicates };
+export { removeDuplicates };
+export { compareAndRemoveDuplicates };

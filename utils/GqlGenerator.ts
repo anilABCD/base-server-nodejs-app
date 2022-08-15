@@ -1,4 +1,5 @@
 import fs, { readdirSync } from "fs";
+import { compareAndRemoveDuplicates, removeDuplicates } from "./all.util";
 
 type TypeOfGraphQLFile =
   | "input"
@@ -30,6 +31,7 @@ type FileAndData = {
   allTypesInSingleFileCount: number;
   typesAndProperties: TypeInfo[];
   typesAndPropertiesCount: number;
+  allOtherDependentTypesFromPropertiesFromOtherFiles: string[];
   importPath: string;
 };
 
@@ -40,6 +42,8 @@ export default class GqlGenerator {
     fileNames.forEach((file) => {
       const filePathIndex = file.lastIndexOf("/");
       let fileName = file;
+
+      let allOtherDependentTypesFromPropertiesFromOtherFiles: string[] = [];
 
       let allTypesInSingleFile: string[] = [];
       let typesAndProperties: TypeInfo[] = [];
@@ -144,11 +148,24 @@ export default class GqlGenerator {
               )
             ) {
               if (data.indexOf(":") > -1) {
+                const propertyName = data
+                  .substring(0, lastIndexOfCollon)
+                  .trim();
+                const nonScalarType = data
+                  .substring(lastIndexOfCollon + 1)
+                  .trim();
+
                 let propInfo: PropertyInfo = {
-                  propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                  typeName: data.substring(lastIndexOfCollon).trim(),
+                  propertyName: propertyName,
+                  typeName: nonScalarType,
                 };
 
+                allOtherDependentTypesFromPropertiesFromOtherFiles.push(
+                  nonScalarType
+                    .replace("[", "")
+                    .replace("]", "")
+                    .replace("!", "")
+                );
                 typeAndProperty.properties.push(propInfo);
               }
             }
@@ -165,7 +182,7 @@ export default class GqlGenerator {
               data = data.replace(" ID", " string");
               let propInfo: PropertyInfo = {
                 propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon + 1).trim(),
               };
 
               typeAndProperty.properties.push(propInfo);
@@ -175,7 +192,7 @@ export default class GqlGenerator {
               data = data.replace(" String", " string");
               let propInfo: PropertyInfo = {
                 propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon + 1).trim(),
               };
 
               typeAndProperty.properties.push(propInfo);
@@ -185,7 +202,7 @@ export default class GqlGenerator {
               data = data.replace(" Float", " number");
               let propInfo: PropertyInfo = {
                 propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon + 1).trim(),
               };
 
               typeAndProperty.properties.push(propInfo);
@@ -195,7 +212,7 @@ export default class GqlGenerator {
               data = data.replace(" Boolean", " boolean");
               let propInfo: PropertyInfo = {
                 propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon + 1).trim(),
               };
 
               typeAndProperty.properties.push(propInfo);
@@ -205,7 +222,7 @@ export default class GqlGenerator {
               data = data.replace(" Int", " number");
               let propInfo: PropertyInfo = {
                 propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon).trim(),
+                typeName: data.substring(lastIndexOfCollon + 1).trim(),
               };
 
               typeAndProperty.properties.push(propInfo);
@@ -285,6 +302,21 @@ export default class GqlGenerator {
       //     typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
       // });
 
+      allOtherDependentTypesFromPropertiesFromOtherFiles =
+        compareAndRemoveDuplicates(
+          allOtherDependentTypesFromPropertiesFromOtherFiles,
+          allTypesInSingleFile
+        );
+
+      // allOtherNonScalarFromPropertyTypes =
+      //   allOtherNonScalarFromPropertyTypes.filter(function (val) {
+      //     return allTypesInSingleFile.indexOf(val) == -1;
+      //   });
+
+      allOtherDependentTypesFromPropertiesFromOtherFiles = removeDuplicates(
+        allOtherDependentTypesFromPropertiesFromOtherFiles
+      );
+
       fileName = fileName.substring(0, fileName.lastIndexOf("."));
 
       console.log("allTypesInSingleFile", allTypesInSingleFile);
@@ -302,7 +334,14 @@ export default class GqlGenerator {
           (folderToCreate.trim() !== "" ? folderToCreate + "/" : "") +
           fileName +
           '"',
+        allOtherDependentTypesFromPropertiesFromOtherFiles:
+          allOtherDependentTypesFromPropertiesFromOtherFiles,
       };
+
+      console.log(
+        "allOtherNonScalarFromPropertyTypes",
+        allOtherDependentTypesFromPropertiesFromOtherFiles
+      );
 
       fileNameAndData.push(fileAndData);
     });
@@ -313,6 +352,23 @@ export default class GqlGenerator {
     };
 
     console.log("graphql to ts file generator", graphQLToTs);
+
+    const outputPath =
+      "./../base-react-native-app/" +
+      "App/" +
+      appName +
+      "/graphql/graphql.types/";
+
+    let fileAndData = graphQLToTs.fileAndData;
+    for (let i = 0; i < graphQLToTs.fileAndData.length; i++) {
+      let tsData = fileAndData[i];
+
+      if (tsData.allTypesInSingleFile.length > 0) {
+        tsData.allTypesInSingleFile.forEach((inFileTypes) => {
+          //
+        });
+      }
+    }
 
     return graphQLToTs;
   }
