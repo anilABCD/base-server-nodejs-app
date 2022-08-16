@@ -1,0 +1,7 @@
+type Test {
+  id: ID!
+  senderId: ID!
+  receiverId: ID!
+  message: String!
+  someMessage: Message!
+}

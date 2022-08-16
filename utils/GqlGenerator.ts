@@ -40,6 +40,8 @@ export default class GqlGenerator {
     const fileNameAndData: FileAndData[] = [];
 
     fileNames.forEach((file) => {
+      //#region File Array Scope
+
       const filePathIndex = file.lastIndexOf("/");
       let fileName = file;
 
@@ -65,11 +67,12 @@ export default class GqlGenerator {
 
       let exportData = "";
       fileDataArray.forEach((data, index) => {
-        // console.log(data, index);
+        //#region File Data End Scope ...
 
         data = data.replace("schema", "type Schema ");
         // data = data.replace("input ", "type ");
 
+        // For Non Empty Lines Start Processing the line
         if (data.trim() !== "") {
           if (data.indexOf("type ") > -1) {
             typeAndProperty = {
@@ -254,7 +257,12 @@ export default class GqlGenerator {
         }
 
         fileData += data;
+        //#endregion File Data End Scope ...
       });
+
+      console.log("typesAndProperties", typesAndProperties);
+
+      //#region START File Array Scope after data code ...
 
       let typeType: TypeOfGraphQLFile;
       let folderToCreate = "";
@@ -308,11 +316,6 @@ export default class GqlGenerator {
           allTypesInSingleFile
         );
 
-      // allOtherNonScalarFromPropertyTypes =
-      //   allOtherNonScalarFromPropertyTypes.filter(function (val) {
-      //     return allTypesInSingleFile.indexOf(val) == -1;
-      //   });
-
       allOtherDependentTypesFromPropertiesFromOtherFiles = removeDuplicates(
         allOtherDependentTypesFromPropertiesFromOtherFiles
       );
@@ -339,11 +342,15 @@ export default class GqlGenerator {
       };
 
       console.log(
-        "allOtherNonScalarFromPropertyTypes",
+        "allOtherDependentTypesFromPropertiesFromOtherFiles",
         allOtherDependentTypesFromPropertiesFromOtherFiles
       );
 
       fileNameAndData.push(fileAndData);
+
+      //#endregion End File Array Scope after data code ...
+
+      //#endregion End File Array Scope ...
     });
 
     const graphQLToTs: GraphQLToTS = {
@@ -370,7 +377,91 @@ export default class GqlGenerator {
       }
     }
 
+    //#region START Generate gql` query `
+
+    let typeInfosFor_gql_query: TypeInfo[] = [];
+    graphQLToTs.fileAndData.forEach((element) => {
+      element.typesAndProperties.forEach((type) => {
+        if (
+          !type.typeName.toLowerCase().includes("input") &&
+          type.typeName !== "Query" &&
+          type.typeName !== "Mutation" &&
+          type.typeName !== "Schema"
+        ) {
+          console.log("Type Name", type.typeName);
+          let newTypeInfo: TypeInfo = {
+            properties: [],
+            typeName: "",
+          };
+
+          newTypeInfo.typeName = type.typeName;
+          type.properties.forEach((prop) => {
+            const propertyType = prop.typeName
+              .replace("[", "")
+              .replace("]", "")
+              .replace("!", "");
+
+            if (
+              this.isScalarType(propertyType) &&
+              propertyType !== "Query" &&
+              propertyType !== "Mutation"
+            ) {
+            }
+
+            if (
+              !this.isScalarType(propertyType) &&
+              propertyType !== "Query" &&
+              propertyType !== "Mutation"
+            ) {
+              newTypeInfo.properties.push(prop);
+              // console.log(propertyType);
+            }
+          });
+          if (newTypeInfo.typeName !== "") {
+            typeInfosFor_gql_query.push(newTypeInfo);
+          }
+        }
+      });
+    });
+
+    console.log("To Generate GQL :\n");
+
+    typeInfosFor_gql_query = typeInfosFor_gql_query.filter((type) => {
+      return type.properties.length !== 0;
+    });
+
+    typeInfosFor_gql_query.forEach((type) => {
+      console.log(type.properties, type.typeName);
+    });
+
+    console.log("\n");
+
+    //#endregion END Generate gql` query `
+
+    // `
+    //   query {
+    //     test_messages {
+    //       message
+    //       receiverId
+    //       senderId
+    //     }
+    //   }
+    // `;
+
     return graphQLToTs;
+  }
+  isScalarType(propertyType: string) {
+    if (
+      propertyType.indexOf("string") > -1 ||
+      propertyType.indexOf("String") > -1 ||
+      propertyType.indexOf("number") > -1 ||
+      propertyType.indexOf("Boolean") > -1 ||
+      propertyType.indexOf("boolean") > -1 ||
+      propertyType.indexOf("bigint") > -1
+    ) {
+      return true;
+    }
+    return false;
   }
 
   writeGeneratedGraphQLToTsFilesSync(
