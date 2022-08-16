@@ -20,6 +20,8 @@ type PropertyInfo = {
 type TypeInfo = {
   properties: PropertyInfo[];
   typeName: string;
+  isPureType?: boolean;
+  dependentTypes?: string[];
 };
 
 type FileAndData = {
@@ -128,7 +130,33 @@ export default class GqlGenerator {
               data += "\r\n\r\n" + exportData + "\r\n\r\n";
               exportData = "";
             }
+
+            const dependentTypes: string[] = [];
+
+            typeAndProperty.properties.forEach((type) => {
+              const typeName = type.typeName
+                .trim()
+                .replace("[", "")
+                .replace("]", "")
+                .replace("!", "");
+              if (!this.isScalarType(typeName)) {
+                dependentTypes.push(typeName);
+                typeAndProperty.isPureType = false;
+              }
+            });
+
+            if (
+              typeAndProperty.isPureType === null ||
+              typeAndProperty.isPureType === undefined
+            ) {
+              typeAndProperty.isPureType = true;
+            }
+
+            const dependentTypesRemovedDuplicates =
+              removeDuplicates(dependentTypes);
+
             typesAndProperties.push(typeAndProperty);
+            typeAndProperty.dependentTypes = dependentTypesRemovedDuplicates;
             console.log("typeAndProperty", typeAndProperty);
           }
 
@@ -260,7 +288,7 @@ export default class GqlGenerator {
         //#endregion File Data End Scope ...
       });
 
-      console.log("typesAndProperties", typesAndProperties);
+      // console.log("typesAndProperties", typesAndProperties);
 
       //#region START File Array Scope after data code ...
 
@@ -382,6 +410,11 @@ export default class GqlGenerator {
     let typeInfosFor_gql_query: TypeInfo[] = [];
     graphQLToTs.fileAndData.forEach((element) => {
       element.typesAndProperties.forEach((type) => {
+        let newTypeInfo: TypeInfo = {
+          properties: [],
+          typeName: "",
+        };
+
         if (
           !type.typeName.toLowerCase().includes("input") &&
           type.typeName !== "Query" &&
@@ -389,10 +422,6 @@ export default class GqlGenerator {
           type.typeName !== "Schema"
         ) {
           console.log("Type Name", type.typeName);
-          let newTypeInfo: TypeInfo = {
-            properties: [],
-            typeName: "",
-          };
 
           newTypeInfo.typeName = type.typeName;
           type.properties.forEach((prop) => {
@@ -424,17 +453,17 @@ export default class GqlGenerator {
       });
     });
 
-    console.log("To Generate GQL :\n");
+    console.log("\n********** To Generate GQL : **********\n");
 
     typeInfosFor_gql_query = typeInfosFor_gql_query.filter((type) => {
       return type.properties.length !== 0;
     });
 
     typeInfosFor_gql_query.forEach((type) => {
-      console.log(type.properties, type.typeName);
+      console.log(type.properties, type.typeName, "\n");
     });
 
-    console.log("\n");
+    console.log("\n*************************************\n");
 
     //#endregion END Generate gql` query `
 

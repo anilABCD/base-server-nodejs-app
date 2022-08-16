@@ -4,4 +4,18 @@ type Test {
   receiverId: ID!
   message: String!
   someMessage: Message!
+  other: Message!
+}
+
+type Test2 {
+  id: ID!
+  senderId: ID!
+  receiverId: ID!
+  message: String!
+  someMessage: Message!
+  other: SendMessageInput!
+}
+
+type Test3 {
+  testing_type: Test2!
 }
