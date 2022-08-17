@@ -28,12 +28,45 @@ class File {
     let extendingPath = "";
     if (paths) {
       paths.forEach((path, index) => {
+        // Raising An Error ...
         path = path.replace(/\/+/g, "/");
+
+        let text = path;
+
+        //****************************************
+        //
+        // // if has multiple // slashes ... more than two
+        // let pattern = /\/\/+/g;
+        // let hasDoubleSlashes = pattern.test(text);
+
+        // if (hasDoubleSlashes === true) {
+        //   throw new Error(
+        //     `\n ${path} \n// FolderToCreate : somthing wrong with path :
+        //     (eg: .//somefolder///somefolder////....////somefolder)
+        //     some thing wrong with folder path
+        //     `
+        //   );
+        // }
+        //
+        //****************************************
+
+        // if has multiple ... dots more than two .
+        let doubleDotsPattern = /\.\.\.+/g;
+        let hasDoubleDots = doubleDotsPattern.test(text);
+
+        if (hasDoubleDots === true) {
+          throw new Error(
+            `\n ${path} \n// FolderToCreate : somthing wrong with path : 
+            (eg: ..../somefolder/somefolder/..../somefolder) 
+            some thing wrong with folder path
+            `
+          );
+        }
 
         if (path.length > 0) {
           const divChar = path[0];
 
-          if (divChar !== "/") {
+          if (divChar !== "/" && divChar !== ".") {
             path = "/" + path;
           }
 
