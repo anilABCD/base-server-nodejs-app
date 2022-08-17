@@ -26,6 +26,9 @@ type TypeInfo = {
   typeName: string;
   isPureType?: boolean;
   dependentTypes?: string[];
+  folderToCreate: string;
+  importUrl: string;
+  fileName: string;
 };
 
 type FileAndData = {
@@ -38,7 +41,7 @@ type FileAndData = {
   typesAndProperties: TypeInfo[];
   typesAndPropertiesCount: number;
   allOtherDependentTypesFromPropertiesFromOtherFiles: string[];
-  importPath: string;
+  importUrl: string;
 };
 
 export default class GqlGenerator {
@@ -49,7 +52,7 @@ export default class GqlGenerator {
       //#region File Array Scope
 
       const filePathIndex = file.lastIndexOf("/");
-      let fileName = file;
+      let fileNameTemp = file;
 
       let allOtherDependentTypesFromPropertiesFromOtherFiles: string[] = [];
 
@@ -57,8 +60,13 @@ export default class GqlGenerator {
       let typesAndProperties: TypeInfo[] = [];
 
       if (filePathIndex > -1) {
-        fileName = file.substring(filePathIndex + 1);
+        fileNameTemp = file.substring(filePathIndex + 1);
       }
+
+      const { typeType, folderToCreate, fileName } =
+        this.getFolderName(fileNameTemp);
+
+      const imageUrl = this.getImportUrl(folderToCreate, fileName);
 
       let fileData = "";
 
@@ -69,6 +77,9 @@ export default class GqlGenerator {
       let typeAndProperty: TypeInfo = {
         properties: [],
         typeName: "",
+        folderToCreate: folderToCreate,
+        importUrl: imageUrl,
+        fileName: fileName,
       };
 
       let exportData = "";
@@ -84,6 +95,9 @@ export default class GqlGenerator {
             typeAndProperty = {
               properties: [],
               typeName: "",
+              folderToCreate: folderToCreate,
+              importUrl: imageUrl,
+              fileName: fileName,
             };
 
             const typeData = data.split(" ");
@@ -101,6 +115,9 @@ export default class GqlGenerator {
             typeAndProperty = {
               properties: [],
               typeName: "",
+              folderToCreate: folderToCreate,
+              importUrl: imageUrl,
+              fileName: fileName,
             };
             const typeData = data.split(" ");
             const typeName = typeData[1].trim();
@@ -115,6 +132,9 @@ export default class GqlGenerator {
             typeAndProperty = {
               properties: [],
               typeName: "",
+              folderToCreate: folderToCreate,
+              importUrl: imageUrl,
+              fileName: fileName,
             };
             const typeData = data.split(" ");
             const typeName = typeData[1].trim();
@@ -296,45 +316,6 @@ export default class GqlGenerator {
 
       //#region START File Array Scope after data code ...
 
-      let typeType: TypeOfGraphQLFile;
-      let folderToCreate = "";
-      if (!(fileName.lastIndexOf(".graphql") > -1))
-        throw new Error(
-          `incorect type of file : not a graphql file ${fileName}`
-        );
-
-      if (fileName.indexOf(".querys.and.mutations") > -1) {
-        typeType = ".querys.and.mutations";
-
-        folderToCreate = fileName.substring(
-          0,
-          fileName.indexOf("." + typeType)
-        );
-      } else if (fileName.indexOf("input") > -1) {
-        typeType = "input";
-
-        folderToCreate = fileName.substring(
-          0,
-          fileName.indexOf("." + typeType)
-        );
-      } else if (fileName.indexOf("type") > -1) {
-        typeType = "type";
-
-        folderToCreate = fileName.substring(
-          0,
-          fileName.indexOf("." + typeType)
-        );
-      } else if (fileName.indexOf("mutation") > -1) {
-        typeType = "mutation";
-
-        folderToCreate = fileName.substring(
-          0,
-          fileName.indexOf("." + typeType)
-        );
-      } else {
-        throw new Error("incorect type of file : not a graphql file : phase 2");
-      }
-
       // let typeNameToCreate = "";
 
       // fileName.split(".").forEach((data) => {
@@ -352,8 +333,6 @@ export default class GqlGenerator {
         allOtherDependentTypesFromPropertiesFromOtherFiles
       );
 
-      fileName = fileName.substring(0, fileName.lastIndexOf("."));
-
       console.log("allTypesInSingleFile", allTypesInSingleFile);
 
       allTypesCombined.push(...typesAndProperties);
@@ -367,11 +346,7 @@ export default class GqlGenerator {
         allTypesInSingleFileCount: allTypesInSingleFile.length,
         typesAndProperties: typesAndProperties,
         typesAndPropertiesCount: typesAndProperties.length,
-        importPath:
-          'import { TYPE_NAME } from "../' +
-          (folderToCreate.trim() !== "" ? folderToCreate + "/" : "") +
-          fileName +
-          '"',
+        importUrl: imageUrl,
         allOtherDependentTypesFromPropertiesFromOtherFiles:
           allOtherDependentTypesFromPropertiesFromOtherFiles,
       };
@@ -420,6 +395,9 @@ export default class GqlGenerator {
         let newTypeInfo: TypeInfo = {
           properties: [],
           typeName: "",
+          folderToCreate: "",
+          importUrl: "",
+          fileName: "",
         };
 
         if (
@@ -504,6 +482,49 @@ export default class GqlGenerator {
 
     return graphQLToTs;
   }
+
+  // getImportPath / URL
+  getImportUrl = (folderToCreate: string, fileName: string) => {
+    return (
+      'import { TYPE_NAME } from "../' +
+      (folderToCreate.trim() !== "" ? folderToCreate + "/" : "") +
+      fileName +
+      '"'
+    );
+  };
+
+  // getFolderName
+  getFolderName(fileName: string) {
+    let typeType: TypeOfGraphQLFile;
+    let folderToCreate = "";
+    if (!(fileName.lastIndexOf(".graphql") > -1))
+      throw new Error(`incorect type of file : not a graphql file ${fileName}`);
+
+    if (fileName.indexOf(".querys.and.mutations") > -1) {
+      typeType = ".querys.and.mutations";
+
+      folderToCreate = fileName.substring(0, fileName.indexOf("." + typeType));
+    } else if (fileName.indexOf("input") > -1) {
+      typeType = "input";
+
+      folderToCreate = fileName.substring(0, fileName.indexOf("." + typeType));
+    } else if (fileName.indexOf("type") > -1) {
+      typeType = "type";
+
+      folderToCreate = fileName.substring(0, fileName.indexOf("." + typeType));
+    } else if (fileName.indexOf("mutation") > -1) {
+      typeType = "mutation";
+
+      folderToCreate = fileName.substring(0, fileName.indexOf("." + typeType));
+    } else {
+      throw new Error("incorect type of file : not a graphql file : phase 2");
+    }
+
+    fileName = fileName.substring(0, fileName.lastIndexOf("."));
+    folderToCreate = folderToCreate.toLowerCase();
+    return { folderToCreate, typeType, fileName };
+  }
+
   attachAllPropertyTypesWithOriginalType(allTypesCombined: TypeInfo[]) {
     allTypesCombined.forEach((type) => {
       type.properties.forEach((prop) => {

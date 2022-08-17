@@ -34,8 +34,6 @@ type Test {
   senderId: ID!
   receiverId: ID!
   message: String!
-  someMessage: Message!
-  other: Message!
 }
 
 type Test2 {
