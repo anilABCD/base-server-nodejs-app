@@ -57,7 +57,7 @@ export default class GenerateController {
       );
 
       let dataOfTsFiles = "";
-      filesDataTs.fileAndData.forEach((value) => {
+      filesDataTs.fileAndDataWithTypesInfo.forEach((value) => {
         dataOfTsFiles += value.data;
       });
 

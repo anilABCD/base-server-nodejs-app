@@ -24,6 +24,38 @@ type FileParams = {
 export { FileParams };
 
 class File {
+  static path(...toExtendPaths: string[]) {
+    let extendingPath = "";
+    if (toExtendPaths) {
+      toExtendPaths.forEach((path, index) => {
+        path = path.replace(/\/+/g, "/");
+        const lastIndexOfDiv = path.lastIndexOf("/");
+        if (path.length > 0) {
+          const divChar = path[0];
+          const lastDivChar = path[path.length - 1];
+
+          if (index === 0) {
+            if (divChar !== "/") {
+              path = "/" + path;
+            }
+          }
+
+          if (lastIndexOfDiv === path.length - 1) {
+            {
+              path = path.substring(0, lastIndexOfDiv);
+            }
+          }
+
+          extendingPath += path;
+        }
+      });
+    }
+
+    const path = extendingPath.replace(/\/+/g, "/");
+
+    return path;
+  }
+
   getDirectoryOrFileNamesSync(directoryName: string[], params: FileParams) {
     let resultNames = this.getDirectoryNamesSync(directoryName);
     // console.log("directory names :", resultNames);
@@ -178,6 +210,18 @@ class File {
   // });
   /////////////////////////////////////////////
   //
+
+  createDirectorySync(directory: string, isRecursive?: boolean) {
+    var dir = directory;
+
+    if (!fs.existsSync(dir)) {
+      if (isRecursive === true) {
+        fs.mkdirSync(dir, { recursive: true });
+      } else {
+        fs.mkdirSync(dir);
+      }
+    }
+  }
 }
 
 //

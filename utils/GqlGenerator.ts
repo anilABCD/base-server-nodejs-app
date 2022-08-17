@@ -2,6 +2,8 @@ import fs, { readdirSync } from "fs";
 import { compareAndRemoveDuplicates, removeDuplicates } from "./all.util";
 import GraphQLUtils from "./GraphQLUtils";
 
+import File from "./File";
+
 type TypeOfGraphQLFile =
   | "input"
   | "type"
@@ -10,7 +12,7 @@ type TypeOfGraphQLFile =
 
 type GraphQLToTS = {
   appName: string;
-  fileAndData: FileAndData[];
+  fileAndDataWithTypesInfo: FileAndTypesDataInfo[];
   allTypesCombined?: TypeInfo[];
 };
 
@@ -31,7 +33,7 @@ type TypeInfo = {
   fileName: string;
 };
 
-type FileAndData = {
+type FileAndTypesDataInfo = {
   fileName: string;
   type: TypeOfGraphQLFile;
   data: string;
@@ -40,13 +42,13 @@ type FileAndData = {
   allTypesInSingleFileCount: number;
   typesAndProperties: TypeInfo[];
   typesAndPropertiesCount: number;
-  allOtherDependentTypesFromPropertiesFromOtherFiles: string[];
+  allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[];
   importUrl: string;
 };
 
 export default class GqlGenerator {
   generateGraphQLToTs(fileNames: string[], appName: string) {
-    const fileNameAndData: FileAndData[] = [];
+    const fileNameAndData: FileAndTypesDataInfo[] = [];
     let allTypesCombined: TypeInfo[] = [];
     fileNames.forEach((file) => {
       //#region File Array Scope
@@ -54,7 +56,7 @@ export default class GqlGenerator {
       const filePathIndex = file.lastIndexOf("/");
       let fileNameTemp = file;
 
-      let allOtherDependentTypesFromPropertiesFromOtherFiles: string[] = [];
+      let allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[] = [];
 
       let allTypesInSingleFile: string[] = [];
       let typesAndProperties: TypeInfo[] = [];
@@ -216,7 +218,7 @@ export default class GqlGenerator {
                   typeName: nonScalarType,
                 };
 
-                allOtherDependentTypesFromPropertiesFromOtherFiles.push(
+                allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
                   nonScalarType
                     .replace("[", "")
                     .replace("]", "")
@@ -324,21 +326,21 @@ export default class GqlGenerator {
       //     typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
       // });
 
-      allOtherDependentTypesFromPropertiesFromOtherFiles =
+      allOtherDependentTypesFromPropertyTypesFromOtherFiles =
         compareAndRemoveDuplicates(
-          allOtherDependentTypesFromPropertiesFromOtherFiles,
+          allOtherDependentTypesFromPropertyTypesFromOtherFiles,
           allTypesInSingleFile
         );
 
-      allOtherDependentTypesFromPropertiesFromOtherFiles = removeDuplicates(
-        allOtherDependentTypesFromPropertiesFromOtherFiles
+      allOtherDependentTypesFromPropertyTypesFromOtherFiles = removeDuplicates(
+        allOtherDependentTypesFromPropertyTypesFromOtherFiles
       );
 
       console.log("allTypesInSingleFile", allTypesInSingleFile);
 
       allTypesCombined.push(...typesAndProperties);
 
-      const fileAndData: FileAndData = {
+      const fileAndData: FileAndTypesDataInfo = {
         fileName: fileName + ".ts",
         type: typeType,
         data: fileData,
@@ -348,13 +350,13 @@ export default class GqlGenerator {
         typesAndProperties: typesAndProperties,
         typesAndPropertiesCount: typesAndProperties.length,
         importUrl: imageUrl,
-        allOtherDependentTypesFromPropertiesFromOtherFiles:
-          allOtherDependentTypesFromPropertiesFromOtherFiles,
+        allOtherDependentTypesFromPropertyTypesFromOtherFiles:
+          allOtherDependentTypesFromPropertyTypesFromOtherFiles,
       };
 
       console.log(
-        "allOtherDependentTypesFromPropertiesFromOtherFiles",
-        allOtherDependentTypesFromPropertiesFromOtherFiles
+        "AllOtherDependentTypesFromPropertyTypesFromOtherFiles",
+        allOtherDependentTypesFromPropertyTypesFromOtherFiles
       );
 
       fileNameAndData.push(fileAndData);
@@ -366,7 +368,7 @@ export default class GqlGenerator {
 
     const graphQLToTs: GraphQLToTS = {
       appName: appName,
-      fileAndData: fileNameAndData,
+      fileAndDataWithTypesInfo: fileNameAndData,
     };
 
     console.log("graphql to ts file generator", graphQLToTs);
@@ -377,8 +379,8 @@ export default class GqlGenerator {
       appName +
       "/graphql/graphql.types/";
 
-    let fileAndData = graphQLToTs.fileAndData;
-    for (let i = 0; i < graphQLToTs.fileAndData.length; i++) {
+    let fileAndData = graphQLToTs.fileAndDataWithTypesInfo;
+    for (let i = 0; i < graphQLToTs.fileAndDataWithTypesInfo.length; i++) {
       let tsData = fileAndData[i];
 
       if (tsData.allTypesInSingleFile.length > 0) {
@@ -391,7 +393,7 @@ export default class GqlGenerator {
     //#region START Generate gql` query `
 
     let typeInfosFor_gql_query: TypeInfo[] = [];
-    graphQLToTs.fileAndData.forEach((element) => {
+    graphQLToTs.fileAndDataWithTypesInfo.forEach((element) => {
       element.typesAndProperties.forEach((type) => {
         let newTypeInfo: TypeInfo = {
           properties: [],
@@ -469,8 +471,9 @@ export default class GqlGenerator {
 
     console.log("\n*************************************\n");
 
+    //
     //#endregion END Generate gql` query `
-
+    //
     // `
     //   query {
     //     test_messages {
@@ -479,7 +482,9 @@ export default class GqlGenerator {
     //       senderId
     //     }
     //   }
+    //
     // `;
+    //
 
     return graphQLToTs;
   }
@@ -546,11 +551,6 @@ export default class GqlGenerator {
     return allTypesCombined;
   }
 
-  generate_gql(typeName: string[], allTypes: TypeInfo[]) {
-    //
-    let gql: any = {};
-  }
-
   generate_gql_from_query_mutation(
     queryAndMutationTypesToGenerateGQL: TypeInfo[],
     allTypes: TypeInfo[]
@@ -565,18 +565,27 @@ export default class GqlGenerator {
         typeNamesToGenereate_gql.push(queryAndMutationReturnTypes);
       });
     });
-
-    this.generate_gql(typeNamesToGenereate_gql, allTypes);
   }
 
   writeGeneratedGraphQLToTsFilesSync(
     graphQLToTs: GraphQLToTS,
-    singleOutFile: boolean,
-    outPath: string
+    singleOutFile: boolean
   ) {
+    let fileObj = new File();
+
+    let outFilePath = "../../base-react-native-app/graphql/CURRENT_APP/";
+    outFilePath = outFilePath.replace("CURRENT_APP", graphQLToTs.appName);
+
     if (singleOutFile) {
-      outPath += "/types.ts";
+      outFilePath += "/types.ts";
     }
-    outPath = outPath.replace("{CURRENT_APP}", graphQLToTs.appName);
+
+    if (!singleOutFile) {
+      graphQLToTs.fileAndDataWithTypesInfo.forEach((file) => {
+        const folderToCreate = File.path(outFilePath, file.folderToCreate);
+
+        fileObj.createDirectorySync(folderToCreate);
+      });
+    }
   }
 }
