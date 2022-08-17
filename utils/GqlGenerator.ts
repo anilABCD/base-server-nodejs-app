@@ -109,6 +109,7 @@ export default class GqlGenerator {
             }
             // console.log(exportData);
           }
+
           // Int, Float, String, Boolean, and ID, Date
 
           if (data.indexOf("input ") > -1) {

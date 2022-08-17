@@ -9,13 +9,21 @@ import console from "../../utils/console";
 import GqlGenerator from "../../utils/GqlGenerator";
 
 export default class GenerateController {
-  constructor() {}
+  CURRENT_APP: string;
+
+  constructor(CURRENT_APP: string) {
+    this.CURRENT_APP = CURRENT_APP;
+
+    if (this.CURRENT_APP === "") {
+      throw new Error("CURRENT_APP is not provided in Generate GraphQL");
+    }
+  }
 
   generate = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      let result = true;
-
-      let outPath = req.query.path;
+      if (req.query.CURRENT_APP) {
+        this.CURRENT_APP = req.query.CURRENT_APP.toString();
+      }
 
       const fileObj = new File();
 
@@ -23,14 +31,8 @@ export default class GenerateController {
         namesOf: "file",
       };
 
-      const CURRENT_APP = getEnv(EnvEnumType.CURRENT_APP)?.replace("-", ".");
-
-      if (CURRENT_APP === undefined || CURRENT_APP === "") {
-        throw new Error("CURRENT_APP IS NOT SPECIFIED");
-      }
-
       const fileNames = fileObj.getDirectoryOrFileNamesSync(
-        ["./GraphQLAPI/" + CURRENT_APP],
+        ["./GraphQLAPI/" + this.CURRENT_APP],
         fileParams
       );
 
@@ -44,14 +46,14 @@ export default class GenerateController {
 
       const filesDataTs = gqlGenerator.generateGraphQLToTs(
         fileNames,
-        CURRENT_APP
+        this.CURRENT_APP
       );
 
       console.log(filesData);
 
       const resultAfterWrite = fileObj.writeToFileSync(
         filesData,
-        "./GraphQLAPI/" + CURRENT_APP + "/schema.graphql"
+        "./GraphQLAPI/" + this.CURRENT_APP + "/schema.graphql"
       );
 
       let dataOfTsFiles = "";
@@ -59,15 +61,19 @@ export default class GenerateController {
         dataOfTsFiles += value.data;
       });
 
-      dataOfTsFiles = fileAuthorAndHeaderInformation + dataOfTsFiles;
+      let headerInfo = fileAuthorAndHeaderInformation.replace(
+        "CURRENT_APP",
+        this.CURRENT_APP
+      );
+
+      dataOfTsFiles = headerInfo + dataOfTsFiles;
 
       const resultAfterWriteTs = fileObj.writeToFileSync(
         [dataOfTsFiles],
         "./../base-react-native-app/" +
-          "App/" +
-          CURRENT_APP +
-          "/graphql/graphql.types/" +
-          "types.ts"
+          "graphql/" +
+          this.CURRENT_APP +
+          "/types.ts"
       );
 
       // "./../base-react-native-app/" +
@@ -78,6 +84,7 @@ export default class GenerateController {
       console.log("File Written", resultAfterWrite);
 
       // console.error("trace");
+      let result = true;
 
       res.status(200).json({
         status: "success",
@@ -87,6 +94,8 @@ export default class GenerateController {
       });
     }
   );
+
+  writeToCurrentApplication() {}
 }
 
 const fileAuthorAndHeaderInformation = `
@@ -95,7 +104,7 @@ const fileAuthorAndHeaderInformation = `
 //
 // @Email : 786.anil.potlapally@gmail.com
 //
-// @Generated For : @App_Name : @${getEnv(EnvEnumType.CURRENT_APP)}
+// @Generated For : @App_Name : @CURRENT_APP
 // 
 // @Code_Generated_Project_Name : /base-server-nodejs-app :
 //
