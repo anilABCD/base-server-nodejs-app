@@ -1,5 +1,6 @@
 import fs, { readdirSync } from "fs";
 import { compareAndRemoveDuplicates, removeDuplicates } from "./all.util";
+import GraphQLUtils from "./GraphQLUtils";
 
 type TypeOfGraphQLFile =
   | "input"
@@ -10,6 +11,7 @@ type TypeOfGraphQLFile =
 type GraphQLToTS = {
   appName: string;
   fileAndData: FileAndData[];
+  allTypesCombined?: TypeInfo[];
 };
 
 type PropertyInfo = {
@@ -37,7 +39,6 @@ type FileAndData = {
   typesAndPropertiesCount: number;
   allOtherDependentTypesFromPropertiesFromOtherFiles: string[];
   importPath: string;
-  allTypesCombined: TypeInfo[];
 };
 
 export default class GqlGenerator {
@@ -142,7 +143,7 @@ export default class GqlGenerator {
                 .replace("[", "")
                 .replace("]", "")
                 .replace("!", "");
-              if (!this.isScalarType(typeName)) {
+              if (!GraphQLUtils.isScalarType(typeName)) {
                 dependentTypes.push(typeName);
                 typeAndProperty.isPureType = false;
               }
@@ -373,7 +374,6 @@ export default class GqlGenerator {
           '"',
         allOtherDependentTypesFromPropertiesFromOtherFiles:
           allOtherDependentTypesFromPropertiesFromOtherFiles,
-        allTypesCombined: allTypesCombined,
       };
 
       console.log(
@@ -437,14 +437,14 @@ export default class GqlGenerator {
               .replace("!", "");
 
             if (
-              this.isScalarType(propertyType) &&
+              GraphQLUtils.isScalarType(propertyType) &&
               propertyType !== "Query" &&
               propertyType !== "Mutation"
             ) {
             }
 
             if (
-              !this.isScalarType(propertyType) &&
+              !GraphQLUtils.isScalarType(propertyType) &&
               propertyType !== "Query" &&
               propertyType !== "Mutation"
             ) {
@@ -483,6 +483,11 @@ export default class GqlGenerator {
       allTypesCombined
     );
 
+    //
+    // All combined types are here ...
+    //
+    graphQLToTs.allTypesCombined = allTypesCombined;
+
     console.log("\n*************************************\n");
 
     //#endregion END Generate gql` query `
@@ -503,9 +508,11 @@ export default class GqlGenerator {
     allTypesCombined.forEach((type) => {
       type.properties.forEach((prop) => {
         //
-        if (!this.isScalarType(prop.typeName)) {
+        if (!GraphQLUtils.isScalarType(prop.typeName)) {
           prop.propertyType = allTypesCombined.filter((types) => {
-            return types.typeName === this.getTrimmedType(prop.typeName);
+            return (
+              types.typeName === GraphQLUtils.getTrimmedType(prop.typeName)
+            );
           })[0];
           prop.propertyTypeAttachedTypeName = prop.propertyType
             ? prop.propertyType?.typeName
@@ -515,25 +522,6 @@ export default class GqlGenerator {
     });
 
     return allTypesCombined;
-  }
-  isScalarType(propertyType: string) {
-    propertyType = this.getTrimmedType(propertyType);
-
-    if (
-      propertyType.indexOf("string") > -1 ||
-      propertyType.indexOf("String") > -1 ||
-      propertyType.indexOf("number") > -1 ||
-      propertyType.indexOf("Boolean") > -1 ||
-      propertyType.indexOf("boolean") > -1 ||
-      propertyType.indexOf("bigint") > -1
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  getTrimmedType(typeName: string) {
-    return typeName.replace("[", "").replace("]", "").replace("!", "");
   }
 
   generate_gql(typeName: string[], allTypes: TypeInfo[]) {
@@ -548,7 +536,9 @@ export default class GqlGenerator {
     let typeNamesToGenereate_gql: string[] = [];
     queryAndMutationTypesToGenerateGQL.forEach((types) => {
       types.properties.forEach((prop) => {
-        const queryAndMutationReturnTypes = this.getTrimmedType(prop.typeName);
+        const queryAndMutationReturnTypes = GraphQLUtils.getTrimmedType(
+          prop.typeName
+        );
 
         typeNamesToGenereate_gql.push(queryAndMutationReturnTypes);
       });
