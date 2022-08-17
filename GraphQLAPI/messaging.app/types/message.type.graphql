@@ -3,4 +3,5 @@ type Message {
   senderId: ID!
   receiverId: ID!
   message: String!
+  test: Test!
 }

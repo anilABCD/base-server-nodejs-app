@@ -15,6 +15,8 @@ type GraphQLToTS = {
 type PropertyInfo = {
   propertyName: string;
   typeName: string;
+  propertyType?: TypeInfo;
+  propertyTypeAttachedTypeName?: string;
 };
 
 type TypeInfo = {
@@ -35,12 +37,13 @@ type FileAndData = {
   typesAndPropertiesCount: number;
   allOtherDependentTypesFromPropertiesFromOtherFiles: string[];
   importPath: string;
+  allTypesCombined: TypeInfo[];
 };
 
 export default class GqlGenerator {
   generateGraphQLToTs(fileNames: string[], appName: string) {
     const fileNameAndData: FileAndData[] = [];
-
+    let allTypesCombined: TypeInfo[] = [];
     fileNames.forEach((file) => {
       //#region File Array Scope
 
@@ -351,6 +354,9 @@ export default class GqlGenerator {
       fileName = fileName.substring(0, fileName.lastIndexOf("."));
 
       console.log("allTypesInSingleFile", allTypesInSingleFile);
+
+      allTypesCombined.push(...typesAndProperties);
+
       const fileAndData: FileAndData = {
         fileName: fileName + ".ts",
         type: typeType,
@@ -367,6 +373,7 @@ export default class GqlGenerator {
           '"',
         allOtherDependentTypesFromPropertiesFromOtherFiles:
           allOtherDependentTypesFromPropertiesFromOtherFiles,
+        allTypesCombined: allTypesCombined,
       };
 
       console.log(
@@ -417,9 +424,8 @@ export default class GqlGenerator {
 
         if (
           !type.typeName.toLowerCase().includes("input") &&
-          type.typeName !== "Query" &&
-          type.typeName !== "Mutation" &&
-          type.typeName !== "Schema"
+          (type.typeName === "Query" || type.typeName === "Mutation")
+          // type.typeName !== "Schema"
         ) {
           console.log("Type Name", type.typeName);
 
@@ -463,6 +469,20 @@ export default class GqlGenerator {
       console.log(type.properties, type.typeName, "\n");
     });
 
+    console.log("\n************* All Types Combined ************\n");
+
+    allTypesCombined =
+      this.attachAllPropertyTypesWithOriginalType(allTypesCombined);
+
+    allTypesCombined.forEach((type) => {
+      console.log(type);
+    });
+
+    this.generate_gql_from_query_mutation(
+      typeInfosFor_gql_query,
+      allTypesCombined
+    );
+
     console.log("\n*************************************\n");
 
     //#endregion END Generate gql` query `
@@ -479,7 +499,26 @@ export default class GqlGenerator {
 
     return graphQLToTs;
   }
+  attachAllPropertyTypesWithOriginalType(allTypesCombined: TypeInfo[]) {
+    allTypesCombined.forEach((type) => {
+      type.properties.forEach((prop) => {
+        //
+        if (!this.isScalarType(prop.typeName)) {
+          prop.propertyType = allTypesCombined.filter((types) => {
+            return types.typeName === this.getTrimmedType(prop.typeName);
+          })[0];
+          prop.propertyTypeAttachedTypeName = prop.propertyType
+            ? prop.propertyType?.typeName
+            : "";
+        }
+      });
+    });
+
+    return allTypesCombined;
+  }
   isScalarType(propertyType: string) {
+    propertyType = this.getTrimmedType(propertyType);
+
     if (
       propertyType.indexOf("string") > -1 ||
       propertyType.indexOf("String") > -1 ||
@@ -491,6 +530,31 @@ export default class GqlGenerator {
       return true;
     }
     return false;
+  }
+
+  getTrimmedType(typeName: string) {
+    return typeName.replace("[", "").replace("]", "").replace("!", "");
+  }
+
+  generate_gql(typeName: string[], allTypes: TypeInfo[]) {
+    //
+    let gql: any = {};
+  }
+
+  generate_gql_from_query_mutation(
+    queryAndMutationTypesToGenerateGQL: TypeInfo[],
+    allTypes: TypeInfo[]
+  ) {
+    let typeNamesToGenereate_gql: string[] = [];
+    queryAndMutationTypesToGenerateGQL.forEach((types) => {
+      types.properties.forEach((prop) => {
+        const queryAndMutationReturnTypes = this.getTrimmedType(prop.typeName);
+
+        typeNamesToGenereate_gql.push(queryAndMutationReturnTypes);
+      });
+    });
+
+    this.generate_gql(typeNamesToGenereate_gql, allTypes);
   }
 
   writeGeneratedGraphQLToTsFilesSync(
