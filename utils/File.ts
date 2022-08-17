@@ -24,22 +24,20 @@ type FileParams = {
 export { FileParams };
 
 class File {
-  static path(...toExtendPaths: string[]) {
+  static path(...paths: string[]) {
     let extendingPath = "";
-    if (toExtendPaths) {
-      toExtendPaths.forEach((path, index) => {
+    if (paths) {
+      paths.forEach((path, index) => {
         path = path.replace(/\/+/g, "/");
-        const lastIndexOfDiv = path.lastIndexOf("/");
+
         if (path.length > 0) {
           const divChar = path[0];
-          const lastDivChar = path[path.length - 1];
 
-          if (index === 0) {
-            if (divChar !== "/") {
-              path = "/" + path;
-            }
+          if (divChar !== "/") {
+            path = "/" + path;
           }
 
+          const lastIndexOfDiv = path.lastIndexOf("/");
           if (lastIndexOfDiv === path.length - 1) {
             {
               path = path.substring(0, lastIndexOfDiv);
