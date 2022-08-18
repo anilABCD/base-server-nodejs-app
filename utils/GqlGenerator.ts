@@ -36,7 +36,7 @@ type TypeInfo = {
 type FileAndTypesDataInfo = {
   fileName: string;
   type: TypeOfGraphQLFile;
-  originalData: string;
+  convertedTsDataString: string;
   folderToCreate: string;
   allTypesInSingleFile: string[];
   allTypesInSingleFileCount: number;
@@ -44,7 +44,6 @@ type FileAndTypesDataInfo = {
   typesAndPropertiesCount: number;
   allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[];
   importUrl: string;
-  finalFileDataAsStringWithImportUrls: string;
 };
 
 export default class GqlGenerator {
@@ -76,8 +75,6 @@ export default class GqlGenerator {
       const fileDataArray = fs
         .readFileSync(file, { encoding: "utf8", flag: "r" })
         .split("\n");
-
-      const fileDataAsStringWithOutImportUrl = fileDataArray.join("\n");
 
       let typeAndProperty: TypeInfo = {
         properties: [],
@@ -375,7 +372,7 @@ export default class GqlGenerator {
       const fileAndData: FileAndTypesDataInfo = {
         fileName: fileName + ".ts",
         type: typeType,
-        originalData: fileData,
+        convertedTsDataString: fileData,
         folderToCreate: folderToCreate,
         allTypesInSingleFile: allTypesInSingleFile,
         allTypesInSingleFileCount: allTypesInSingleFile.length,
@@ -385,7 +382,6 @@ export default class GqlGenerator {
         allOtherDependentTypesFromPropertyTypesFromOtherFiles:
           allOtherDependentTypesFromPropertyTypesFromOtherFiles,
         // next stage will attach : with import URL's after the file loop
-        finalFileDataAsStringWithImportUrls: fileDataAsStringWithOutImportUrl,
       };
 
       console.log(
@@ -407,11 +403,9 @@ export default class GqlGenerator {
       );
 
       const finalFileDataAsStringWithImportUrls =
-        dependentImportTypesUrls +
-        fileAndData.finalFileDataAsStringWithImportUrls;
+        dependentImportTypesUrls + fileAndData.convertedTsDataString;
 
-      fileAndData.finalFileDataAsStringWithImportUrls =
-        finalFileDataAsStringWithImportUrls;
+      fileAndData.convertedTsDataString = finalFileDataAsStringWithImportUrls;
     });
 
     const graphQLToTs: GraphQLToTS = {
@@ -605,6 +599,13 @@ export default class GqlGenerator {
 
     fileName = fileName.substring(0, fileName.lastIndexOf("."));
     folderToCreate = folderToCreate.toLowerCase();
+
+    if (folderToCreate === "") {
+      if ((typeType = ".querys.and.mutations")) {
+        folderToCreate = typeType;
+      }
+    }
+
     return { folderToCreate, typeType, fileName };
   }
 
@@ -648,8 +649,6 @@ export default class GqlGenerator {
     graphQLToTs: GraphQLToTS,
     singleOutFile: boolean
   ) {
-    let fileObj = new File();
-
     let outFilePath = "./../base-react-native-app/graphql/CURRENT_APP/";
     outFilePath = outFilePath.replace("CURRENT_APP", graphQLToTs.appName);
 
@@ -665,7 +664,7 @@ export default class GqlGenerator {
 
         try {
           if (folderToCreate.trim() !== "") {
-            fileObj.createDirectorySync(folderToCreate);
+            File.createDirectorySync(folderToCreate);
           }
         } catch (err) {
           // if unable to create folder then throw the exception ...
@@ -676,14 +675,21 @@ export default class GqlGenerator {
       });
 
       graphQLToTs.fileAndDataWithTypesInfo.forEach((file) => {
-        writeData = {};
+        // writeData = {};
 
-        const folderToCreate = File.path(outFilePath, file.folderToCreate);
+        const filePathToCreate = File.path(
+          outFilePath,
+          file.folderToCreate,
+          file.fileName
+        );
 
-        writeData.filePath = folderToCreate + "/" + file.fileName;
-        writeData.fileData = file.finalFileDataAsStringWithImportUrls;
+        // writeData.filePath = filePathToCreate + "/" + file.fileName;
 
-        writeDataArrya.push(writeData);
+        // writeData.fileData = file.finalFileDataAsStringWithImportUrls;
+
+        File.writeToFileSync([file.convertedTsDataString], filePathToCreate);
+
+        // writeDataArrya.push(writeData);
       });
       console.log("\n******* Write Data ********\n");
       console.log(writeDataArrya);

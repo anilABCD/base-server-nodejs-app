@@ -92,12 +92,17 @@ class File {
     return path;
   }
 
-  getDirectoryOrFileNamesSync(directoryName: string[], params: FileParams) {
-    let resultNames = this.getDirectoryNamesSync(directoryName);
+  static getDirectoryOrFileNamesSync(
+    directoryName: string[],
+    params: FileParams
+  ) {
+    const fileObje = new File();
+
+    let resultNames = fileObje.getDirectoryNamesSync(directoryName);
     // console.log("directory names :", resultNames);
     if (params.namesOf === "file") {
       resultNames.push(directoryName[0]);
-      resultNames = this.getFileNamesSync(resultNames, ["graphql"]);
+      resultNames = fileObje.getFileNamesSync(resultNames, ["graphql"]);
       // console.log("file names :", resultNames);
     }
 
@@ -209,7 +214,7 @@ class File {
     //
   }
 
-  getFilesDataSync(fileNames: string[]) {
+  static getFilesDataSync(fileNames: string[]) {
     let filesData: string[] = [];
 
     fileNames.forEach((file) => {
@@ -221,7 +226,7 @@ class File {
     return filesData;
   }
 
-  writeToFileSync(filesData: string[], outFilePath: string) {
+  static writeToFileSync(filesData: string[], outFilePath: string) {
     const data = filesData.join("");
 
     // if (outFilePath.lastIndexOf(".graphql") > -1) {
@@ -247,7 +252,7 @@ class File {
   /////////////////////////////////////////////
   //
 
-  createDirectorySync(directory: string, isRecursive?: boolean) {
+  static createDirectorySync(directory: string, isRecursive?: boolean) {
     var dir = directory;
 
     if (!fs.existsSync(dir)) {

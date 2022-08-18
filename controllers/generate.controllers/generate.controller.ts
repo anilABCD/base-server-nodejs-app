@@ -25,20 +25,18 @@ export default class GenerateController {
         this.CURRENT_APP = req.query.CURRENT_APP.toString();
       }
 
-      const fileObj = new File();
-
       const fileParams: FileParams = {
         namesOf: "file",
       };
 
-      const fileNames = fileObj.getDirectoryOrFileNamesSync(
+      const fileNames = File.getDirectoryOrFileNamesSync(
         ["./GraphQLAPI/" + this.CURRENT_APP],
         fileParams
       );
 
       console.log("getFilesDataSync To generate:", fileNames);
 
-      const filesData = fileObj.getFilesDataSync(fileNames);
+      const filesData = File.getFilesDataSync(fileNames);
 
       console.log("GenerateGraphQLToTs To generate :", fileNames);
 
@@ -51,14 +49,14 @@ export default class GenerateController {
 
       console.log(filesData);
 
-      const resultAfterWrite = fileObj.writeToFileSync(
+      const resultAfterWrite = File.writeToFileSync(
         filesData,
         "./GraphQLAPI/" + this.CURRENT_APP + "/schema.graphql"
       );
 
       let dataOfTsFiles = "";
       filesDataTs.fileAndDataWithTypesInfo.forEach((value) => {
-        dataOfTsFiles += value.originalData;
+        dataOfTsFiles += value.convertedTsDataString;
       });
 
       let headerInfo = fileAuthorAndHeaderInformation.replace(
@@ -68,7 +66,7 @@ export default class GenerateController {
 
       dataOfTsFiles = headerInfo + dataOfTsFiles;
 
-      const resultAfterWriteTs = fileObj.writeToFileSync(
+      const resultAfterWriteTs = File.writeToFileSync(
         [dataOfTsFiles],
         "./../base-react-native-app/" +
           "graphql/" +
