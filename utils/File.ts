@@ -35,7 +35,8 @@ class File {
 
         //****************************************
         //
-        // // if has multiple // slashes ... more than two
+        // If has multiple // slashes ... more than two
+        //
         // let pattern = /\/\/+/g;
         // let hasDoubleSlashes = pattern.test(text);
 
@@ -67,6 +68,10 @@ class File {
           const divChar = path[0];
 
           if (divChar !== "/" && divChar !== ".") {
+            path = "/" + path;
+          }
+
+          if (divChar !== "/" && index > 0) {
             path = "/" + path;
           }
 
