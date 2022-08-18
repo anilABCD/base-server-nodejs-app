@@ -213,6 +213,14 @@ export default class GqlGenerator {
                   .substring(lastIndexOfCollon + 1)
                   .trim();
 
+                const indexOfBrace = nonScalarType.indexOf("[");
+
+                if (indexOfBrace > -1) {
+                  let nonScalarTypeIfArray =
+                    GraphQLUtils.getTrimmedTypeSafeNull(nonScalarType) + "[]";
+                  data = data.replace(nonScalarType, nonScalarTypeIfArray);
+                }
+
                 let propInfo: PropertyInfo = {
                   propertyName: propertyName,
                   typeName: nonScalarType,
@@ -372,6 +380,7 @@ export default class GqlGenerator {
       const fileAndData: FileAndTypesDataInfo = {
         fileName: fileName + ".ts",
         type: typeType,
+        //finalFileDataAsStringWithImportUrls is in next stage ...
         convertedTsDataString: fileData,
         folderToCreate: folderToCreate,
         allTypesInSingleFile: allTypesInSingleFile,
@@ -454,22 +463,22 @@ export default class GqlGenerator {
 
           newTypeInfo.typeName = type.typeName;
           type.properties.forEach((prop) => {
-            const propertyType = prop.typeName
+            const propertyTypeName = prop.typeName
               .replace("[", "")
               .replace("]", "")
               .replace("!", "");
 
             if (
-              GraphQLUtils.isScalarType(propertyType) &&
-              propertyType !== "Query" &&
-              propertyType !== "Mutation"
+              GraphQLUtils.isScalarType(propertyTypeName) &&
+              propertyTypeName !== "Query" &&
+              propertyTypeName !== "Mutation"
             ) {
             }
 
             if (
-              !GraphQLUtils.isScalarType(propertyType) &&
-              propertyType !== "Query" &&
-              propertyType !== "Mutation"
+              !GraphQLUtils.isScalarType(propertyTypeName) &&
+              propertyTypeName !== "Query" &&
+              propertyTypeName !== "Mutation"
             ) {
               newTypeInfo.properties.push(prop);
               // console.log(propertyType);
