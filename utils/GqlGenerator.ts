@@ -4,11 +4,7 @@ import GraphQLUtils from "./GraphQLUtils";
 
 import File from "./File";
 
-type TypeOfGraphQLFile =
-  | "input"
-  | "type"
-  | "mutation"
-  | ".querys.and.mutations";
+type TypeOfGraphQLFile = "input" | "type" | "mutation" | "querys.and.mutations";
 
 type GraphQLToTS = {
   appName: string;
@@ -213,13 +209,13 @@ export default class GqlGenerator {
                   .substring(lastIndexOfCollon + 1)
                   .trim();
 
-                const indexOfBrace = nonScalarType.indexOf("[");
+                // const indexOfBrace = nonScalarType.indexOf("[");
 
-                if (indexOfBrace > -1) {
-                  let nonScalarTypeIfArray =
-                    GraphQLUtils.getTrimmedTypeSafeNull(nonScalarType) + "[]";
-                  data = data.replace(nonScalarType, nonScalarTypeIfArray);
-                }
+                // if (indexOfBrace > -1) {
+                //   let nonScalarTypeIfArray =
+                //     GraphQLUtils.getTrimmedTypeSafeNull(nonScalarType) + "[]";
+                //   data = data.replace(nonScalarType, nonScalarTypeIfArray);
+                // }
 
                 let propInfo: PropertyInfo = {
                   propertyName: propertyName,
@@ -236,7 +232,7 @@ export default class GqlGenerator {
               }
 
               if (data.indexOf("(") > -1) {
-                if (typeType === ".querys.and.mutations") {
+                if (typeType === "querys.and.mutations") {
                   //
                   const indexOfOpenBrace = data.indexOf("(");
                   const indexOfCloseBrace = data.indexOf(")");
@@ -586,8 +582,8 @@ export default class GqlGenerator {
     if (!(fileName.lastIndexOf(".graphql") > -1))
       throw new Error(`incorect type of file : not a graphql file ${fileName}`);
 
-    if (fileName.indexOf(".querys.and.mutations") > -1) {
-      typeType = ".querys.and.mutations";
+    if (fileName.indexOf("querys.and.mutations") > -1) {
+      typeType = "querys.and.mutations";
 
       folderToCreate = fileName.substring(0, fileName.indexOf("." + typeType));
     } else if (fileName.indexOf("input") > -1) {
@@ -610,7 +606,7 @@ export default class GqlGenerator {
     folderToCreate = folderToCreate.toLowerCase();
 
     if (folderToCreate === "") {
-      if ((typeType = ".querys.and.mutations")) {
+      if ((typeType = "querys.and.mutations")) {
         folderToCreate = typeType;
       }
     }
@@ -684,7 +680,7 @@ export default class GqlGenerator {
       });
 
       graphQLToTs.fileAndDataWithTypesInfo.forEach((file) => {
-        // writeData = {};
+        writeData = {};
 
         const filePathToCreate = File.path(
           outFilePath,
@@ -692,13 +688,13 @@ export default class GqlGenerator {
           file.fileName
         );
 
-        // writeData.filePath = filePathToCreate + "/" + file.fileName;
+        writeData.filePath = filePathToCreate;
 
-        // writeData.fileData = file.finalFileDataAsStringWithImportUrls;
+        writeData.fileData = file.convertedTsDataString;
 
         File.writeToFileSync([file.convertedTsDataString], filePathToCreate);
 
-        // writeDataArrya.push(writeData);
+        writeDataArrya.push(writeData);
       });
       console.log("\n******* Write Data ********\n");
       console.log(writeDataArrya);
