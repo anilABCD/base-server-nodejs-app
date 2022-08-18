@@ -43,7 +43,12 @@ type FileAndTypesDataInfo = {
 };
 
 export default class GqlGenerator {
-  generateGraphQLToTs(fileNames: string[], appName: string) {
+  generateGraphQLToTs(
+    fileNames: string[],
+    appName: string,
+    singleOutFile: boolean
+  ) {
+    //
     const fileNameAndDataWithTypes: FileAndTypesDataInfo[] = [];
     let allTypesCombined: TypeInfo[] = [];
     fileNames.forEach((file) => {
@@ -401,17 +406,19 @@ export default class GqlGenerator {
       //#endregion End File Array Scope ...
     });
 
-    fileNameAndDataWithTypes.forEach((fileAndData) => {
-      const dependentImportTypesUrls = this.attachDependentTypesToFile(
-        fileAndData.allOtherDependentTypesFromPropertyTypesFromOtherFiles,
-        allTypesCombined
-      );
+    if (!singleOutFile) {
+      fileNameAndDataWithTypes.forEach((fileAndData) => {
+        const dependentImportTypesUrls = this.attachDependentTypesToFile(
+          fileAndData.allOtherDependentTypesFromPropertyTypesFromOtherFiles,
+          allTypesCombined
+        );
 
-      const finalFileDataAsStringWithImportUrls =
-        dependentImportTypesUrls + fileAndData.convertedTsDataString;
+        const finalFileDataAsStringWithImportUrls =
+          dependentImportTypesUrls + fileAndData.convertedTsDataString;
 
-      fileAndData.convertedTsDataString = finalFileDataAsStringWithImportUrls;
-    });
+        fileAndData.convertedTsDataString = finalFileDataAsStringWithImportUrls;
+      });
+    }
 
     const graphQLToTs: GraphQLToTS = {
       appName: appName,
@@ -533,7 +540,7 @@ export default class GqlGenerator {
     // `;
     //
 
-    this.writeGeneratedGraphQLToTsFilesSync(graphQLToTs, false);
+    this.writeGeneratedGraphQLToTsFilesSync(graphQLToTs, singleOutFile);
 
     return graphQLToTs;
   }
@@ -659,6 +666,15 @@ export default class GqlGenerator {
 
     if (singleOutFile) {
       outFilePath += "/types.ts";
+
+      let outData = "";
+      graphQLToTs.fileAndDataWithTypesInfo.forEach((file) => {
+        outData += file.convertedTsDataString;
+      });
+
+      File.writeToFileSync([outData], outFilePath);
+      //
+      return;
     }
 
     if (!singleOutFile) {

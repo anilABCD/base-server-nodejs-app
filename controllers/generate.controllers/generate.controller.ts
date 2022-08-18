@@ -25,6 +25,8 @@ export default class GenerateController {
         this.CURRENT_APP = req.query.CURRENT_APP.toString();
       }
 
+      const singleOutFile = req.query.singleOut;
+
       const fileParams: FileParams = {
         namesOf: "file",
       };
@@ -44,7 +46,8 @@ export default class GenerateController {
 
       const filesDataTs = gqlGenerator.generateGraphQLToTs(
         fileNames,
-        this.CURRENT_APP
+        this.CURRENT_APP,
+        singleOutFile === "true" ? true : false
       );
 
       console.log(filesData);
@@ -66,13 +69,13 @@ export default class GenerateController {
 
       dataOfTsFiles = headerInfo + dataOfTsFiles;
 
-      const resultAfterWriteTs = File.writeToFileSync(
-        [dataOfTsFiles],
-        "./../base-react-native-app/" +
-          "graphql/" +
-          this.CURRENT_APP +
-          "/types.ts"
-      );
+      // const resultAfterWriteTs = File.writeToFileSync(
+      //   [dataOfTsFiles],
+      //   "./../base-react-native-app/" +
+      //     "graphql/" +
+      //     this.CURRENT_APP +
+      //     "/types.ts"
+      // );
 
       // "./../base-react-native-app/" +
       // "App/" +
