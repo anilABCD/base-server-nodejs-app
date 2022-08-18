@@ -5,6 +5,14 @@ input SendMessageInput {
 }
 
 
+type Message {
+  id: ID!
+  senderId: ID!
+  receiverId: ID!
+  message: String!
+}
+
+
 schema {
   query: Query
   mutation: Mutation
@@ -17,14 +25,6 @@ type Query {
 
 type Mutation {
   sendMessage(input: SendMessageInput): Message
-}
-
-
-type Message {
-  id: ID!
-  senderId: ID!
-  receiverId: ID!
-  message: String!
 }
 
 
