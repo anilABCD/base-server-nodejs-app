@@ -1,4 +1,4 @@
-import fs, { readdirSync } from "fs";
+import fs, { readdirSync, write } from "fs";
 import { compareAndRemoveDuplicates, removeDuplicates } from "./all.util";
 import GraphQLUtils from "./GraphQLUtils";
 
@@ -36,7 +36,7 @@ type TypeInfo = {
 type FileAndTypesDataInfo = {
   fileName: string;
   type: TypeOfGraphQLFile;
-  data: string;
+  originalData: string;
   folderToCreate: string;
   allTypesInSingleFile: string[];
   allTypesInSingleFileCount: number;
@@ -44,11 +44,12 @@ type FileAndTypesDataInfo = {
   typesAndPropertiesCount: number;
   allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[];
   importUrl: string;
+  finalFileDataAsStringWithImportUrls: string;
 };
 
 export default class GqlGenerator {
   generateGraphQLToTs(fileNames: string[], appName: string) {
-    const fileNameAndData: FileAndTypesDataInfo[] = [];
+    const fileNameAndDataWithTypes: FileAndTypesDataInfo[] = [];
     let allTypesCombined: TypeInfo[] = [];
     fileNames.forEach((file) => {
       //#region File Array Scope
@@ -68,19 +69,21 @@ export default class GqlGenerator {
       const { typeType, folderToCreate, fileName } =
         this.getFolderName(fileNameTemp);
 
-      const imageUrl = this.getImportUrl(folderToCreate, fileName);
+      const importUrl = this.getImportUrl(folderToCreate, fileName);
 
       let fileData = "";
 
-      let fileDataArray = fs
+      const fileDataArray = fs
         .readFileSync(file, { encoding: "utf8", flag: "r" })
         .split("\n");
+
+      const fileDataAsStringWithOutImportUrl = fileDataArray.join("\n");
 
       let typeAndProperty: TypeInfo = {
         properties: [],
         typeName: "",
         folderToCreate: folderToCreate,
-        importUrl: imageUrl,
+        importUrl: importUrl,
         fileName: fileName,
       };
 
@@ -98,7 +101,7 @@ export default class GqlGenerator {
               properties: [],
               typeName: "",
               folderToCreate: folderToCreate,
-              importUrl: imageUrl,
+              importUrl: importUrl,
               fileName: fileName,
             };
 
@@ -119,7 +122,7 @@ export default class GqlGenerator {
               properties: [],
               typeName: "",
               folderToCreate: folderToCreate,
-              importUrl: imageUrl,
+              importUrl: importUrl,
               fileName: fileName,
             };
             const typeData = data.split(" ");
@@ -136,7 +139,7 @@ export default class GqlGenerator {
               properties: [],
               typeName: "",
               folderToCreate: folderToCreate,
-              importUrl: imageUrl,
+              importUrl: importUrl,
               fileName: fileName,
             };
             const typeData = data.split(" ");
@@ -225,6 +228,35 @@ export default class GqlGenerator {
                     .replace("!", "")
                 );
                 typeAndProperty.properties.push(propInfo);
+              }
+
+              if (data.indexOf("(") > -1) {
+                if (typeType === ".querys.and.mutations") {
+                  //
+                  const indexOfOpenBrace = data.indexOf("(");
+                  const indexOfCloseBrace = data.indexOf(")");
+
+                  const params = data.substring(
+                    indexOfOpenBrace + 1,
+                    indexOfCloseBrace
+                  );
+
+                  const paramsArray = params.split(",");
+
+                  paramsArray.forEach((param) => {
+                    if (param !== "") {
+                      let collonIndex = param.indexOf(":");
+
+                      param = param.substring(collonIndex + 1);
+
+                      console.log("param", param);
+                      allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
+                        GraphQLUtils.getTrimmedType(param)
+                      );
+                    }
+                  });
+                  //
+                }
               }
             }
 
@@ -343,15 +375,17 @@ export default class GqlGenerator {
       const fileAndData: FileAndTypesDataInfo = {
         fileName: fileName + ".ts",
         type: typeType,
-        data: fileData,
+        originalData: fileData,
         folderToCreate: folderToCreate,
         allTypesInSingleFile: allTypesInSingleFile,
         allTypesInSingleFileCount: allTypesInSingleFile.length,
         typesAndProperties: typesAndProperties,
         typesAndPropertiesCount: typesAndProperties.length,
-        importUrl: imageUrl,
+        importUrl: importUrl,
         allOtherDependentTypesFromPropertyTypesFromOtherFiles:
           allOtherDependentTypesFromPropertyTypesFromOtherFiles,
+        // next stage will attach : with import URL's after the file loop
+        finalFileDataAsStringWithImportUrls: fileDataAsStringWithOutImportUrl,
       };
 
       console.log(
@@ -359,16 +393,30 @@ export default class GqlGenerator {
         allOtherDependentTypesFromPropertyTypesFromOtherFiles
       );
 
-      fileNameAndData.push(fileAndData);
+      fileNameAndDataWithTypes.push(fileAndData);
 
       //#endregion End File Array Scope after data code ...
 
       //#endregion End File Array Scope ...
     });
 
+    fileNameAndDataWithTypes.forEach((fileAndData) => {
+      const dependentImportTypesUrls = this.attachDependentTypesToFile(
+        fileAndData.allOtherDependentTypesFromPropertyTypesFromOtherFiles,
+        allTypesCombined
+      );
+
+      const finalFileDataAsStringWithImportUrls =
+        dependentImportTypesUrls +
+        fileAndData.finalFileDataAsStringWithImportUrls;
+
+      fileAndData.finalFileDataAsStringWithImportUrls =
+        finalFileDataAsStringWithImportUrls;
+    });
+
     const graphQLToTs: GraphQLToTS = {
       appName: appName,
-      fileAndDataWithTypesInfo: fileNameAndData,
+      fileAndDataWithTypesInfo: fileNameAndDataWithTypes,
     };
 
     console.log("graphql to ts file generator", graphQLToTs);
@@ -486,7 +534,36 @@ export default class GqlGenerator {
     // `;
     //
 
+    this.writeGeneratedGraphQLToTsFilesSync(graphQLToTs, false);
+
     return graphQLToTs;
+  }
+  attachDependentTypesToFile(
+    allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[],
+    allTypesCombined: TypeInfo[]
+  ) {
+    let resultImportUrl = "";
+
+    if (allOtherDependentTypesFromPropertyTypesFromOtherFiles.length == 0) {
+      resultImportUrl = "\n";
+      return resultImportUrl;
+    }
+
+    allOtherDependentTypesFromPropertyTypesFromOtherFiles.forEach(
+      (depType, index) => {
+        const type = allTypesCombined.filter(
+          (type) => type.typeName === depType
+        )[0];
+
+        if (index === 0) {
+          resultImportUrl = "\n" + resultImportUrl;
+        }
+
+        resultImportUrl += type.importUrl.replace("TYPE_NAME", depType) + "\n";
+      }
+    );
+
+    return resultImportUrl;
   }
 
   // getImportPath / URL
@@ -573,7 +650,7 @@ export default class GqlGenerator {
   ) {
     let fileObj = new File();
 
-    let outFilePath = "../../base-react-native-app/graphql/CURRENT_APP/";
+    let outFilePath = "./../base-react-native-app/graphql/CURRENT_APP/";
     outFilePath = outFilePath.replace("CURRENT_APP", graphQLToTs.appName);
 
     if (singleOutFile) {
@@ -581,11 +658,35 @@ export default class GqlGenerator {
     }
 
     if (!singleOutFile) {
+      let writeDataArrya: any[] = [];
+      let writeData: any = {};
       graphQLToTs.fileAndDataWithTypesInfo.forEach((file) => {
         const folderToCreate = File.path(outFilePath, file.folderToCreate);
 
-        fileObj.createDirectorySync(folderToCreate);
+        try {
+          if (folderToCreate.trim() !== "") {
+            fileObj.createDirectorySync(folderToCreate);
+          }
+        } catch (err) {
+          // if unable to create folder then throw the exception ...
+          // half work is not great ...
+          // than an big issue ...
+          throw err;
+        }
       });
+
+      graphQLToTs.fileAndDataWithTypesInfo.forEach((file) => {
+        writeData = {};
+
+        const folderToCreate = File.path(outFilePath, file.folderToCreate);
+
+        writeData.filePath = folderToCreate + "/" + file.fileName;
+        writeData.fileData = file.finalFileDataAsStringWithImportUrls;
+
+        writeDataArrya.push(writeData);
+      });
+      console.log("\n******* Write Data ********\n");
+      console.log(writeDataArrya);
     }
   }
 }

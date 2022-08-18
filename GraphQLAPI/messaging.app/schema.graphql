@@ -25,7 +25,6 @@ type Message {
   senderId: ID!
   receiverId: ID!
   message: String!
-  test: Test!
 }
 
 
@@ -33,20 +32,7 @@ type Test {
   id: ID!
   senderId: ID!
   receiverId: ID!
-  message: String!
-}
-
-type Test2 {
-  id: ID!
-  senderId: ID!
-  receiverId: ID!
-  message: String!
-  someMessage: Message!
-  other: SendMessageInput!
-}
-
-type Test3 {
-  testing_type: Test2!
+  message: Message!
 }
 
 

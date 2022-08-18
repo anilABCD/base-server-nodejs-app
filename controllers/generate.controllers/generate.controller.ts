@@ -58,7 +58,7 @@ export default class GenerateController {
 
       let dataOfTsFiles = "";
       filesDataTs.fileAndDataWithTypesInfo.forEach((value) => {
-        dataOfTsFiles += value.data;
+        dataOfTsFiles += value.originalData;
       });
 
       let headerInfo = fileAuthorAndHeaderInformation.replace(
