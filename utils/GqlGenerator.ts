@@ -7,6 +7,7 @@ import File from "./File";
 type TypeOfGraphQLFile = "input" | "type" | "mutation" | "querys.and.mutations";
 
 type GraphQLToTS = {
+  fileNames: string[];
   appName: string;
   fileAndDataWithTypesInfo: FileAndTypesDataInfo[];
   allTypesCombined?: TypeInfo[];
@@ -421,6 +422,7 @@ export default class GqlGenerator {
     }
 
     const graphQLToTs: GraphQLToTS = {
+      fileNames: fileNames,
       appName: appName,
       fileAndDataWithTypesInfo: fileNameAndDataWithTypes,
     };

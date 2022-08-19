@@ -84,8 +84,17 @@ export default class GenerateController {
 
       console.log("File Written", resultAfterWrite);
 
+      const typeNames = filesDataTs.allTypesCombined?.map((types) => {
+        return types.typeName;
+      });
+
       // console.error("trace");
-      let result = true;
+      let result = {
+        typeNames: typeNames,
+        fileNames: filesDataTs.fileNames,
+        appName: filesDataTs.appName,
+        isOutPutToSingleFile: singleOutFile,
+      };
 
       res.status(200).json({
         status: "success",
