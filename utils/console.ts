@@ -4,6 +4,7 @@ import isProductionEnvironment from "./isProductionEnvironment";
 import logger from "./logger";
 
 let showVerfify = false;
+let enableConsoleLog = true;
 
 var log = console.log;
 
@@ -44,12 +45,22 @@ class MyConsole {
 
   log = (message?: any, ...extras: any[]) => {
     if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
-      if (extras.length > 0) {
-        return console.log(message, extras);
-      } else {
-        return console.log(message);
+      if (enableConsoleLog) {
+        if (extras.length > 0) {
+          return console.log(message, extras);
+        } else {
+          return console.log(message);
+        }
       }
     }
+  };
+
+  clearAfter = (code: string) => {
+    console.log("@@@@@@@@", code, "@@@@@@@@");
+    enableConsoleLog = false;
+    setTimeout(() => {
+      enableConsoleLog = true;
+    }, 3000);
   };
 
   // log = (message?: any, ...extras: any[]) => {
