@@ -5,6 +5,7 @@ import logger from "./logger";
 
 let showVerfify = false;
 let enableConsoleLog = true;
+let enableDecoratorLog = false;
 
 var log = console.log;
 
@@ -25,6 +26,18 @@ console.error2 = function () {
 
 @singleton()
 class MyConsole {
+  decorator = (message?: any, ...extras: any[]) => {
+    if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
+      if (enableDecoratorLog) {
+        if (extras.length > 0) {
+          return console.log(message, extras);
+        } else {
+          return console.log(message);
+        }
+      }
+    }
+  };
+
   clear = () => {
     // console.clear();
   };
