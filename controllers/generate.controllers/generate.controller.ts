@@ -44,10 +44,12 @@ export default class GenerateController {
 
       let gqlGenerator = new GqlGenerator();
 
+      const isSingleOutFile = singleOutFile === "true" ? true : false;
+
       const filesDataTs = gqlGenerator.generateGraphQLToTs(
         fileNames,
         this.CURRENT_APP,
-        singleOutFile === "true" ? true : false
+        isSingleOutFile
       );
 
       console.log(filesData);
@@ -90,10 +92,10 @@ export default class GenerateController {
 
       // console.error("trace");
       let result = {
-        typeNames: typeNames,
+        typeNames,
         fileNames: filesDataTs.fileNames,
         appName: filesDataTs.appName,
-        isOutPutToSingleFile: singleOutFile,
+        isSingleOutFile,
       };
 
       res.status(200).json({

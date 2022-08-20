@@ -49,33 +49,33 @@ export default class GqlGenerator {
     appName: string,
     singleOutFile: boolean
   ) {
-    //
     const fileNameAndDataWithTypes: FileAndTypesDataInfo[] = [];
     let allTypesCombined: TypeInfo[] = [];
-    fileNames.forEach((file) => {
+    fileNames.forEach((filePath) => {
       //#region File Array Scope
 
-      const filePathIndex = file.lastIndexOf("/");
-      let fileNameTemp = file;
-
+      let filePathToGetTypeAndFolderAndFileName = filePath;
       let allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[] = [];
-
       let allTypesInSingleFile: string[] = [];
       let typesAndProperties: TypeInfo[] = [];
 
+      const filePathIndex = filePath.lastIndexOf("/");
       if (filePathIndex > -1) {
-        fileNameTemp = file.substring(filePathIndex + 1);
+        filePathToGetTypeAndFolderAndFileName = filePath.substring(
+          filePathIndex + 1
+        );
       }
 
-      const { typeType, folderToCreate, fileName } =
-        this.getFolderName(fileNameTemp);
+      const { typeType, folderToCreate, fileName } = this.getFolderName(
+        filePathToGetTypeAndFolderAndFileName
+      );
 
       const importUrl = this.getImportUrl(folderToCreate, fileName);
 
       let fileData = "";
 
       const fileDataArray = fs
-        .readFileSync(file, { encoding: "utf8", flag: "r" })
+        .readFileSync(filePath, { encoding: "utf8", flag: "r" })
         .split("\n");
 
       let typeAndProperty: TypeInfo = {
@@ -198,6 +198,9 @@ export default class GqlGenerator {
 
             const lastIndexOfCollon = data.lastIndexOf(":");
 
+            //
+            //  @For NonScalar Types :
+            //
             if (
               !(
                 data.indexOf(" ID") > -1 ||
@@ -215,14 +218,6 @@ export default class GqlGenerator {
                   .substring(lastIndexOfCollon + 1)
                   .trim();
 
-                // const indexOfBrace = nonScalarType.indexOf("[");
-
-                // if (indexOfBrace > -1) {
-                //   let nonScalarTypeIfArray =
-                //     GraphQLUtils.getTrimmedTypeSafeNull(nonScalarType) + "[]";
-                //   data = data.replace(nonScalarType, nonScalarTypeIfArray);
-                // }
-
                 let propInfo: PropertyInfo = {
                   propertyName: propertyName,
                   typeName: nonScalarType,
@@ -237,6 +232,9 @@ export default class GqlGenerator {
                 typeAndProperty.properties.push(propInfo);
               }
 
+              //
+              // @For functions in graphql : Mutation and Query : types
+              //
               if (data.indexOf("(") > -1) {
                 if (typeType === "querys.and.mutations") {
                   //
@@ -267,62 +265,65 @@ export default class GqlGenerator {
               }
             }
 
-            // if (data.indexOf(" Query") > -1) {
-            //   data = data.replace(/Query./, "any");
-            // }
+            //
+            // @For : Scalar Types :
+            //
+            if (
+              data.indexOf(" ID") > -1 ||
+              data.indexOf(" String") > -1 ||
+              data.indexOf(" Float") > -1 ||
+              data.indexOf(" Boolean") > -1 ||
+              data.indexOf(" Int") > -1
+            ) {
+              if (data.indexOf(" ID") > -1) {
+                data = data.replace(" ID", " string");
+                let propInfo: PropertyInfo = {
+                  propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                  typeName: data.substring(lastIndexOfCollon + 1).trim(),
+                };
 
-            // if (data.indexOf(" Mutation") > -1) {
-            //   data = data.replace(/Mutation./, "any");
-            // }
+                typeAndProperty.properties.push(propInfo);
+              }
 
-            if (data.indexOf(" ID") > -1) {
-              data = data.replace(" ID", " string");
-              let propInfo: PropertyInfo = {
-                propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon + 1).trim(),
-              };
+              if (data.indexOf(" String") > -1) {
+                data = data.replace(" String", " string");
+                let propInfo: PropertyInfo = {
+                  propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                  typeName: data.substring(lastIndexOfCollon + 1).trim(),
+                };
 
-              typeAndProperty.properties.push(propInfo);
-            }
+                typeAndProperty.properties.push(propInfo);
+              }
 
-            if (data.indexOf(" String") > -1) {
-              data = data.replace(" String", " string");
-              let propInfo: PropertyInfo = {
-                propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon + 1).trim(),
-              };
+              if (data.indexOf(" Float") > -1) {
+                data = data.replace(" Float", " number");
+                let propInfo: PropertyInfo = {
+                  propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                  typeName: data.substring(lastIndexOfCollon + 1).trim(),
+                };
 
-              typeAndProperty.properties.push(propInfo);
-            }
+                typeAndProperty.properties.push(propInfo);
+              }
 
-            if (data.indexOf(" Float") > -1) {
-              data = data.replace(" Float", " number");
-              let propInfo: PropertyInfo = {
-                propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon + 1).trim(),
-              };
+              if (data.indexOf(" Boolean") > -1) {
+                data = data.replace(" Boolean", " boolean");
+                let propInfo: PropertyInfo = {
+                  propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                  typeName: data.substring(lastIndexOfCollon + 1).trim(),
+                };
 
-              typeAndProperty.properties.push(propInfo);
-            }
+                typeAndProperty.properties.push(propInfo);
+              }
 
-            if (data.indexOf(" Boolean") > -1) {
-              data = data.replace(" Boolean", " boolean");
-              let propInfo: PropertyInfo = {
-                propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon + 1).trim(),
-              };
+              if (data.indexOf(" Int") > -1) {
+                data = data.replace(" Int", " number");
+                let propInfo: PropertyInfo = {
+                  propertyName: data.substring(0, lastIndexOfCollon).trim(),
+                  typeName: data.substring(lastIndexOfCollon + 1).trim(),
+                };
 
-              typeAndProperty.properties.push(propInfo);
-            }
-
-            if (data.indexOf(" Int") > -1) {
-              data = data.replace(" Int", " number");
-              let propInfo: PropertyInfo = {
-                propertyName: data.substring(0, lastIndexOfCollon).trim(),
-                typeName: data.substring(lastIndexOfCollon + 1).trim(),
-              };
-
-              typeAndProperty.properties.push(propInfo);
+                typeAndProperty.properties.push(propInfo);
+              }
             }
 
             if (!(data.indexOf("{") > -1)) {

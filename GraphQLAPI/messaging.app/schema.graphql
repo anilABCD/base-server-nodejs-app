@@ -19,8 +19,8 @@ schema {
 }
 
 type Query {
-  test_messages: [Message]
-  messages: [Message]
+  test_messages: Message[]
+  messages: Message[]
 }
 
 type Mutation {
