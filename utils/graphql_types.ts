@@ -39,16 +39,6 @@ function GQL_Scalar_StringTypes(str: GQL_Scalar_StringTypes) {
   return str;
 }
 
-type Dot = ".";
-function Dot(str: Dot) {
-  return str;
-}
-
-type NewLine = "\n";
-function NewLine(str: NewLine) {
-  return str;
-}
-
 // let abc = NewLine("\n");
 // abc = "sadfasdf";
 
@@ -120,8 +110,6 @@ export {
   OutPutReactNativeAppPath_StringType,
   GraphQLFile_StringType,
   GQL_Scalar_StringTypes,
-  Dot,
-  NewLine,
   CURRENT_APP,
   TS_StringTypes,
   Exp_StringTypes,

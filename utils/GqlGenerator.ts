@@ -5,14 +5,12 @@ import GraphQLUtils from "./GraphQLUtils";
 import File from "./File";
 import {
   CURRENT_APP,
-  Dot,
   Exp_StringTypes,
   FileAndTypesDataInfo,
   Folder_QueriesMutationsTsTemplates_StringType,
   GQL_Scalar_StringTypes,
   GraphQLFile_StringType,
   GraphQLToTS,
-  NewLine,
   OutPutReactNativeAppPath_StringType,
   PropertyInfo,
   SingleOutFile_StringType,
@@ -20,6 +18,7 @@ import {
   TypeInfo,
   TypeOfExtesions_StringTypes,
 } from "./graphql_types";
+import { Dot, NewLine } from "./literal.types";
 
 export default class GqlGenerator {
   generateGraphQLToTs(
