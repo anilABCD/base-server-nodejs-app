@@ -15,7 +15,7 @@ export default class GenerateController {
     this.CURRENT_APP = CURRENT_APP;
 
     if (this.CURRENT_APP === "") {
-      throw new Error("CURRENT_APP is not provided in Generate GraphQL");
+      throw new Error("CURRENT_APP : is not provided in Generate GraphQL");
     }
   }
 
@@ -32,7 +32,10 @@ export default class GenerateController {
       };
 
       const fileNames = File.getDirectoryOrFileNamesSync(
-        ["./GraphQLAPI/" + this.CURRENT_APP],
+        [
+          "./GraphQLAPI/" + this.CURRENT_APP,
+          "./GraphQLAPI/queries.mutation.ts.templates",
+        ],
         fileParams
       );
 
