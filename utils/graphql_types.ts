@@ -1,46 +1,36 @@
-type Folder_QueriesMutationsTsTemplates_StringType =
+type GQL_Root_Type = "Query" | "Mutation";
+function GQL_Root_Type(str: GQL_Root_Type) {
+  return str;
+}
+
+type FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations =
   "queries.mutation.ts.templates";
-
-function Folder_QueriesMutationsTsTemplates_StringType(
-  str: Folder_QueriesMutationsTsTemplates_StringType
+function FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
+  str: FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations
 ) {
   return str;
 }
 
-type SingleOutFile_StringType = "/types.ts";
-function SingleOutFile_StringType(str: SingleOutFile_StringType) {
+type SingleTypeScriptOutFile = "/types.ts";
+function SingleTypeScriptOutFile(str: SingleTypeScriptOutFile) {
   return str;
 }
 
-type OutPutReactNativeAppPath_StringType =
+type OutPathReactNative_AppName =
   "./../base-react-native-app/graphql/CURRENT_APP/";
-function OutPutReactNativeAppPath_StringType(
-  str: OutPutReactNativeAppPath_StringType
-) {
+function OutPathReactNative_AppName(str: OutPathReactNative_AppName) {
   return str;
 }
 
-type GraphQLFile_StringType =
-  | "input"
-  | "type"
-  | "mutation"
-  | "querys.and.mutations";
-function GraphQLFile_StringType(str: GraphQLFile_StringType) {
+type GQLFileType = "input" | "type" | "mutation" | "querys.and.mutations";
+function GQLFileType(str: GQLFileType) {
   return str;
 }
 
-type GQL_Scalar_StringTypes =
-  | " ID"
-  | " String"
-  | " Float"
-  | " Boolean"
-  | " Int";
-function GQL_Scalar_StringTypes(str: GQL_Scalar_StringTypes) {
+type GQL_ScalarType = " ID" | " String" | " Float" | " Boolean" | " Int";
+function GQL_ScalarType(str: GQL_ScalarType) {
   return str;
 }
-
-// let abc = NewLine("\n");
-// abc = "sadfasdf";
 
 function resturnStringTypeAsAnyString(str: string) {
   return str;
@@ -51,13 +41,44 @@ function CURRENT_APP(str: CURRENT_APP) {
   return str;
 }
 
-type TS_StringTypes = " string" | " boolean" | " number";
-function TS_StringTypes(str: TS_StringTypes) {
+type TS_ScalarTypes = " string" | " boolean" | " number";
+function TS_ScalarTypes(str: TS_ScalarTypes) {
   return str;
 }
 
-type Exp_StringTypes = "{" | "}" | "!" | "[" | "]";
-function Exp_StringTypes(str: Exp_StringTypes) {
+type From_GQL_Type = "schema " | "mutation ";
+function From_GQL_Type(str: From_GQL_Type) {
+  return str;
+}
+
+type TO_TS_Type = "type Schema " | "type ";
+function TO_TS_Type(str: TO_TS_Type) {
+  return str;
+}
+
+type GQL_Input = "input" | "input ";
+function GQL_Input(str: GQL_Input) {
+  return str;
+}
+
+type GQL_Type = "type" | "type ";
+function GQL_Type(str: GQL_Type) {
+  return str;
+}
+
+type ExportSyntax = "export { TYPE_NAME } ";
+function ExportSyntax(str: ExportSyntax) {
+  return str;
+}
+
+type ExpressionChar = "{" | "}" | "!" | "[" | "]" | ";" | ":" | "(" | ")" | ",";
+function ExpressionChar(str: ExpressionChar) {
+  return str;
+}
+
+type ExpressionToTS = "= { \r\n" | "?:";
+
+function ExpressionToTS(str: ExpressionToTS) {
   return str;
 }
 
@@ -93,7 +114,7 @@ type TypeInfo = {
 
 type FileAndTypesDataInfo = {
   fileName: string;
-  type: GraphQLFile_StringType;
+  type: GQLFileType;
   convertedTsDataString: string;
   folderToCreate: string;
   allTypesInSingleFile: string[];
@@ -105,17 +126,24 @@ type FileAndTypesDataInfo = {
 };
 
 export {
-  Folder_QueriesMutationsTsTemplates_StringType,
-  SingleOutFile_StringType,
-  OutPutReactNativeAppPath_StringType,
-  GraphQLFile_StringType,
-  GQL_Scalar_StringTypes,
+  FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations,
+  SingleTypeScriptOutFile,
+  OutPathReactNative_AppName,
+  GQLFileType,
+  GQL_ScalarType,
   CURRENT_APP,
-  TS_StringTypes,
-  Exp_StringTypes,
+  TS_ScalarTypes,
+  ExpressionChar,
   TypeOfExtesions_StringTypes,
   FileAndTypesDataInfo,
   TypeInfo,
   PropertyInfo,
   GraphQLToTS,
+  From_GQL_Type,
+  ExportSyntax,
+  GQL_Root_Type,
+  GQL_Input,
+  GQL_Type,
+  TO_TS_Type,
+  ExpressionToTS,
 };
