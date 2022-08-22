@@ -36,7 +36,8 @@ export default class GenerateController {
           "./GraphQLAPI/" + this.CURRENT_APP,
           "./GraphQLAPI/queries.mutation.ts.templates",
         ],
-        fileParams
+        fileParams,
+        ["graphql", "ts"]
       );
 
       console.log("getFilesDataSync To generate:", fileNames);

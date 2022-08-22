@@ -94,7 +94,8 @@ class File {
 
   static getDirectoryOrFileNamesSync(
     directoryName: string[],
-    params: FileParams
+    params: FileParams,
+    extensions: string[]
   ) {
     const fileObje = new File();
 
@@ -102,7 +103,7 @@ class File {
     // console.log("directory names :", resultNames);
     if (params.namesOf === "file") {
       resultNames.push(directoryName[0]);
-      resultNames = fileObje.getFileNamesSync(resultNames, ["graphql"]);
+      resultNames = fileObje.getFileNamesSync(resultNames, extensions);
       // console.log("file names :", resultNames);
     }
 
@@ -158,11 +159,7 @@ class File {
 
   //
   //
-  private getFileNamesSync(
-    directoryName: string[],
-    extensions: string[] = [],
-    excludeFileNames = "schema.graphql"
-  ) {
+  private getFileNamesSync(directoryName: string[], extensions: string[] = []) {
     let result: string[] = [];
     console.log("getFileNames", directoryName);
 
@@ -180,10 +177,7 @@ class File {
             const currentFileExt = dir.name.substring(
               dir.name.lastIndexOf(".")
             );
-            if (
-              dir.name.substring(dir.name.lastIndexOf(".") + 1) === ext &&
-              !(dir.name.lastIndexOf(excludeFileNames) > -1)
-            ) {
+            if (dir.name.substring(dir.name.lastIndexOf(".") + 1) === ext) {
               isExtensionPassed = true;
             }
           });

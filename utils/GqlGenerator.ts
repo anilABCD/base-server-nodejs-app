@@ -24,6 +24,8 @@ import {
   TypeOfExtesions_StringTypes,
   ExpressionToTS,
   TS_ScalarTypes,
+  FileExtension,
+  GLQ_Files_Excluded,
 } from "./graphql_types";
 import { Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
 
@@ -38,6 +40,26 @@ export default class GqlGenerator {
     const exportSyntax = ExportSyntax("export { TYPE_NAME } ");
 
     fileNames.forEach((filePath) => {
+      //
+      // ".ts"
+      console.log(filePath);
+      if (filePath.lastIndexOf(FileExtension(".ts")) > -1) {
+        console.log(".ts skipped.", filePath);
+        return;
+      }
+
+      let toSkip: boolean | undefined = undefined;
+      GLQ_Files_Excluded.forEach((excludeFile) => {
+        if (filePath.lastIndexOf(excludeFile) > -1) {
+          toSkip = true;
+        }
+      });
+
+      if (toSkip === true) {
+        console.log("Files skipped by gql : ", filePath);
+        return true;
+      }
+
       //
       //#region File Array Scope
       //
@@ -59,406 +81,400 @@ export default class GqlGenerator {
       );
 
       // For .graphql templates
-      if (
-        folderToCreate !==
-        FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
-          "queries.mutation.ts.templates"
-        )
-      ) {
-        const importUrl = this.getImportUrl(folderToCreate, fileName);
 
-        let fileData = "";
+      const importUrl = this.getImportUrl(folderToCreate, fileName);
 
-        const fileDataArray = fs
-          .readFileSync(filePath, { encoding: "utf8", flag: "r" })
-          .split(NewLine("\n"));
+      let fileData = "";
 
-        let typeAndProperty: TypeInfo = {
-          properties: [],
-          typeName: "",
-          folderToCreate: folderToCreate,
-          importUrl: importUrl,
-          fileName: fileName,
-        };
+      const fileDataArray = fs
+        .readFileSync(filePath, { encoding: "utf8", flag: "r" })
+        .split(NewLine("\n"));
 
-        let exportData = "";
-        fileDataArray.forEach((dataEachLine, index) => {
-          //#region File Data End Scope ...
+      let typeAndProperty: TypeInfo = {
+        properties: [],
+        typeName: "",
+        folderToCreate: folderToCreate,
+        importUrl: importUrl,
+        fileName: fileName,
+      };
 
-          dataEachLine = dataEachLine.replace(
-            From_GQL_Type("schema "),
-            TO_TS_Type("type Schema ")
-          );
-          // data = data.replace("input ", "type ");
+      let exportData = "";
+      fileDataArray.forEach((dataEachLine, index) => {
+        //#region File Data End Scope ...
 
-          // For Non Empty Lines Start Processing the line
-          if (dataEachLine.trim() !== Empty("")) {
-            if (dataEachLine.indexOf(GQL_Type("type ")) > -1) {
-              typeAndProperty = {
-                properties: [],
-                typeName: Empty(""),
-                folderToCreate: folderToCreate,
-                importUrl: importUrl,
-                fileName: fileName,
-              };
+        dataEachLine = dataEachLine.replace(
+          From_GQL_Type("schema "),
+          TO_TS_Type("type Schema ")
+        );
+        // data = data.replace("input ", "type ");
 
-              const typeData = dataEachLine.split(Space(" "));
-              const typeName = typeData[1].trim();
-              if (typeName !== ExpressionChar("{")) {
-                exportData = exportSyntax.replace("TYPE_NAME", typeName);
-                // exportData = `export { ${typeName} }`;
-                allTypesInSingleFile.push(typeName);
-                typeAndProperty.typeName = typeName;
-              }
-              // console.log(exportData);
-            }
+        // For Non Empty Lines Start Processing the line
+        if (dataEachLine.trim() !== Empty("")) {
+          if (dataEachLine.indexOf(GQL_Type("type ")) > -1) {
+            typeAndProperty = {
+              properties: [],
+              typeName: Empty(""),
+              folderToCreate: folderToCreate,
+              importUrl: importUrl,
+              fileName: fileName,
+            };
 
-            // Int, Float, String, Boolean, and ID, Date
-
-            if (dataEachLine.indexOf(GQL_Input("input ")) > -1) {
-              typeAndProperty = {
-                properties: [],
-                typeName: "",
-                folderToCreate: folderToCreate,
-                importUrl: importUrl,
-                fileName: fileName,
-              };
-              const typeData = dataEachLine.split(" ");
-              const typeName = typeData[1].trim();
-              dataEachLine = dataEachLine.replace(
-                GQL_Input("input "),
-                TO_TS_Type("type ")
-              );
+            const typeData = dataEachLine.split(Space(" "));
+            const typeName = typeData[1].trim();
+            if (typeName !== ExpressionChar("{")) {
               exportData = exportSyntax.replace("TYPE_NAME", typeName);
+              // exportData = `export { ${typeName} }`;
               allTypesInSingleFile.push(typeName);
               typeAndProperty.typeName = typeName;
-              // console.log(exportData);
+            }
+            // console.log(exportData);
+          }
+
+          // Int, Float, String, Boolean, and ID, Date
+
+          if (dataEachLine.indexOf(GQL_Input("input ")) > -1) {
+            typeAndProperty = {
+              properties: [],
+              typeName: "",
+              folderToCreate: folderToCreate,
+              importUrl: importUrl,
+              fileName: fileName,
+            };
+            const typeData = dataEachLine.split(" ");
+            const typeName = typeData[1].trim();
+            dataEachLine = dataEachLine.replace(
+              GQL_Input("input "),
+              TO_TS_Type("type ")
+            );
+            exportData = exportSyntax.replace("TYPE_NAME", typeName);
+            allTypesInSingleFile.push(typeName);
+            typeAndProperty.typeName = typeName;
+            // console.log(exportData);
+          }
+
+          if (dataEachLine.indexOf(From_GQL_Type("schema ")) > -1) {
+            typeAndProperty = {
+              properties: [],
+              typeName: "",
+              folderToCreate: folderToCreate,
+              importUrl: importUrl,
+              fileName: fileName,
+            };
+            const typeData = dataEachLine.split(Space(" "));
+            const typeName = typeData[1].trim();
+            dataEachLine = dataEachLine.replace(
+              From_GQL_Type("schema "),
+              TO_TS_Type("type ")
+            );
+            exportData = exportSyntax.replace("TYPE_NAME", typeName);
+            allTypesInSingleFile.push(typeName);
+            typeAndProperty.typeName = typeName;
+            // console.log(exportData);
+          }
+
+          if (dataEachLine.indexOf(ExpressionChar("}")) > -1) {
+            if (exportData === Empty("")) {
+              throw new Error("exportData is empty");
             }
 
-            if (dataEachLine.indexOf(From_GQL_Type("schema ")) > -1) {
-              typeAndProperty = {
-                properties: [],
-                typeName: "",
-                folderToCreate: folderToCreate,
-                importUrl: importUrl,
-                fileName: fileName,
-              };
-              const typeData = dataEachLine.split(Space(" "));
-              const typeName = typeData[1].trim();
+            if (exportData !== "") {
+              dataEachLine +=
+                NewLine("\r\n", 2) + exportData + NewLine("\r\n", 2);
+              exportData = "";
+            }
+
+            const dependentTypes: string[] = [];
+
+            typeAndProperty.properties.forEach((type) => {
+              const typeName = type.typeName
+                .trim()
+                .replace(ExpressionChar("["), Empty(""))
+                .replace(ExpressionChar("]"), Empty(""))
+                .replace(ExpressionChar("!"), Empty(""));
+              if (!GraphQLUtils.isScalarType(typeName)) {
+                dependentTypes.push(typeName);
+                typeAndProperty.isPureType = false;
+              }
+            });
+
+            if (
+              typeAndProperty.isPureType === null ||
+              typeAndProperty.isPureType === undefined
+            ) {
+              typeAndProperty.isPureType = true;
+            }
+
+            const dependentTypesRemovedDuplicates =
+              removeDuplicates(dependentTypes);
+
+            typesAndProperties.push(typeAndProperty);
+            typeAndProperty.dependentTypes = dependentTypesRemovedDuplicates;
+            console.log("Type And Property", typeAndProperty);
+          }
+
+          if (!(dataEachLine.indexOf(ExpressionChar("}")) > -1)) {
+            if (dataEachLine.indexOf(ExpressionChar("{")) > -1) {
               dataEachLine = dataEachLine.replace(
-                From_GQL_Type("schema "),
-                TO_TS_Type("type ")
+                ExpressionChar("{"),
+                ExpressionToTS("= { \r\n")
               );
-              exportData = exportSyntax.replace("TYPE_NAME", typeName);
-              allTypesInSingleFile.push(typeName);
-              typeAndProperty.typeName = typeName;
-              // console.log(exportData);
+              // if (isType === true) {
+              // }
             }
 
-            if (dataEachLine.indexOf(ExpressionChar("}")) > -1) {
-              if (exportData === Empty("")) {
-                throw new Error("exportData is empty");
-              }
+            const lastIndexOfCollon = dataEachLine.lastIndexOf(
+              ExpressionChar(":")
+            );
 
-              if (exportData !== "") {
-                dataEachLine +=
-                  NewLine("\r\n", 2) + exportData + NewLine("\r\n", 2);
-                exportData = "";
-              }
-
-              const dependentTypes: string[] = [];
-
-              typeAndProperty.properties.forEach((type) => {
-                const typeName = type.typeName
-                  .trim()
-                  .replace(ExpressionChar("["), Empty(""))
-                  .replace(ExpressionChar("]"), Empty(""))
-                  .replace(ExpressionChar("!"), Empty(""));
-                if (!GraphQLUtils.isScalarType(typeName)) {
-                  dependentTypes.push(typeName);
-                  typeAndProperty.isPureType = false;
-                }
-              });
-
-              if (
-                typeAndProperty.isPureType === null ||
-                typeAndProperty.isPureType === undefined
-              ) {
-                typeAndProperty.isPureType = true;
-              }
-
-              const dependentTypesRemovedDuplicates =
-                removeDuplicates(dependentTypes);
-
-              typesAndProperties.push(typeAndProperty);
-              typeAndProperty.dependentTypes = dependentTypesRemovedDuplicates;
-              console.log("Type And Property", typeAndProperty);
-            }
-
-            if (!(dataEachLine.indexOf(ExpressionChar("}")) > -1)) {
-              if (dataEachLine.indexOf(ExpressionChar("{")) > -1) {
-                dataEachLine = dataEachLine.replace(
-                  ExpressionChar("{"),
-                  ExpressionToTS("= { \r\n")
-                );
-                // if (isType === true) {
-                // }
-              }
-
-              const lastIndexOfCollon = dataEachLine.lastIndexOf(
-                ExpressionChar(":")
-              );
-
-              //
-              //  @For NonScalar Types :
-              //
-              if (
-                !(
-                  dataEachLine.indexOf(GQL_ScalarType(" ID")) > -1 ||
-                  dataEachLine.indexOf(GQL_ScalarType(" String")) > -1 ||
-                  dataEachLine.indexOf(GQL_ScalarType(" Float")) > -1 ||
-                  dataEachLine.indexOf(GQL_ScalarType(" Boolean")) > -1 ||
-                  dataEachLine.indexOf(GQL_ScalarType(" Int")) > -1
-                )
-              ) {
-                if (dataEachLine.indexOf(ExpressionChar(":")) > -1) {
-                  const propertyName = dataEachLine
-                    .substring(0, lastIndexOfCollon)
-                    .trim();
-                  const nonScalarType = dataEachLine
-                    .substring(lastIndexOfCollon + 1)
-                    .trim();
-
-                  let propInfo: PropertyInfo = {
-                    propertyName: propertyName,
-                    typeName: nonScalarType,
-                  };
-
-                  allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
-                    nonScalarType
-                      .replace(ExpressionChar("["), Empty(""))
-                      .replace(ExpressionChar("]"), Empty(""))
-                      .replace(ExpressionChar("!"), Empty(""))
-                  );
-                  typeAndProperty.properties.push(propInfo);
-                }
-
-                //
-                // @For functions in graphql : Mutation and Query : types
-                //
-                if (dataEachLine.indexOf(ExpressionChar("(")) > -1) {
-                  if (typeType === GQLFileType("querys.and.mutations")) {
-                    //
-                    const indexOfOpenBrace = dataEachLine.indexOf(
-                      ExpressionChar("(")
-                    );
-                    const indexOfCloseBrace = dataEachLine.indexOf(
-                      ExpressionChar(")")
-                    );
-
-                    const params = dataEachLine.substring(
-                      indexOfOpenBrace + 1,
-                      indexOfCloseBrace
-                    );
-
-                    const paramsArray = params.split(ExpressionChar(","));
-
-                    paramsArray.forEach((param) => {
-                      if (param !== Empty("")) {
-                        let collonIndex = param.indexOf(ExpressionChar(":"));
-
-                        param = param.substring(collonIndex + 1);
-
-                        console.log("param", param);
-                        allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
-                          GraphQLUtils.getTrimmedType(param)
-                        );
-                      }
-                    });
-                    //
-                  }
-                }
-              }
-
-              //
-              // @For : Scalar Types :
-              //
-              if (
+            //
+            //  @For NonScalar Types :
+            //
+            if (
+              !(
                 dataEachLine.indexOf(GQL_ScalarType(" ID")) > -1 ||
                 dataEachLine.indexOf(GQL_ScalarType(" String")) > -1 ||
                 dataEachLine.indexOf(GQL_ScalarType(" Float")) > -1 ||
                 dataEachLine.indexOf(GQL_ScalarType(" Boolean")) > -1 ||
                 dataEachLine.indexOf(GQL_ScalarType(" Int")) > -1
-              ) {
-                if (dataEachLine.indexOf(GQL_ScalarType(" ID")) > -1) {
-                  dataEachLine = dataEachLine.replace(
-                    GQL_ScalarType(" ID"),
-                    TS_ScalarTypes(" string")
-                  );
-                  let propInfo: PropertyInfo = {
-                    propertyName: dataEachLine
-                      .substring(0, lastIndexOfCollon)
-                      .trim(),
-                    typeName: dataEachLine
-                      .substring(lastIndexOfCollon + 1)
-                      .trim(),
-                  };
+              )
+            ) {
+              if (dataEachLine.indexOf(ExpressionChar(":")) > -1) {
+                const propertyName = dataEachLine
+                  .substring(0, lastIndexOfCollon)
+                  .trim();
+                const nonScalarType = dataEachLine
+                  .substring(lastIndexOfCollon + 1)
+                  .trim();
 
-                  typeAndProperty.properties.push(propInfo);
-                }
+                let propInfo: PropertyInfo = {
+                  propertyName: propertyName,
+                  typeName: nonScalarType,
+                };
 
-                if (dataEachLine.indexOf(GQL_ScalarType(" String")) > -1) {
-                  dataEachLine = dataEachLine.replace(
-                    GQL_ScalarType(" String"),
-                    TS_ScalarTypes(" string")
-                  );
-                  let propInfo: PropertyInfo = {
-                    propertyName: dataEachLine
-                      .substring(0, lastIndexOfCollon)
-                      .trim(),
-                    typeName: dataEachLine
-                      .substring(lastIndexOfCollon + 1)
-                      .trim(),
-                  };
-
-                  typeAndProperty.properties.push(propInfo);
-                }
-
-                if (dataEachLine.indexOf(GQL_ScalarType(" Float")) > -1) {
-                  dataEachLine = dataEachLine.replace(
-                    GQL_ScalarType(" Float"),
-                    TS_ScalarTypes(" number")
-                  );
-                  let propInfo: PropertyInfo = {
-                    propertyName: dataEachLine
-                      .substring(0, lastIndexOfCollon)
-                      .trim(),
-                    typeName: dataEachLine
-                      .substring(lastIndexOfCollon + 1)
-                      .trim(),
-                  };
-
-                  typeAndProperty.properties.push(propInfo);
-                }
-
-                if (dataEachLine.indexOf(GQL_ScalarType(" Boolean")) > -1) {
-                  dataEachLine = dataEachLine.replace(
-                    GQL_ScalarType(" Boolean"),
-                    TS_ScalarTypes(" boolean")
-                  );
-                  let propInfo: PropertyInfo = {
-                    propertyName: dataEachLine
-                      .substring(0, lastIndexOfCollon)
-                      .trim(),
-                    typeName: dataEachLine
-                      .substring(lastIndexOfCollon + 1)
-                      .trim(),
-                  };
-
-                  typeAndProperty.properties.push(propInfo);
-                }
-
-                if (dataEachLine.indexOf(GQL_ScalarType(" Int")) > -1) {
-                  dataEachLine = dataEachLine.replace(
-                    GQL_ScalarType(" Int"),
-                    TS_ScalarTypes(" number")
-                  );
-                  let propInfo: PropertyInfo = {
-                    propertyName: dataEachLine
-                      .substring(0, lastIndexOfCollon)
-                      .trim(),
-                    typeName: dataEachLine
-                      .substring(lastIndexOfCollon + 1)
-                      .trim(),
-                  };
-
-                  typeAndProperty.properties.push(propInfo);
-                }
+                allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
+                  nonScalarType
+                    .replace(ExpressionChar("["), Empty(""))
+                    .replace(ExpressionChar("]"), Empty(""))
+                    .replace(ExpressionChar("!"), Empty(""))
+                );
+                typeAndProperty.properties.push(propInfo);
               }
 
-              if (!(dataEachLine.indexOf(ExpressionChar("{")) > -1)) {
-                dataEachLine += ExpressionChar(";") + NewLine("\r\n");
+              //
+              // @For functions in graphql : Mutation and Query : types
+              //
+              if (dataEachLine.indexOf(ExpressionChar("(")) > -1) {
+                if (typeType === GQLFileType("querys.and.mutations")) {
+                  //
+                  const indexOfOpenBrace = dataEachLine.indexOf(
+                    ExpressionChar("(")
+                  );
+                  const indexOfCloseBrace = dataEachLine.indexOf(
+                    ExpressionChar(")")
+                  );
+
+                  const params = dataEachLine.substring(
+                    indexOfOpenBrace + 1,
+                    indexOfCloseBrace
+                  );
+
+                  const paramsArray = params.split(ExpressionChar(","));
+
+                  paramsArray.forEach((param) => {
+                    if (param !== Empty("")) {
+                      let collonIndex = param.indexOf(ExpressionChar(":"));
+
+                      param = param.substring(collonIndex + 1);
+
+                      console.log("param", param);
+                      allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
+                        GraphQLUtils.getTrimmedType(param)
+                      );
+                    }
+                  });
+                  //
+                }
               }
             }
-          }
 
-          // type Mutation = {  sendMessage(input: SendMessageInput): Message;\r\n' +
-          // Resultant :
-          // const RESULTANT_GQL = gql`
-          //   mutation sendMessage($input : SendMessageInput!){
-          //         message : sendMessage( input: $input ) {
-          //             Message type loop ...
-          //        }
-          //      }
-          //   }
-          //`
+            //
+            // @For : Scalar Types :
+            //
+            if (
+              dataEachLine.indexOf(GQL_ScalarType(" ID")) > -1 ||
+              dataEachLine.indexOf(GQL_ScalarType(" String")) > -1 ||
+              dataEachLine.indexOf(GQL_ScalarType(" Float")) > -1 ||
+              dataEachLine.indexOf(GQL_ScalarType(" Boolean")) > -1 ||
+              dataEachLine.indexOf(GQL_ScalarType(" Int")) > -1
+            ) {
+              if (dataEachLine.indexOf(GQL_ScalarType(" ID")) > -1) {
+                dataEachLine = dataEachLine.replace(
+                  GQL_ScalarType(" ID"),
+                  TS_ScalarTypes(" string")
+                );
+                let propInfo: PropertyInfo = {
+                  propertyName: dataEachLine
+                    .substring(0, lastIndexOfCollon)
+                    .trim(),
+                  typeName: dataEachLine
+                    .substring(lastIndexOfCollon + 1)
+                    .trim(),
+                };
 
-          if (!(dataEachLine.indexOf(ExpressionChar("!")) > -1)) {
-            if (dataEachLine.indexOf(ExpressionChar(":")) > -1) {
-              dataEachLine = dataEachLine.replace(
-                ExpressionChar(":"),
-                ExpressionToTS("?:")
-              );
+                typeAndProperty.properties.push(propInfo);
+              }
+
+              if (dataEachLine.indexOf(GQL_ScalarType(" String")) > -1) {
+                dataEachLine = dataEachLine.replace(
+                  GQL_ScalarType(" String"),
+                  TS_ScalarTypes(" string")
+                );
+                let propInfo: PropertyInfo = {
+                  propertyName: dataEachLine
+                    .substring(0, lastIndexOfCollon)
+                    .trim(),
+                  typeName: dataEachLine
+                    .substring(lastIndexOfCollon + 1)
+                    .trim(),
+                };
+
+                typeAndProperty.properties.push(propInfo);
+              }
+
+              if (dataEachLine.indexOf(GQL_ScalarType(" Float")) > -1) {
+                dataEachLine = dataEachLine.replace(
+                  GQL_ScalarType(" Float"),
+                  TS_ScalarTypes(" number")
+                );
+                let propInfo: PropertyInfo = {
+                  propertyName: dataEachLine
+                    .substring(0, lastIndexOfCollon)
+                    .trim(),
+                  typeName: dataEachLine
+                    .substring(lastIndexOfCollon + 1)
+                    .trim(),
+                };
+
+                typeAndProperty.properties.push(propInfo);
+              }
+
+              if (dataEachLine.indexOf(GQL_ScalarType(" Boolean")) > -1) {
+                dataEachLine = dataEachLine.replace(
+                  GQL_ScalarType(" Boolean"),
+                  TS_ScalarTypes(" boolean")
+                );
+                let propInfo: PropertyInfo = {
+                  propertyName: dataEachLine
+                    .substring(0, lastIndexOfCollon)
+                    .trim(),
+                  typeName: dataEachLine
+                    .substring(lastIndexOfCollon + 1)
+                    .trim(),
+                };
+
+                typeAndProperty.properties.push(propInfo);
+              }
+
+              if (dataEachLine.indexOf(GQL_ScalarType(" Int")) > -1) {
+                dataEachLine = dataEachLine.replace(
+                  GQL_ScalarType(" Int"),
+                  TS_ScalarTypes(" number")
+                );
+                let propInfo: PropertyInfo = {
+                  propertyName: dataEachLine
+                    .substring(0, lastIndexOfCollon)
+                    .trim(),
+                  typeName: dataEachLine
+                    .substring(lastIndexOfCollon + 1)
+                    .trim(),
+                };
+
+                typeAndProperty.properties.push(propInfo);
+              }
             }
-          } else {
-            dataEachLine = dataEachLine.replace(ExpressionChar("!"), "");
+
+            if (!(dataEachLine.indexOf(ExpressionChar("{")) > -1)) {
+              dataEachLine += ExpressionChar(";") + NewLine("\r\n");
+            }
           }
+        }
 
-          fileData += dataEachLine;
-          //#endregion File Data End Scope ...
-        });
+        // type Mutation = {  sendMessage(input: SendMessageInput): Message;\r\n' +
+        // Resultant :
+        // const RESULTANT_GQL = gql`
+        //   mutation sendMessage($input : SendMessageInput!){
+        //         message : sendMessage( input: $input ) {
+        //             Message type loop ...
+        //        }
+        //      }
+        //   }
+        //`
 
-        // console.log("typesAndProperties", typesAndProperties);
+        if (!(dataEachLine.indexOf(ExpressionChar("!")) > -1)) {
+          if (dataEachLine.indexOf(ExpressionChar(":")) > -1) {
+            dataEachLine = dataEachLine.replace(
+              ExpressionChar(":"),
+              ExpressionToTS("?:")
+            );
+          }
+        } else {
+          dataEachLine = dataEachLine.replace(ExpressionChar("!"), "");
+        }
 
-        //#region START File Array Scope after data code ...
+        fileData += dataEachLine;
+        //#endregion File Data End Scope ...
+      });
 
-        // let typeNameToCreate = "";
+      // console.log("typesAndProperties", typesAndProperties);
 
-        // fileName.split(".").forEach((data) => {
-        //   if (data.toLowerCase() !== "graphql")
-        //     typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
-        // });
+      //#region START File Array Scope after data code ...
 
-        allOtherDependentTypesFromPropertyTypesFromOtherFiles =
-          compareAndRemoveDuplicates(
-            allOtherDependentTypesFromPropertyTypesFromOtherFiles,
-            allTypesInSingleFile
-          );
+      // let typeNameToCreate = "";
 
-        allOtherDependentTypesFromPropertyTypesFromOtherFiles =
-          removeDuplicates(
-            allOtherDependentTypesFromPropertyTypesFromOtherFiles
-          );
+      // fileName.split(".").forEach((data) => {
+      //   if (data.toLowerCase() !== "graphql")
+      //     typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
+      // });
 
-        console.log("allTypesInSingleFile", allTypesInSingleFile);
-
-        allTypesCombined.push(...typesAndProperties);
-
-        const fileAndData: FileAndTypesDataInfo = {
-          fileName: fileName + ".ts",
-          type: typeType,
-          //finalFileDataAsStringWithImportUrls is in next stage ...
-          convertedTsDataString: fileData,
-          folderToCreate: folderToCreate,
-          allTypesInSingleFile: allTypesInSingleFile,
-          allTypesInSingleFileCount: allTypesInSingleFile.length,
-          typesAndProperties: typesAndProperties,
-          typesAndPropertiesCount: typesAndProperties.length,
-          importUrl: importUrl,
-          allOtherDependentTypesFromPropertyTypesFromOtherFiles:
-            allOtherDependentTypesFromPropertyTypesFromOtherFiles,
-          // next stage will attach : with import URL's after the file loop
-        };
-
-        console.log(
-          "AllOtherDependentTypesFromPropertyTypesFromOtherFiles",
-          allOtherDependentTypesFromPropertyTypesFromOtherFiles
+      allOtherDependentTypesFromPropertyTypesFromOtherFiles =
+        compareAndRemoveDuplicates(
+          allOtherDependentTypesFromPropertyTypesFromOtherFiles,
+          allTypesInSingleFile
         );
 
-        fileNameAndDataWithTypes.push(fileAndData);
+      allOtherDependentTypesFromPropertyTypesFromOtherFiles = removeDuplicates(
+        allOtherDependentTypesFromPropertyTypesFromOtherFiles
+      );
 
-        //#endregion End File Array Scope after data code ...
-      }
+      console.log("allTypesInSingleFile", allTypesInSingleFile);
+
+      allTypesCombined.push(...typesAndProperties);
+
+      const fileAndData: FileAndTypesDataInfo = {
+        fileName: fileName + ".ts",
+        type: typeType,
+        //finalFileDataAsStringWithImportUrls is in next stage ...
+        convertedTsDataString: fileData,
+        folderToCreate: folderToCreate,
+        allTypesInSingleFile: allTypesInSingleFile,
+        allTypesInSingleFileCount: allTypesInSingleFile.length,
+        typesAndProperties: typesAndProperties,
+        typesAndPropertiesCount: typesAndProperties.length,
+        importUrl: importUrl,
+        allOtherDependentTypesFromPropertyTypesFromOtherFiles:
+          allOtherDependentTypesFromPropertyTypesFromOtherFiles,
+        // next stage will attach : with import URL's after the file loop
+      };
+
+      console.log(
+        "AllOtherDependentTypesFromPropertyTypesFromOtherFiles",
+        allOtherDependentTypesFromPropertyTypesFromOtherFiles
+      );
+
+      fileNameAndDataWithTypes.push(fileAndData);
+
+      //#endregion End File Array Scope after data code ...
+
       //#endregion End File Array Scope ...
     });
 

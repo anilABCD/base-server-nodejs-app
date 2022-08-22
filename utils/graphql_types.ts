@@ -11,6 +11,10 @@ function FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
   return str;
 }
 
+const GQL_TS_FILES_EXCLUDED = ["resolvers.ts"];
+
+const GLQ_Files_Excluded: string[] = ["schema.graphql"];
+
 type SingleTypeScriptOutFile = "/types.ts";
 function SingleTypeScriptOutFile(str: SingleTypeScriptOutFile) {
   return str;
@@ -29,6 +33,11 @@ function GQLFileType(str: GQLFileType) {
 
 type GQL_ScalarType = " ID" | " String" | " Float" | " Boolean" | " Int";
 function GQL_ScalarType(str: GQL_ScalarType) {
+  return str;
+}
+
+type FileExtension = ".ts";
+function FileExtension(str: FileExtension) {
   return str;
 }
 
@@ -146,4 +155,7 @@ export {
   GQL_Type,
   TO_TS_Type,
   ExpressionToTS,
+  FileExtension,
+  GLQ_Files_Excluded,
+  GQL_TS_FILES_EXCLUDED,
 };
