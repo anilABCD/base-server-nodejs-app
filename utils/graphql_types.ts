@@ -44,6 +44,18 @@ function Dot(str: Dot) {
   return str;
 }
 
+type NewLine = "\n";
+function NewLine(str: NewLine) {
+  return str;
+}
+
+// let abc = NewLine("\n");
+// abc = "sadfasdf";
+
+function resturnStringTypeAsAnyString(str: string) {
+  return str;
+}
+
 type CURRENT_APP = "CURRENT_APP";
 function CURRENT_APP(str: CURRENT_APP) {
   return str;
@@ -109,6 +121,7 @@ export {
   GraphQLFile_StringType,
   GQL_Scalar_StringTypes,
   Dot,
+  NewLine,
   CURRENT_APP,
   TS_StringTypes,
   Exp_StringTypes,

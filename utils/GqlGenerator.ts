@@ -12,6 +12,7 @@ import {
   GQL_Scalar_StringTypes,
   GraphQLFile_StringType,
   GraphQLToTS,
+  NewLine,
   OutPutReactNativeAppPath_StringType,
   PropertyInfo,
   SingleOutFile_StringType,
@@ -62,7 +63,7 @@ export default class GqlGenerator {
 
         const fileDataArray = fs
           .readFileSync(filePath, { encoding: "utf8", flag: "r" })
-          .split("\n");
+          .split(NewLine("\n"));
 
         let typeAndProperty: TypeInfo = {
           properties: [],
@@ -560,7 +561,7 @@ export default class GqlGenerator {
     let resultImportUrl = "";
 
     if (allOtherDependentTypesFromPropertyTypesFromOtherFiles.length == 0) {
-      resultImportUrl = "\n";
+      resultImportUrl = NewLine("\n");
       return resultImportUrl;
     }
 
@@ -571,10 +572,11 @@ export default class GqlGenerator {
         )[0];
 
         if (index === 0) {
-          resultImportUrl = "\n" + resultImportUrl;
+          resultImportUrl = NewLine("\n") + resultImportUrl;
         }
 
-        resultImportUrl += type.importUrl.replace("TYPE_NAME", depType) + "\n";
+        resultImportUrl +=
+          type.importUrl.replace("TYPE_NAME", depType) + NewLine("\n");
       }
     );
 
