@@ -11,6 +11,7 @@ import RegexExtract from "../../utils/RegexExtract";
 import {
   CURRENT_APP,
   GLQ_Files_Excluded,
+  GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
   OutPathReactNative_AppName,
 } from "../../utils/graphql_types";
 import { compareAndRemoveDuplicates } from "../../utils/all.util";
@@ -49,40 +50,39 @@ export default class GenerateController {
 
       // console.clearAfter("getFilesDataSync");
 
-      console.log("getFilesDataSync To generate:", fileNames);
-
-      const filesData = File.getFilesDataSync(
-        fileNames,
-        ["graphql", "ts"],
-        GLQ_Files_Excluded
-      );
-
-      console.log("GenerateGraphQLToTs To generate :", fileNames);
+      console.log("All File Names : ", fileNames);
 
       let gqlGenerator = new GqlGenerator();
 
+      const data_combinedFromAllGraphqlFiles =
+        gqlGenerator.generateAllCombinedGrqphQLSchema(
+          fileNames,
+          this.CURRENT_APP
+        );
+
+      console.log(
+        " /schema.graphql : All Combined Generated Data : ",
+        data_combinedFromAllGraphqlFiles
+      );
+
       const isSingleOutFile = singleOutFile === "true" ? true : false;
 
-      const filesDataTs = gqlGenerator.generateGraphQLToTs(
-        fileNames,
-        this.CURRENT_APP,
-        isSingleOutFile
-      );
-
-      console.log(filesData);
-
-      const resultAfterWrite = File.writeToFileSync(
-        filesData,
-        filesDataTs.OUTPUT_GQL_PATH
-      );
+      const obj_generatedFromGraphqlFiles_To_TS =
+        gqlGenerator.generateGraphQLToTs(
+          fileNames,
+          this.CURRENT_APP,
+          isSingleOutFile
+        );
 
       let dataOfTsFiles = "";
-      filesDataTs.fileAndDataWithTypesInfo.forEach((value) => {
-        dataOfTsFiles += value.convertedTsDataString;
-      });
+      obj_generatedFromGraphqlFiles_To_TS.fileAndDataWithTypesInfo.forEach(
+        (value) => {
+          dataOfTsFiles += value.convertedTsDataString;
+        }
+      );
 
       let headerInfo = fileAuthorAndHeaderInformation.replace(
-        "CURRENT_APP",
+        CURRENT_APP("CURRENT_APP"),
         this.CURRENT_APP
       );
 
@@ -101,17 +101,16 @@ export default class GenerateController {
       // "{CURRENT_APP}" +
       // "/graphql/graphql.types/"
 
-      console.log("File Written", resultAfterWrite);
-
-      const typeNames = filesDataTs.allTypesCombined?.map((types) => {
-        return types.typeName;
-      });
+      const typeNames =
+        obj_generatedFromGraphqlFiles_To_TS.allTypesCombined?.map((types) => {
+          return types.typeName;
+        });
 
       // console.error("trace");
       let result = {
         typeNames,
-        fileNames: filesDataTs.fileNames,
-        appName: filesDataTs.appName,
+        fileNames: obj_generatedFromGraphqlFiles_To_TS.fileNames,
+        appName: obj_generatedFromGraphqlFiles_To_TS.appName,
         isSingleOutFile,
       };
 

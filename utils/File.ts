@@ -4,7 +4,6 @@ import fs, { readdirSync } from "fs";
 import path, { dirname } from "path";
 import { compareAndRemoveDuplicates } from "./all.util";
 import console from "./console";
-import { GLQ_Files_Excluded } from "./graphql_types";
 
 // const directoryPath = path.join("__dirname", 'Documents');
 // //passsing directoryPath and callback function

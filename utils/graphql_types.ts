@@ -121,7 +121,6 @@ type GraphQLToTS = {
   appName: string;
   fileAndDataWithTypesInfo: FileAndTypesDataInfo[];
   allTypesCombined?: TypeInfo[];
-  OUTPUT_GQL_PATH: string;
   OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH: string;
 };
 

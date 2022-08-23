@@ -34,12 +34,33 @@ import { Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
 import console from "./console";
 
 export default class GqlGenerator {
+  generateAllCombinedGrqphQLSchema(fileNames: string[], appName: string) {
+    const data_combinedFromAllGraphqlFiles = File.getFilesDataSync(
+      fileNames,
+      ["graphql"],
+      GLQ_Files_Excluded
+    );
+
+    console.log("Complete GraphQL Data : ", data_combinedFromAllGraphqlFiles);
+
+    File.writeToFileSync(
+      data_combinedFromAllGraphqlFiles,
+      File.path(
+        GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
+          "./GraphQLAPI/CURRENT_APP/schema.graphql"
+        ).replace(CURRENT_APP("CURRENT_APP"), appName)
+      )
+    );
+
+    return data_combinedFromAllGraphqlFiles;
+  }
+
   generateGraphQLToTs(
     fileNames: string[],
     appName: string,
     singleOutFile: boolean
   ) {
-    fileNames = compareAndRemoveDuplicates(fileNames, GLQ_Files_Excluded);
+    // fileNames = compareAndRemoveDuplicates(fileNames, GLQ_Files_Excluded);
 
     const fileNameAndDataWithTypes: FileAndTypesDataInfo[] = [];
     let allTypesCombined: TypeInfo[] = [];
@@ -507,11 +528,7 @@ export default class GqlGenerator {
       fileNames: fileNames,
       appName: appName,
       fileAndDataWithTypesInfo: fileNameAndDataWithTypes,
-      OUTPUT_GQL_PATH: File.path(
-        GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
-          "./GraphQLAPI/CURRENT_APP/schema.graphql"
-        ).replace(CURRENT_APP("CURRENT_APP"), appName)
-      ),
+
       OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH:
         OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH(
           "./../base-react-native-app/graphql/CURRENT_APP/"
@@ -519,23 +536,6 @@ export default class GqlGenerator {
     };
 
     console.log("graphql to ts file generator", graphQLToTs);
-
-    const outputPath =
-      "./../base-react-native-app/" +
-      "App/" +
-      appName +
-      "/graphql/graphql.types/";
-
-    let fileAndData = graphQLToTs.fileAndDataWithTypesInfo;
-    for (let i = 0; i < graphQLToTs.fileAndDataWithTypesInfo.length; i++) {
-      let tsData = fileAndData[i];
-
-      if (tsData.allTypesInSingleFile.length > 0) {
-        tsData.allTypesInSingleFile.forEach((inFileTypes) => {
-          //
-        });
-      }
-    }
 
     //#region START Generate gql` query `
 
