@@ -40,10 +40,7 @@ export default class GenerateController {
       };
 
       let fileNames = File.getDirectoryOrFileNamesSync(
-        [
-          "./GraphQLAPI/" + this.CURRENT_APP,
-          "./GraphQLAPI/queries.mutation.ts.templates",
-        ],
+        ["./GraphQLAPI/" + this.CURRENT_APP],
         fileParams,
         ["graphql", "ts"]
       );

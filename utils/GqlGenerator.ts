@@ -2,9 +2,8 @@ import fs, { readdirSync, write } from "fs";
 import { compareAndRemoveDuplicates, removeDuplicates } from "./all.util";
 import GraphQLUtils from "./GraphQLUtils";
 
-import File from "./File";
+import File, { FileParams } from "./File";
 import {
-  CURRENT_APP,
   ExportSyntax,
   ExpressionChar,
   FileAndTypesDataInfo,
@@ -29,6 +28,9 @@ import {
   OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH,
   QUERIES_MUTATION_TS_FOLDER,
   GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
+  SingleTypeMutationAndQueriesScriptOutFile,
+  QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH,
+  QUERY_PROPERTY_NAME_FOR_TEMPLATE,
 } from "./graphql_types";
 import { Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
 import console from "./console";
@@ -47,8 +49,9 @@ export default class GqlGenerator {
       data_combinedFromAllGraphqlFiles,
       File.path(
         GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
-          "./GraphQLAPI/CURRENT_APP/schema.graphql"
-        ).replace(CURRENT_APP("CURRENT_APP"), appName)
+          "./GraphQLAPI/CURRENT_APP/schema.graphql",
+          appName
+        )
       )
     );
 
@@ -528,11 +531,6 @@ export default class GqlGenerator {
       fileNames: fileNames,
       appName: appName,
       fileAndDataWithTypesInfo: fileNameAndDataWithTypes,
-
-      OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH:
-        OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH(
-          "./../base-react-native-app/graphql/CURRENT_APP/"
-        ) + QUERIES_MUTATION_TS_FOLDER("querys.and.mutations"),
     };
 
     console.log("graphql to ts file generator", graphQLToTs);
@@ -636,7 +634,69 @@ export default class GqlGenerator {
 
     this.writeGeneratedGraphQLToTsFilesSync(graphQLToTs, singleOutFile);
 
+    this.writeAllMutationAndQueriesSeperatelyToTsFilesSync(
+      graphQLToTs,
+      singleOutFile,
+      appName
+    );
+
     return graphQLToTs;
+  }
+
+  //
+  writeAllMutationAndQueriesSeperatelyToTsFilesSync(
+    graphQLToTs: GraphQLToTS,
+    singleOutFile: boolean,
+    appName: string
+  ) {
+    //
+    const OUTPUT_FOLDER =
+      OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH(
+        "./../base-react-native-app/graphql/CURRENT_APP/",
+        appName
+      ) + QUERIES_MUTATION_TS_FOLDER("querys.and.mutations");
+
+    let OUTPUT_FILE = OUTPUT_FOLDER;
+    if (singleOutFile) {
+      OUTPUT_FILE = File.path(
+        OUTPUT_FOLDER,
+        SingleTypeMutationAndQueriesScriptOutFile(
+          "/all.queries.and.mutations.ts"
+        )
+      );
+    }
+
+    const allTypes = graphQLToTs.allTypesCombined;
+
+    const templateFilePath = QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH(
+      "./GraphQLAPI/queries.mutation.ts.templates/all.queries.templates.template.ts"
+    );
+
+    let resultFileDataArray: string[] = [];
+
+    const templateFileData = fs.readFileSync(templateFilePath, {
+      encoding: "utf8",
+      flag: "r",
+    });
+
+    allTypes?.forEach((type) => {
+      if (type.typeName === GQL_Root_Type("Query")) {
+        type.properties.forEach((prop) => {
+          let outPutData = templateFileData.replace(
+            /@QUERY_PROPERTY_NAME/g,
+            prop.propertyName
+          );
+
+          resultFileDataArray.push(outPutData);
+        });
+        return;
+      }
+
+      if (type.typeName === GQL_Root_Type("Mutation")) {
+      }
+    });
+    console.log(resultFileDataArray);
+    console.clearAfter("resultFileDataArray mutation");
   }
 
   generateQueryAndMutationToAppTS(filesDataTs: GraphQLToTS) {}
@@ -791,12 +851,8 @@ export default class GqlGenerator {
     graphQLToTs: GraphQLToTS,
     singleOutFile: boolean
   ) {
-    const outFilePathOriginal = OutPathReactNative_AppName(
-      "./../base-react-native-app/graphql/CURRENT_APP/"
-    );
-
-    let outFilePath = outFilePathOriginal.replace(
-      CURRENT_APP("CURRENT_APP"),
+    let outFilePath = OutPathReactNative_AppName(
+      "./../base-react-native-app/graphql/CURRENT_APP/",
       graphQLToTs.appName
     );
 

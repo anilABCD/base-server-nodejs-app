@@ -3,6 +3,13 @@ function GQL_Root_Type(str: GQL_Root_Type) {
   return str;
 }
 
+type QUERY_PROPERTY_NAME_FOR_TEMPLATE = "@QUERY_PROPERTY_NAME";
+function QUERY_PROPERTY_NAME_FOR_TEMPLATE(
+  str: QUERY_PROPERTY_NAME_FOR_TEMPLATE
+) {
+  return str;
+}
+
 type FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations =
   "queries.mutation.ts.templates";
 function FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
@@ -18,18 +25,30 @@ function SingleTypeScriptOutFile(str: SingleTypeScriptOutFile) {
   return str;
 }
 
+type SingleTypeMutationAndQueriesScriptOutFile =
+  "/all.queries.and.mutations.ts";
+function SingleTypeMutationAndQueriesScriptOutFile(
+  str: SingleTypeMutationAndQueriesScriptOutFile
+) {
+  return str;
+}
+
 type OutPathReactNative_AppName =
   `./../base-react-native-app/graphql/${CURRENT_APP}/`;
-function OutPathReactNative_AppName(str: OutPathReactNative_AppName) {
-  return str;
+function OutPathReactNative_AppName(
+  str: OutPathReactNative_AppName,
+  appName: string
+) {
+  return str.replace(CURRENT_APP("CURRENT_APP"), appName);
 }
 
 type OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH =
   `./../base-react-native-app/graphql/${CURRENT_APP}/`;
 function OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH(
-  str: OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH
+  str: OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH,
+  appName: string
 ) {
-  return str;
+  return str.replace(CURRENT_APP("CURRENT_APP"), appName);
 }
 
 type GQLFileType = "input" | "type" | "mutation" | "querys.and.mutations";
@@ -64,7 +83,16 @@ function QUERIES_MUTATION_TS_FOLDER(str: QUERIES_MUTATION_TS_FOLDER) {
 type GQL_SERVER_OUTPUT_PATH_COMBINED_FILE =
   `./GraphQLAPI/${CURRENT_APP}/schema.graphql`;
 function GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
-  str: GQL_SERVER_OUTPUT_PATH_COMBINED_FILE
+  str: GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
+  appName: string
+) {
+  return str.replace(CURRENT_APP("CURRENT_APP"), appName);
+}
+
+type QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH =
+  `./GraphQLAPI/${FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations}/all.queries.templates.template.ts`;
+function QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH(
+  str: QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH
 ) {
   return str;
 }
@@ -121,7 +149,6 @@ type GraphQLToTS = {
   appName: string;
   fileAndDataWithTypesInfo: FileAndTypesDataInfo[];
   allTypesCombined?: TypeInfo[];
-  OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH: string;
 };
 
 type PropertyInfo = {
@@ -157,6 +184,7 @@ type FileAndTypesDataInfo = {
 export {
   FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations,
   SingleTypeScriptOutFile,
+  SingleTypeMutationAndQueriesScriptOutFile,
   OutPathReactNative_AppName,
   GQLFileType,
   GQL_ScalarType,
@@ -180,4 +208,6 @@ export {
   OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH,
   QUERIES_MUTATION_TS_FOLDER,
   GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
+  QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH,
+  QUERY_PROPERTY_NAME_FOR_TEMPLATE,
 };
