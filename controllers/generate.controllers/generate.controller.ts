@@ -7,6 +7,7 @@ import getEnv from "../../env/getEnv";
 
 import console from "../../utils/console";
 import GqlGenerator from "../../utils/GqlGenerator";
+import RegexExtract from "../../utils/RegexExtract";
 
 export default class GenerateController {
   CURRENT_APP: string;
@@ -41,6 +42,9 @@ export default class GenerateController {
       );
 
       console.log("getFilesDataSync To generate:", fileNames);
+
+      // RegexExtract.ErrorInfo();
+      console.clearAfter("getFilesDataSync");
 
       const filesData = File.getFilesDataSync(fileNames);
 

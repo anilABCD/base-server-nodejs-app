@@ -93,16 +93,20 @@ class File {
   }
 
   static getDirectoryOrFileNamesSync(
-    directoryName: string[],
+    directoryNames: string[],
     params: FileParams,
     extensions: string[]
   ) {
     const fileObje = new File();
 
-    let resultNames = fileObje.getDirectoryNamesSync(directoryName);
-    // console.log("directory names :", resultNames);
+    let resultNames = fileObje.getDirectoryNamesSync(directoryNames);
+    // console.log("resultNames :", resultNames);
     if (params.namesOf === "file") {
-      resultNames.push(directoryName[0]);
+      //
+      directoryNames.forEach((dirName) => {
+        resultNames.push(dirName);
+      });
+
       resultNames = fileObje.getFileNamesSync(resultNames, extensions);
       // console.log("file names :", resultNames);
     }
@@ -159,7 +163,7 @@ class File {
 
   //
   //
-  private getFileNamesSync(directoryName: string[], extensions: string[] = []) {
+  private getFileNamesSync(directoryName: string[], extensions: string[]) {
     let result: string[] = [];
     console.log("getFileNames", directoryName);
 

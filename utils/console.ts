@@ -2,6 +2,7 @@ import { singleton } from "tsyringe";
 import isOnlyDevelopmentEnvironment from "./isOnlyDevelopmentEnvironment";
 import isProductionEnvironment from "./isProductionEnvironment";
 import logger from "./logger";
+import RegexExtract from "./RegexExtract";
 
 let showVerfify = false;
 let enableConsoleLog = true;
@@ -60,16 +61,30 @@ class MyConsole {
     if (isOnlyDevelopmentEnvironment() || isProductionEnvironment()) {
       if (enableConsoleLog) {
         if (extras.length > 0) {
-          return console.log(message, extras);
+          console.log(message, extras);
         } else {
-          return console.log(message);
+          console.log(message);
         }
+
+        if (message === "error-info") {
+          this.logErrorFileAndLineNumber();
+        }
+
+        return;
       }
     }
   };
 
+  logErrorFileAndLineNumber = () => {
+    let result = RegexExtract.ErrorInfo(new Error().stack);
+    console.log("\nLine Number : ", result, "\n\n");
+  };
+
   clearAfter = (code: string) => {
-    console.log("@@@@@@@@", code, "@@@@@@@@");
+    console.log("\n@@@@@@@@", code, "@@@@@@@@\n");
+
+    this.logErrorFileAndLineNumber();
+
     enableConsoleLog = false;
     setTimeout(() => {
       enableConsoleLog = true;

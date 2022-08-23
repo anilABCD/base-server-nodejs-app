@@ -28,6 +28,7 @@ import {
   GLQ_Files_Excluded,
 } from "./graphql_types";
 import { Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
+import console from "./console";
 
 export default class GqlGenerator {
   generateGraphQLToTs(
@@ -209,6 +210,7 @@ export default class GqlGenerator {
 
             typesAndProperties.push(typeAndProperty);
             typeAndProperty.dependentTypes = dependentTypesRemovedDuplicates;
+
             console.log("Type And Property", typeAndProperty);
           }
 
