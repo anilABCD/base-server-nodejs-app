@@ -8,6 +8,8 @@ import getEnv from "../../env/getEnv";
 import console from "../../utils/console";
 import GqlGenerator from "../../utils/GqlGenerator";
 import RegexExtract from "../../utils/RegexExtract";
+import { GLQ_Files_Excluded } from "../../utils/graphql_types";
+import { compareAndRemoveDuplicates } from "../../utils/all.util";
 
 export default class GenerateController {
   CURRENT_APP: string;
@@ -32,7 +34,7 @@ export default class GenerateController {
         namesOf: "file",
       };
 
-      const fileNames = File.getDirectoryOrFileNamesSync(
+      let fileNames = File.getDirectoryOrFileNamesSync(
         [
           "./GraphQLAPI/" + this.CURRENT_APP,
           "./GraphQLAPI/queries.mutation.ts.templates",
@@ -41,12 +43,15 @@ export default class GenerateController {
         ["graphql", "ts"]
       );
 
+      // console.clearAfter("getFilesDataSync");
+
       console.log("getFilesDataSync To generate:", fileNames);
 
-      // RegexExtract.ErrorInfo();
-      console.clearAfter("getFilesDataSync");
-
-      const filesData = File.getFilesDataSync(fileNames);
+      const filesData = File.getFilesDataSync(
+        fileNames,
+        ["graphql", "ts"],
+        GLQ_Files_Excluded
+      );
 
       console.log("GenerateGraphQLToTs To generate :", fileNames);
 
@@ -60,6 +65,7 @@ export default class GenerateController {
         isSingleOutFile
       );
 
+      console.log("Output File  : schema.graphql");
       console.log(filesData);
 
       const resultAfterWrite = File.writeToFileSync(

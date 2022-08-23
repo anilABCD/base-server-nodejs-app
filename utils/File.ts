@@ -2,6 +2,9 @@ import { dir } from "console";
 import fs, { readdirSync } from "fs";
 
 import path, { dirname } from "path";
+import { compareAndRemoveDuplicates } from "./all.util";
+import console from "./console";
+import { GLQ_Files_Excluded } from "./graphql_types";
 
 // const directoryPath = path.join("__dirname", 'Documents');
 // //passsing directoryPath and callback function
@@ -212,15 +215,39 @@ class File {
     //
   }
 
-  static getFilesDataSync(fileNames: string[]) {
+  static getExtension(path: string) {
+    return path.substring(path.lastIndexOf(".") + 1);
+  }
+
+  static getFileName(path: string) {
+    return path.substring(path.lastIndexOf("/") + 1);
+  }
+
+  static getFilesDataSync(
+    fileNames: string[],
+    extensions: string[],
+    excludeFileNames: string[]
+  ) {
     let filesData: string[] = [];
 
-    fileNames.forEach((file) => {
-      filesData.push(
-        fs.readFileSync(file, { encoding: "utf8", flag: "r" }) + "\r\n\r\n"
-      );
-    });
+    fileNames.forEach((fileName) => {
+      if (
+        extensions.includes(File.getExtension(fileName)) ||
+        extensions.includes("*")
+      ) {
+        if (!excludeFileNames.includes(File.getFileName(fileName))) {
+          console.log("not excluded filename", fileName);
 
+          filesData.push(
+            fs.readFileSync(fileName, { encoding: "utf8", flag: "r" }) +
+              "\r\n\r\n"
+          );
+        } else {
+          console.log("@excluded filename", fileName);
+        }
+      }
+    });
+    // console.clearAfter("not excluded filename");
     return filesData;
   }
 

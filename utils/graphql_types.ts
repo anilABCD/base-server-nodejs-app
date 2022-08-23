@@ -11,9 +11,7 @@ function FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
   return str;
 }
 
-const GQL_TS_FILES_EXCLUDED = ["resolvers.ts"];
-
-const GLQ_Files_Excluded: string[] = ["schema.graphql"];
+const GLQ_Files_Excluded: string[] = ["schema.graphql", "resolvers.ts"];
 
 type SingleTypeScriptOutFile = "/types.ts";
 function SingleTypeScriptOutFile(str: SingleTypeScriptOutFile) {
@@ -157,5 +155,4 @@ export {
   ExpressionToTS,
   FileExtension,
   GLQ_Files_Excluded,
-  GQL_TS_FILES_EXCLUDED,
 };

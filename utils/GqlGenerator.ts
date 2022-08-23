@@ -36,6 +36,8 @@ export default class GqlGenerator {
     appName: string,
     singleOutFile: boolean
   ) {
+    fileNames = compareAndRemoveDuplicates(fileNames, GLQ_Files_Excluded);
+
     const fileNameAndDataWithTypes: FileAndTypesDataInfo[] = [];
     let allTypesCombined: TypeInfo[] = [];
     const exportSyntax = ExportSyntax("export { TYPE_NAME } ");
@@ -47,6 +49,8 @@ export default class GqlGenerator {
       if (filePath.lastIndexOf(FileExtension(".ts")) > -1) {
         console.log(".ts skipped.", filePath);
         return;
+      } else {
+        console.log(".ts not skipped.", filePath);
       }
 
       let toSkip: boolean | undefined = undefined;
@@ -58,7 +62,9 @@ export default class GqlGenerator {
 
       if (toSkip === true) {
         console.log("Files skipped by gql : ", filePath);
-        return true;
+        return;
+      } else {
+        console.log("Files not skipped by gql : ", filePath);
       }
 
       //
