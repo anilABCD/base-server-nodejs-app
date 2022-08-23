@@ -26,6 +26,9 @@ import {
   TS_ScalarTypes,
   FileExtension,
   GLQ_Files_Excluded,
+  OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH,
+  QUERIES_MUTATION_TS_FOLDER,
+  GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
 } from "./graphql_types";
 import { Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
 import console from "./console";
@@ -42,43 +45,43 @@ export default class GqlGenerator {
     let allTypesCombined: TypeInfo[] = [];
     const exportSyntax = ExportSyntax("export { TYPE_NAME } ");
 
-    fileNames.forEach((filePath) => {
+    fileNames.forEach((filePathEach) => {
       //
       // ".ts"
-      console.log(filePath);
-      if (filePath.lastIndexOf(FileExtension(".ts")) > -1) {
-        console.log(".ts skipped.", filePath);
+      console.log(filePathEach);
+      if (filePathEach.lastIndexOf(FileExtension(".ts")) > -1) {
+        console.log(".ts skipped.", filePathEach);
         return;
       } else {
-        console.log(".ts not skipped.", filePath);
+        console.log(".ts not skipped.", filePathEach);
       }
 
       let toSkip: boolean | undefined = undefined;
       GLQ_Files_Excluded.forEach((excludeFile) => {
-        if (filePath.lastIndexOf(excludeFile) > -1) {
+        if (filePathEach.lastIndexOf(excludeFile) > -1) {
           toSkip = true;
         }
       });
 
       if (toSkip === true) {
-        console.log("Files skipped by gql : ", filePath);
+        console.log("Files skipped by gql : ", filePathEach);
         return;
       } else {
-        console.log("Files not skipped by gql : ", filePath);
+        console.log("Files not skipped by gql : ", filePathEach);
       }
 
       //
       //#region File Array Scope
       //
 
-      let filePathToGetTypeAndFolderAndFileName = filePath;
+      let filePathToGetTypeAndFolderAndFileName = filePathEach;
       let allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[] = [];
       let allTypesInSingleFile: string[] = [];
       let typesAndProperties: TypeInfo[] = [];
 
-      const filePathIndex = filePath.lastIndexOf(PathChar("/"));
+      const filePathIndex = filePathEach.lastIndexOf(PathChar("/"));
       if (filePathIndex > -1) {
-        filePathToGetTypeAndFolderAndFileName = filePath.substring(
+        filePathToGetTypeAndFolderAndFileName = filePathEach.substring(
           filePathIndex + 1
         );
       }
@@ -94,7 +97,7 @@ export default class GqlGenerator {
       let fileData = "";
 
       const fileDataArray = fs
-        .readFileSync(filePath, { encoding: "utf8", flag: "r" })
+        .readFileSync(filePathEach, { encoding: "utf8", flag: "r" })
         .split(NewLine("\n"));
 
       let typeAndProperty: TypeInfo = {
@@ -504,6 +507,15 @@ export default class GqlGenerator {
       fileNames: fileNames,
       appName: appName,
       fileAndDataWithTypesInfo: fileNameAndDataWithTypes,
+      OUTPUT_GQL_PATH: File.path(
+        GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
+          "./GraphQLAPI/CURRENT_APP/schema.graphql"
+        ).replace(CURRENT_APP("CURRENT_APP"), appName)
+      ),
+      OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH:
+        OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH(
+          "./../base-react-native-app/graphql/CURRENT_APP/"
+        ) + QUERIES_MUTATION_TS_FOLDER("querys.and.mutations"),
     };
 
     console.log("graphql to ts file generator", graphQLToTs);
@@ -626,6 +638,9 @@ export default class GqlGenerator {
 
     return graphQLToTs;
   }
+
+  generateQueryAndMutationToAppTS(filesDataTs: GraphQLToTS) {}
+
   attachDependentTypesToFile(
     allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[],
     allTypesCombined: TypeInfo[]

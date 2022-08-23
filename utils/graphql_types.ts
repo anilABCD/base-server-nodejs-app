@@ -19,8 +19,16 @@ function SingleTypeScriptOutFile(str: SingleTypeScriptOutFile) {
 }
 
 type OutPathReactNative_AppName =
-  "./../base-react-native-app/graphql/CURRENT_APP/";
+  `./../base-react-native-app/graphql/${CURRENT_APP}/`;
 function OutPathReactNative_AppName(str: OutPathReactNative_AppName) {
+  return str;
+}
+
+type OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH =
+  `./../base-react-native-app/graphql/${CURRENT_APP}/`;
+function OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH(
+  str: OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH
+) {
   return str;
 }
 
@@ -45,6 +53,19 @@ function resturnStringTypeAsAnyString(str: string) {
 
 type CURRENT_APP = "CURRENT_APP";
 function CURRENT_APP(str: CURRENT_APP) {
+  return str;
+}
+
+type QUERIES_MUTATION_TS_FOLDER = "querys.and.mutations";
+function QUERIES_MUTATION_TS_FOLDER(str: QUERIES_MUTATION_TS_FOLDER) {
+  return str;
+}
+
+type GQL_SERVER_OUTPUT_PATH_COMBINED_FILE =
+  `./GraphQLAPI/${CURRENT_APP}/schema.graphql`;
+function GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
+  str: GQL_SERVER_OUTPUT_PATH_COMBINED_FILE
+) {
   return str;
 }
 
@@ -100,6 +121,8 @@ type GraphQLToTS = {
   appName: string;
   fileAndDataWithTypesInfo: FileAndTypesDataInfo[];
   allTypesCombined?: TypeInfo[];
+  OUTPUT_GQL_PATH: string;
+  OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH: string;
 };
 
 type PropertyInfo = {
@@ -155,4 +178,7 @@ export {
   ExpressionToTS,
   FileExtension,
   GLQ_Files_Excluded,
+  OUTPUT_QUERIES_AND_MUTATIN_TS_FOLDER_PATH,
+  QUERIES_MUTATION_TS_FOLDER,
+  GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
 };

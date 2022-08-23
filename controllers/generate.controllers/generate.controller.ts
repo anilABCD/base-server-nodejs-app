@@ -8,14 +8,18 @@ import getEnv from "../../env/getEnv";
 import console from "../../utils/console";
 import GqlGenerator from "../../utils/GqlGenerator";
 import RegexExtract from "../../utils/RegexExtract";
-import { GLQ_Files_Excluded } from "../../utils/graphql_types";
+import {
+  CURRENT_APP,
+  GLQ_Files_Excluded,
+  OutPathReactNative_AppName,
+} from "../../utils/graphql_types";
 import { compareAndRemoveDuplicates } from "../../utils/all.util";
 
 export default class GenerateController {
   CURRENT_APP: string;
 
-  constructor(CURRENT_APP: string) {
-    this.CURRENT_APP = CURRENT_APP;
+  constructor(CURRENT_APP_: string) {
+    this.CURRENT_APP = CURRENT_APP_;
 
     if (this.CURRENT_APP === "") {
       throw new Error("CURRENT_APP : is not provided in Generate GraphQL");
@@ -65,12 +69,11 @@ export default class GenerateController {
         isSingleOutFile
       );
 
-      console.log("Output File  : schema.graphql");
       console.log(filesData);
 
       const resultAfterWrite = File.writeToFileSync(
         filesData,
-        "./GraphQLAPI/" + this.CURRENT_APP + "/schema.graphql"
+        filesDataTs.OUTPUT_GQL_PATH
       );
 
       let dataOfTsFiles = "";

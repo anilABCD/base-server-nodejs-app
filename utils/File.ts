@@ -254,11 +254,7 @@ class File {
   static writeToFileSync(filesData: string[], outFilePath: string) {
     const data = filesData.join("");
 
-    // if (outFilePath.lastIndexOf(".graphql") > -1) {
-    //   fs.unlinkSync(outFilePath);
-    // }
-
-    // console.log("written", data);
+    console.log("GQL Out File Path", outFilePath);
 
     const result = fs.writeFileSync(outFilePath, data, { flag: "w" });
 
