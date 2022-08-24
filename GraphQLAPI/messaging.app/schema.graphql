@@ -24,11 +24,11 @@ schema {
 
 type Query {
   test_messages: Message[]
-  messages: [Message,ABC]
+  messages: [Message]
 }
 
 type Mutation {
-  sendMessage(input: SendMessageInput):  [Message][]
+  sendMessage(input: SendMessageInput):  [Message, ABC][]
 }
 
 

@@ -30,6 +30,16 @@ function NewLine(
   return str;
 }
 
+type Tab = "\t";
+function Tab(str: Tab, length: number = 1) {
+  if (length > 1) {
+    const calcLength = str.length * length;
+    return StringUtil.paddingStart(str, calcLength, str);
+  }
+
+  return str;
+}
+
 type Space = " ";
 function Space(str: Space, length: number = 1) {
   if (length > 1) {
@@ -47,4 +57,4 @@ function Comment(str: Comment) {
   return comment;
 }
 
-export { Dot, NewLine, Space, Empty, PathChar, Comment };
+export { Dot, Tab, NewLine, Space, Empty, PathChar, Comment };

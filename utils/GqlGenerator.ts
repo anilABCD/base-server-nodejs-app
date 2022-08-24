@@ -32,8 +32,17 @@ import {
   QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH,
   QUERY_PROPERTY_NAME,
   MUTATION_PROPERTY_NAME,
+  MUTATION_INPUT_PROPERTY_NAME,
 } from "./graphql_types";
-import { Comment, Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
+import {
+  Comment,
+  Dot,
+  Empty,
+  NewLine,
+  PathChar,
+  Space,
+  Tab,
+} from "./literal.types";
 import console from "./console";
 
 export default class GqlGenerator {
@@ -763,39 +772,108 @@ export default class GqlGenerator {
         type.properties.forEach((prop) => {
           let propertyName = prop.propertyName;
 
+          let parameters: string[] = [];
+          let parametersFinalResult = "";
+
           const indexOfFunctionStart = propertyName.indexOf("(");
+
+          if (indexOfFunctionStart > -1) {
+            // propertyName = propertyName.substring(0, indexOfFunctionStart);
+
+            const indexOfFunctionEnd = propertyName.indexOf(")");
+
+            let parameterString = prop.propertyName.substring(
+              indexOfFunctionStart,
+              indexOfFunctionEnd
+            );
+
+            parameters = parameterString.split(",");
+
+            parameters.forEach((param, index) => {
+              let pid = param.indexOf(":");
+              param = param.substring(pid + 1).trim();
+
+              /////////// importUrlOrUrls /////////////
+              let importUrlOrUrls = this.getImportUrlFromType(allTypes, param);
+              importUrlOrUrls.forEach((importUrl) => {
+                if (!templateHeaderData.includes(importUrl)) {
+                  templateHeaderData += importUrl;
+                }
+              });
+
+              /////////// Duplicates  ////////////////
+              //
+              //
+              // let start = "";
+              // let end = "";
+              // if (index === parameters.length - 1) {
+              //    start = "[";
+              // }
+              //
+              // parameters[index] =
+              //   start +
+              //   `${NewLine("\n")} ${Tab("\t", 2)}{ input : ${param} }${NewLine(
+              //     "\n"
+              //   )}`;
+              //
+              // if (index === parameters.length - 1) {
+              //   end = `${Tab("\t")}]`;
+              // }
+              //
+              // parameters[index] += end;
+              // parametersFinalResult += parameters[index];
+
+              parametersFinalResult += param + " | undefined";
+            });
+          }
+
+          // propertyName without function completestring in Mutation :
           if (indexOfFunctionStart > -1) {
             propertyName = propertyName.substring(0, indexOfFunctionStart);
           }
 
           let outPutData = "";
+          if (parameters.length > 0) {
+            outPutData = templateFileData.replace(
+              MUTATION_INPUT_PROPERTY_NAME("@INPUT_TYPE"),
+              parametersFinalResult
+            );
+          } else {
+            outPutData = templateFileData.replace(
+              MUTATION_INPUT_PROPERTY_NAME("@INPUT_TYPE"),
+              "undefined"
+            );
+          }
+
+          let typeName = prop.typeName;
+          console.log("Type@Name", typeName);
+
+          //importUrls
+          let importUrlOrUrls = this.getImportUrlFromType(allTypes, typeName);
+          importUrlOrUrls.forEach((importUrl) => {
+            if (!templateHeaderData.includes(importUrl)) {
+              templateHeaderData += importUrl;
+            }
+          });
+          ///////////////// duplicate ///////////
+
+          const isNullType = prop.isNull ? " | undefined" : "";
+
+          typeName = prop.typeName + isNullType;
+
+          if (prop.typeName) {
+            outPutData = outPutData.replace(
+              MUTATION_PROPERTY_NAME('Query["@QUERY_PROPERTY_NAME"]'),
+              typeName
+            );
+          }
+
+          outPutData = outPutData.replace(
+            QUERY_PROPERTY_NAME("@QUERY_PROPERTY_NAME"),
+            propertyName
+          );
 
           if (type.typeName === GQL_Root_Type("Mutation")) {
-            let typeName = prop.typeName;
-            console.log("Type@Name", typeName);
-
-            //importUrls
-            let importUrlOrUrls = this.getImportUrlFromType(allTypes, typeName);
-            importUrlOrUrls.forEach((importUrl) => {
-              templateHeaderData += NewLine("\n") + importUrl + NewLine("\n");
-            });
-
-            const isNullType = prop.isNull ? " | undefined" : "";
-
-            typeName = prop.typeName + isNullType;
-
-            if (prop.typeName) {
-              outPutData = templateFileData.replace(
-                MUTATION_PROPERTY_NAME('Query["@QUERY_PROPERTY_NAME"]'),
-                typeName
-              );
-            }
-
-            outPutData = outPutData.replace(
-              QUERY_PROPERTY_NAME("@QUERY_PROPERTY_NAME"),
-              propertyName
-            );
-
             outPutData = outPutData.replace(
               GQL_Root_Type("Query"),
               GQL_Root_Type("Mutation")
@@ -806,7 +884,7 @@ export default class GqlGenerator {
               "base_mutation_type"
             );
           } else if (type.typeName === GQL_Root_Type("Query")) {
-            outPutData = templateFileData.replace(
+            outPutData = outPutData.replace(
               QUERY_PROPERTY_NAME("@QUERY_PROPERTY_NAME"),
               propertyName
             );
@@ -856,9 +934,7 @@ export default class GqlGenerator {
         //
         let type = this.getType(allTypes, typeName);
         return [
-          NewLine("\n") +
-            type.importUrl.replace("TYPE_NAME", type.typeName) +
-            NewLine("\n"),
+          type.importUrl.replace("TYPE_NAME", type.typeName) + NewLine("\n"),
         ];
         //
       } else if (typeName.includes(",")) {
@@ -871,9 +947,7 @@ export default class GqlGenerator {
           console.log("@@@@@@@", typeName);
 
           resultImportArray.push(
-            NewLine("\n") +
-              type.importUrl.replace("TYPE_NAME", type.typeName) +
-              NewLine("\n")
+            type.importUrl.replace("TYPE_NAME", type.typeName) + NewLine("\n")
           );
         });
 
