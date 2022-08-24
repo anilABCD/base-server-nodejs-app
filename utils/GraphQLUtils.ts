@@ -15,7 +15,11 @@ class GraphQLUtils {
     return false;
   }
   static getTrimmedType(typeName: string) {
-    return typeName.replace("[", "").replace("]", "").replace("!", "").trim();
+    return typeName
+      .replace(/\[/g, "")
+      .replace(/\]/g, "")
+      .replace(/\!/g, "")
+      .trim();
   }
 
   static getTrimmedTypeSafeNull(typeName: string) {

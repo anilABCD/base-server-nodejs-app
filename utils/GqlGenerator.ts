@@ -151,12 +151,12 @@ export default class GqlGenerator {
             isArrayProperty = true;
           }
 
-          if (line.includes("!")) {
+          if (!line.includes(ExpressionChar("!"))) {
             isNullProperty = true;
           }
         }
 
-        if (dataEachLine.indexOf(ExpressionChar("!")) > -1) {
+        if (!line.includes(ExpressionChar("!"))) {
           isNullProperty = true;
         }
         // }
@@ -311,15 +311,35 @@ export default class GqlGenerator {
                   propertyName: propertyName,
                   typeName: nonScalarType,
                   isNull: isNullProperty,
-                  isArray: true,
+                  isArray: isArrayProperty,
                 };
 
-                allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
-                  nonScalarType
-                    .replace(ExpressionChar("["), Empty(""))
-                    .replace(ExpressionChar("]"), Empty(""))
-                    .replace(ExpressionChar("!"), Empty(""))
-                );
+                // console.log("NONSCALAR", propertyName, nonScalarType);
+
+                //EXP
+                let nonScalarTypes: string[] = [];
+                if (nonScalarType.includes(",")) {
+                  nonScalarTypes = nonScalarType.split(",");
+                  nonScalarTypes.forEach((nonScalar, index) => {
+                    nonScalarTypes[index] =
+                      GraphQLUtils.getTrimmedType(nonScalar);
+
+                    allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
+                      nonScalarTypes[index]
+                        .replace(ExpressionChar("["), Empty(""))
+                        .replace(ExpressionChar("]"), Empty(""))
+                        .replace(ExpressionChar("!"), Empty(""))
+                    );
+                  });
+                } else {
+                  //EXP
+                  allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
+                    nonScalarType
+                      .replace(ExpressionChar("["), Empty(""))
+                      .replace(ExpressionChar("]"), Empty(""))
+                      .replace(ExpressionChar("!"), Empty(""))
+                  );
+                }
                 typeAndProperty.properties.push(propInfo);
               }
 
@@ -485,6 +505,7 @@ export default class GqlGenerator {
         //   }
         //`
 
+        // ! meaning non null
         if (!(dataEachLine.indexOf(ExpressionChar("!")) > -1)) {
           if (dataEachLine.indexOf(ExpressionChar(":")) > -1) {
             dataEachLine = dataEachLine.replace(
@@ -750,20 +771,20 @@ export default class GqlGenerator {
           let outPutData = "";
 
           if (type.typeName === GQL_Root_Type("Mutation")) {
-            const isArrayType = prop.isArray ? "[]" : "";
+            let typeName = prop.typeName;
+            console.log("Type@Name", typeName);
+
+            //importUrls
+            let importUrlOrUrls = this.getImportUrlFromType(allTypes, typeName);
+            importUrlOrUrls.forEach((importUrl) => {
+              templateHeaderData += NewLine("\n") + importUrl + NewLine("\n");
+            });
 
             const isNullType = prop.isNull ? " | undefined" : "";
 
-            let typeName =
-              prop.propertyType?.typeName + isArrayType + isNullType;
+            typeName = prop.typeName + isNullType;
 
-            let importUrl = this.getImportUrlFromType(
-              allTypes,
-              prop.propertyType?.typeName
-            );
-            templateHeaderData += NewLine("\n") + importUrl + NewLine("\n");
-
-            if (prop.propertyType) {
+            if (prop.typeName) {
               outPutData = templateFileData.replace(
                 MUTATION_PROPERTY_NAME('Query["@QUERY_PROPERTY_NAME"]'),
                 typeName
@@ -813,21 +834,53 @@ export default class GqlGenerator {
     console.clearAfter("resultFileDataArray mutation");
   }
 
+  getType(allTypes: TypeInfo[], typeName: string) {
+    typeName = GraphQLUtils.getTrimmedType(typeName);
+
+    console.log("$$$$$$$", typeName);
+
+    let type = allTypes.filter((type) => {
+      if (type.typeName === typeName) {
+        return true;
+      } else {
+        return false;
+      }
+    })[0];
+
+    return type;
+  }
+
   getImportUrlFromType(allTypes: TypeInfo[], typeName: string | undefined) {
     if (typeName) {
-      typeName = GraphQLUtils.getTrimmedType(typeName);
+      if (!typeName.includes(",")) {
+        //
+        let type = this.getType(allTypes, typeName);
+        return [
+          NewLine("\n") +
+            type.importUrl.replace("TYPE_NAME", type.typeName) +
+            NewLine("\n"),
+        ];
+        //
+      } else if (typeName.includes(",")) {
+        let resultImportArray: string[] = [];
+        let typeNames = typeName.split(",");
 
-      let type = allTypes.filter((type) => {
-        if (type.typeName === typeName) {
-          return true;
-        } else {
-          return false;
-        }
-      })[0];
+        typeNames.forEach((typName, index) => {
+          typName = GraphQLUtils.getTrimmedType(typName);
+          let type = this.getType(allTypes, typName);
+          console.log("@@@@@@@", typeName);
 
-      return type.importUrl.replace("TYPE_NAME", type.typeName);
+          resultImportArray.push(
+            NewLine("\n") +
+              type.importUrl.replace("TYPE_NAME", type.typeName) +
+              NewLine("\n")
+          );
+        });
+
+        return resultImportArray;
+      }
     }
-    return "//no import url, " + typeName;
+    return ["//no import url, " + typeName];
   }
 
   generateQueryAndMutationToAppTS(filesDataTs: GraphQLToTS) {}
@@ -952,6 +1005,7 @@ export default class GqlGenerator {
               types.typeName === GraphQLUtils.getTrimmedType(prop.typeName)
             );
           })[0];
+
           prop.propertyTypeAttachedTypeName = prop.propertyType
             ? prop.propertyType?.typeName
             : Empty("");

@@ -4,3 +4,7 @@ type Message {
   receiverId: ID!
   message: String!
 }
+
+type ABC {
+  id: ID!
+}

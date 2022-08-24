@@ -12,6 +12,10 @@ type Message {
   message: String!
 }
 
+type ABC {
+  id: ID!
+}
+
 
 schema {
   query: Query
@@ -19,13 +23,14 @@ schema {
 }
 
 type Query {
-  test_messages: Message[]!
-  messages: Message[]!
+  test_messages: Message[]
+  messages: [Message,ABC]
 }
 
 type Mutation {
-  sendMessage(input: SendMessageInput): Message[]!
+  sendMessage(input: SendMessageInput):  [Message][]
 }
+
 
 
 type Test {
