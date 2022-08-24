@@ -40,4 +40,11 @@ function Space(str: Space, length: number = 1) {
   return str;
 }
 
-export { Dot, NewLine, Space, Empty, PathChar };
+type Comment = "//";
+let SingleLineComment: RegExp = /\/\//g;
+function Comment(str: Comment) {
+  let comment: RegExp = SingleLineComment;
+  return comment;
+}
+
+export { Dot, NewLine, Space, Empty, PathChar, Comment };

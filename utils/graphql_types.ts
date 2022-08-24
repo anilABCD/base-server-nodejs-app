@@ -1,13 +1,15 @@
+import { NewLine } from "./literal.types";
+
 type GQL_Root_Type = "Query" | "Mutation";
 function GQL_Root_Type(str: GQL_Root_Type) {
   return str;
 }
 
-type QUERY_PROPERTY_NAME_FOR_TEMPLATE = "@QUERY_PROPERTY_NAME";
-function QUERY_PROPERTY_NAME_FOR_TEMPLATE(
-  str: QUERY_PROPERTY_NAME_FOR_TEMPLATE
-) {
-  return str;
+type QUERY_PROPERTY_NAME = "@QUERY_PROPERTY_NAME";
+let QUERY_PROPERTY_NAME_: RegExp = /@QUERY_PROPERTY_NAME/g;
+function QUERY_PROPERTY_NAME(str: QUERY_PROPERTY_NAME) {
+  let queryProp: RegExp = QUERY_PROPERTY_NAME_;
+  return queryProp;
 }
 
 type FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations =
@@ -90,7 +92,7 @@ function GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
 }
 
 type QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH =
-  `./GraphQLAPI/${FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations}/all.queries.templates.template.ts`;
+  `./GraphQLAPI/${FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations}/all.queries.templates.template.header.ts`;
 function QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH(
   str: QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH
 ) {
@@ -122,9 +124,17 @@ function GQL_Type(str: GQL_Type) {
   return str;
 }
 
-type ExportSyntax = "export { TYPE_NAME } ";
-function ExportSyntax(str: ExportSyntax) {
+type TypeName = "TYPE_NAME";
+function TypeName(str: TypeName) {
   return str;
+}
+
+type ExportSyntax = "export { TYPE_NAME } ";
+function ExportSyntax(str: ExportSyntax, typeName: string) {
+  let exportSyntax: ExportSyntax = "export { TYPE_NAME } ";
+  return (
+    NewLine("\n") + str.replace(TypeName("TYPE_NAME"), typeName) + NewLine("\n")
+  );
 }
 
 type ExpressionChar = "{" | "}" | "!" | "[" | "]" | ";" | ":" | "(" | ")" | ",";
@@ -209,5 +219,5 @@ export {
   QUERIES_MUTATION_TS_FOLDER,
   GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
   QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH,
-  QUERY_PROPERTY_NAME_FOR_TEMPLATE,
+  QUERY_PROPERTY_NAME,
 };

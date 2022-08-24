@@ -30,9 +30,9 @@ import {
   GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
   SingleTypeMutationAndQueriesScriptOutFile,
   QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH,
-  QUERY_PROPERTY_NAME_FOR_TEMPLATE,
+  QUERY_PROPERTY_NAME,
 } from "./graphql_types";
-import { Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
+import { Comment, Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
 import console from "./console";
 
 export default class GqlGenerator {
@@ -67,7 +67,6 @@ export default class GqlGenerator {
 
     const fileNameAndDataWithTypes: FileAndTypesDataInfo[] = [];
     let allTypesCombined: TypeInfo[] = [];
-    const exportSyntax = ExportSyntax("export { TYPE_NAME } ");
 
     fileNames.forEach((filePathEach) => {
       //
@@ -156,7 +155,7 @@ export default class GqlGenerator {
             const typeData = dataEachLine.split(Space(" "));
             const typeName = typeData[1].trim();
             if (typeName !== ExpressionChar("{")) {
-              exportData = exportSyntax.replace("TYPE_NAME", typeName);
+              exportData = ExportSyntax("export { TYPE_NAME } ", typeName);
               // exportData = `export { ${typeName} }`;
               allTypesInSingleFile.push(typeName);
               typeAndProperty.typeName = typeName;
@@ -180,7 +179,7 @@ export default class GqlGenerator {
               GQL_Input("input "),
               TO_TS_Type("type ")
             );
-            exportData = exportSyntax.replace("TYPE_NAME", typeName);
+            exportData = ExportSyntax("export { TYPE_NAME } ", typeName);
             allTypesInSingleFile.push(typeName);
             typeAndProperty.typeName = typeName;
             // console.log(exportData);
@@ -200,7 +199,7 @@ export default class GqlGenerator {
               From_GQL_Type("schema "),
               TO_TS_Type("type ")
             );
-            exportData = exportSyntax.replace("TYPE_NAME", typeName);
+            exportData = ExportSyntax("export { TYPE_NAME } ", typeName);
             allTypesInSingleFile.push(typeName);
             typeAndProperty.typeName = typeName;
             // console.log(exportData);
@@ -656,9 +655,9 @@ export default class GqlGenerator {
         appName
       ) + QUERIES_MUTATION_TS_FOLDER("querys.and.mutations");
 
-    let OUTPUT_FILE = OUTPUT_FOLDER;
+    let SINGLE_OUTPUT_FILE = OUTPUT_FOLDER;
     if (singleOutFile) {
-      OUTPUT_FILE = File.path(
+      SINGLE_OUTPUT_FILE = File.path(
         OUTPUT_FOLDER,
         SingleTypeMutationAndQueriesScriptOutFile(
           "/all.queries.and.mutations.ts"
@@ -669,32 +668,74 @@ export default class GqlGenerator {
     const allTypes = graphQLToTs.allTypesCombined;
 
     const templateFilePath = QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH(
-      "./GraphQLAPI/queries.mutation.ts.templates/all.queries.templates.template.ts"
+      "./GraphQLAPI/queries.mutation.ts.templates/all.queries.templates.template.header.ts"
     );
 
     let resultFileDataArray: string[] = [];
 
-    const templateFileData = fs.readFileSync(templateFilePath, {
+    //Header file imports ...
+    const templateHeaderData = fs.readFileSync(templateFilePath, {
       encoding: "utf8",
       flag: "r",
     });
 
+    resultFileDataArray.push(
+      templateHeaderData.replace(Comment("//"), Empty("")) + NewLine("\n")
+    );
+
+    //Non header file
+    const templateFileData = fs.readFileSync(
+      templateFilePath.replace(".header", Empty("")),
+      {
+        encoding: "utf8",
+        flag: "r",
+      }
+    );
+
     allTypes?.forEach((type) => {
-      if (type.typeName === GQL_Root_Type("Query")) {
+      if (
+        type.typeName === GQL_Root_Type("Query") ||
+        type.typeName === GQL_Root_Type("Mutation")
+      ) {
         type.properties.forEach((prop) => {
+          let propertyName = prop.propertyName;
+
+          const indexOfFunctionStart = propertyName.indexOf("(");
+          if (indexOfFunctionStart > -1) {
+            propertyName = propertyName.substring(0, indexOfFunctionStart);
+          }
+
           let outPutData = templateFileData.replace(
-            /@QUERY_PROPERTY_NAME/g,
-            prop.propertyName
+            QUERY_PROPERTY_NAME("@QUERY_PROPERTY_NAME"),
+            propertyName
           );
+
+          if (type.typeName === GQL_Root_Type("Mutation")) {
+            outPutData = outPutData.replace(
+              GQL_Root_Type("Query"),
+              GQL_Root_Type("Mutation")
+            );
+            outPutData = outPutData.replace(
+              "base_query_type",
+              "base_mutation_type"
+            );
+          }
+
+          if (type.typeName === GQL_Root_Type("Query")) {
+            outPutData += ExportSyntax("export { TYPE_NAME } ", propertyName);
+            outPutData = outPutData.replace(Comment("//"), Empty(""));
+          }
 
           resultFileDataArray.push(outPutData);
         });
         return;
       }
-
-      if (type.typeName === GQL_Root_Type("Mutation")) {
-      }
     });
+
+    if (singleOutFile) {
+      File.writeToFileSync(resultFileDataArray, SINGLE_OUTPUT_FILE);
+    }
+
     console.log(resultFileDataArray);
     console.clearAfter("resultFileDataArray mutation");
   }
