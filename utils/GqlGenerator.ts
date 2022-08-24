@@ -31,6 +31,7 @@ import {
   SingleTypeMutationAndQueriesScriptOutFile,
   QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH,
   QUERY_PROPERTY_NAME,
+  MUTATION_PROPERTY_NAME,
 } from "./graphql_types";
 import { Comment, Dot, Empty, NewLine, PathChar, Space } from "./literal.types";
 import console from "./console";
@@ -134,6 +135,32 @@ export default class GqlGenerator {
       let exportData = "";
       fileDataArray.forEach((dataEachLine, index) => {
         //#region File Data End Scope ...
+
+        let isNullProperty = false;
+        let isArrayProperty = false;
+
+        ///EXP
+        // if (dataEachLine.indexOf("(") > -1) {
+        let line = dataEachLine;
+
+        let typeIndex = line.lastIndexOf(":");
+        if (typeIndex > -1) {
+          line = line.substring(typeIndex);
+
+          if (line.includes("[]")) {
+            isArrayProperty = true;
+          }
+
+          if (line.includes("!")) {
+            isNullProperty = true;
+          }
+        }
+
+        if (dataEachLine.indexOf(ExpressionChar("!")) > -1) {
+          isNullProperty = true;
+        }
+        // }
+        ///EXP
 
         dataEachLine = dataEachLine.replace(
           From_GQL_Type("schema "),
@@ -283,6 +310,8 @@ export default class GqlGenerator {
                 let propInfo: PropertyInfo = {
                   propertyName: propertyName,
                   typeName: nonScalarType,
+                  isNull: isNullProperty,
+                  isArray: true,
                 };
 
                 allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
@@ -353,6 +382,8 @@ export default class GqlGenerator {
                   typeName: dataEachLine
                     .substring(lastIndexOfCollon + 1)
                     .trim(),
+                  isNull: isNullProperty,
+                  isArray: isArrayProperty,
                 };
 
                 typeAndProperty.properties.push(propInfo);
@@ -370,6 +401,8 @@ export default class GqlGenerator {
                   typeName: dataEachLine
                     .substring(lastIndexOfCollon + 1)
                     .trim(),
+                  isNull: isNullProperty,
+                  isArray: isArrayProperty,
                 };
 
                 typeAndProperty.properties.push(propInfo);
@@ -387,6 +420,8 @@ export default class GqlGenerator {
                   typeName: dataEachLine
                     .substring(lastIndexOfCollon + 1)
                     .trim(),
+                  isNull: isNullProperty,
+                  isArray: isArrayProperty,
                 };
 
                 typeAndProperty.properties.push(propInfo);
@@ -397,6 +432,7 @@ export default class GqlGenerator {
                   GQL_ScalarType(" Boolean"),
                   TS_ScalarTypes(" boolean")
                 );
+
                 let propInfo: PropertyInfo = {
                   propertyName: dataEachLine
                     .substring(0, lastIndexOfCollon)
@@ -404,6 +440,8 @@ export default class GqlGenerator {
                   typeName: dataEachLine
                     .substring(lastIndexOfCollon + 1)
                     .trim(),
+                  isNull: isNullProperty,
+                  isArray: isArrayProperty,
                 };
 
                 typeAndProperty.properties.push(propInfo);
@@ -414,6 +452,7 @@ export default class GqlGenerator {
                   GQL_ScalarType(" Int"),
                   TS_ScalarTypes(" number")
                 );
+
                 let propInfo: PropertyInfo = {
                   propertyName: dataEachLine
                     .substring(0, lastIndexOfCollon)
@@ -421,6 +460,8 @@ export default class GqlGenerator {
                   typeName: dataEachLine
                     .substring(lastIndexOfCollon + 1)
                     .trim(),
+                  isNull: isNullProperty,
+                  isArray: isArrayProperty,
                 };
 
                 typeAndProperty.properties.push(propInfo);
@@ -672,16 +713,17 @@ export default class GqlGenerator {
     );
 
     let resultFileDataArray: string[] = [];
+    let bodyFileDataArray: string[] = [];
 
     //Header file imports ...
-    const templateHeaderData = fs.readFileSync(templateFilePath, {
-      encoding: "utf8",
-      flag: "r",
-    });
+    let templateHeaderData = fs
+      .readFileSync(templateFilePath, {
+        encoding: "utf8",
+        flag: "r",
+      })
+      .replace(Comment("//"), Empty(""));
 
-    resultFileDataArray.push(
-      templateHeaderData.replace(Comment("//"), Empty("")) + NewLine("\n")
-    );
+    templateHeaderData.replace(Comment("//"), Empty("")) + NewLine("\n");
 
     //Non header file
     const templateFileData = fs.readFileSync(
@@ -705,39 +747,87 @@ export default class GqlGenerator {
             propertyName = propertyName.substring(0, indexOfFunctionStart);
           }
 
-          let outPutData = templateFileData.replace(
-            QUERY_PROPERTY_NAME("@QUERY_PROPERTY_NAME"),
-            propertyName
-          );
+          let outPutData = "";
 
           if (type.typeName === GQL_Root_Type("Mutation")) {
+            const isArrayType = prop.isArray ? "[]" : "";
+
+            const isNullType = prop.isNull ? " | undefined" : "";
+
+            let typeName =
+              prop.propertyType?.typeName + isArrayType + isNullType;
+
+            let importUrl = this.getImportUrlFromType(
+              allTypes,
+              prop.propertyType?.typeName
+            );
+            templateHeaderData += NewLine("\n") + importUrl + NewLine("\n");
+
+            if (prop.propertyType) {
+              outPutData = templateFileData.replace(
+                MUTATION_PROPERTY_NAME('Query["@QUERY_PROPERTY_NAME"]'),
+                typeName
+              );
+            }
+
+            outPutData = outPutData.replace(
+              QUERY_PROPERTY_NAME("@QUERY_PROPERTY_NAME"),
+              propertyName
+            );
+
             outPutData = outPutData.replace(
               GQL_Root_Type("Query"),
               GQL_Root_Type("Mutation")
             );
+
             outPutData = outPutData.replace(
               "base_query_type",
               "base_mutation_type"
             );
+          } else if (type.typeName === GQL_Root_Type("Query")) {
+            outPutData = templateFileData.replace(
+              QUERY_PROPERTY_NAME("@QUERY_PROPERTY_NAME"),
+              propertyName
+            );
           }
 
-          if (type.typeName === GQL_Root_Type("Query")) {
-            outPutData += ExportSyntax("export { TYPE_NAME } ", propertyName);
-            outPutData = outPutData.replace(Comment("//"), Empty(""));
-          }
+          // if (type.typeName === GQL_Root_Type("Query")) {
+          outPutData += ExportSyntax("export { TYPE_NAME } ", propertyName);
+          outPutData = outPutData.replace(Comment("//"), Empty(""));
+          // }
 
-          resultFileDataArray.push(outPutData);
+          bodyFileDataArray.push(outPutData);
         });
         return;
       }
     });
 
+    resultFileDataArray.push(templateHeaderData);
+    resultFileDataArray.push(...bodyFileDataArray);
+
     if (singleOutFile) {
       File.writeToFileSync(resultFileDataArray, SINGLE_OUTPUT_FILE);
     }
 
-    console.log(resultFileDataArray);
+    console.log(bodyFileDataArray);
     console.clearAfter("resultFileDataArray mutation");
+  }
+
+  getImportUrlFromType(allTypes: TypeInfo[], typeName: string | undefined) {
+    if (typeName) {
+      typeName = GraphQLUtils.getTrimmedType(typeName);
+
+      let type = allTypes.filter((type) => {
+        if (type.typeName === typeName) {
+          return true;
+        } else {
+          return false;
+        }
+      })[0];
+
+      return type.importUrl.replace("TYPE_NAME", type.typeName);
+    }
+    return "//no import url, " + typeName;
   }
 
   generateQueryAndMutationToAppTS(filesDataTs: GraphQLToTS) {}

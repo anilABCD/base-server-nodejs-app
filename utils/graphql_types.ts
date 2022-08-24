@@ -12,6 +12,13 @@ function QUERY_PROPERTY_NAME(str: QUERY_PROPERTY_NAME) {
   return queryProp;
 }
 
+type MUTATION_PROPERTY_NAME = 'Query["@QUERY_PROPERTY_NAME"]';
+let MUTATION_PROPERTY_NAME_: RegExp = /Query\[\"\@QUERY_PROPERTY_NAME\"\]/g;
+function MUTATION_PROPERTY_NAME(str: MUTATION_PROPERTY_NAME) {
+  let queryProp: RegExp = MUTATION_PROPERTY_NAME_;
+  return queryProp;
+}
+
 type FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations =
   "queries.mutation.ts.templates";
 function FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
@@ -166,6 +173,8 @@ type PropertyInfo = {
   typeName: string;
   propertyType?: TypeInfo;
   propertyTypeAttachedTypeName?: string;
+  isNull: boolean;
+  isArray: boolean;
 };
 
 type TypeInfo = {
@@ -220,4 +229,5 @@ export {
   GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
   QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH,
   QUERY_PROPERTY_NAME,
+  MUTATION_PROPERTY_NAME,
 };
