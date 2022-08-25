@@ -1,19 +1,11 @@
 import catchAsync from "../../ErrorHandling/catchAsync";
-
 import { Request, Response, NextFunction } from "express";
 import File, { FileParams } from "../../utils/File";
 import EnvEnumType from "../../enums/EnvEnumType";
 import getEnv from "../../env/getEnv";
-
 import console from "../../utils/console";
 import GqlGenerator from "../../utils/GqlGenerator";
-import RegexExtract from "../../utils/RegexExtract";
-import {
-  CURRENT_APP,
-  GLQ_Files_Excluded,
-  GQL_SERVER_OUTPUT_PATH_COMBINED_FILE,
-  OutPathReactNative_AppName,
-} from "../../utils/graphql_types";
+import { CURRENT_APP } from "../../utils/graphql_types";
 import { compareAndRemoveDuplicates } from "../../utils/all.util";
 
 export default class GenerateController {
@@ -44,8 +36,6 @@ export default class GenerateController {
         fileParams,
         ["graphql", "ts"]
       );
-
-      // console.clearAfter("getFilesDataSync");
 
       console.log("All File Names : ", fileNames);
 
@@ -85,25 +75,11 @@ export default class GenerateController {
 
       dataOfTsFiles = headerInfo + dataOfTsFiles;
 
-      // const resultAfterWriteTs = File.writeToFileSync(
-      //   [dataOfTsFiles],
-      //   "./../base-react-native-app/" +
-      //     "graphql/" +
-      //     this.CURRENT_APP +
-      //     "/types.ts"
-      // );
-
-      // "./../base-react-native-app/" +
-      // "App/" +
-      // "{CURRENT_APP}" +
-      // "/graphql/graphql.types/"
-
       const typeNames =
         obj_generatedFromGraphqlFiles_To_TS.allTypesCombined?.map((types) => {
           return types.typeName;
         });
 
-      // console.error("trace");
       let result = {
         typeNames,
         fileNames: obj_generatedFromGraphqlFiles_To_TS.fileNames,
@@ -119,8 +95,6 @@ export default class GenerateController {
       });
     }
   );
-
-  writeToCurrentApplication() {}
 }
 
 const fileAuthorAndHeaderInformation = `

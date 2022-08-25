@@ -736,6 +736,12 @@ export default class GqlGenerator {
       );
     }
 
+    let MULTI_OUT_FILE = File.path(
+      OUTPUT_FOLDER,
+      "[QUERY_OR_MUTATION]",
+      "[PROPERTY_NAME]"
+    );
+
     const allTypes = graphQLToTs.allTypesCombined;
 
     const templateFilePath = QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH(
@@ -746,14 +752,12 @@ export default class GqlGenerator {
     let bodyFileDataArray: string[] = [];
 
     //Header file imports ...
-    let templateHeaderData = fs
+    let templateHeaderDataOriginal = fs
       .readFileSync(templateFilePath, {
         encoding: "utf8",
         flag: "r",
       })
       .replace(Comment("//"), Empty(""));
-
-    templateHeaderData.replace(Comment("//"), Empty("")) + NewLine("\n");
 
     //Non header file
     const templateFileData = fs.readFileSync(
@@ -764,12 +768,19 @@ export default class GqlGenerator {
       }
     );
 
+    let templateHeaderDataOrigianl =
+      templateHeaderDataOriginal.replace(Comment("//"), Empty("")) +
+      NewLine("\n");
+
+    let allHeaderDataSingle = "";
+
     allTypes?.forEach((type) => {
       if (
         type.typeName === GQL_Root_Type("Query") ||
         type.typeName === GQL_Root_Type("Mutation")
       ) {
         type.properties.forEach((prop) => {
+          let templateHeaderData = "";
           let propertyName = prop.propertyName;
 
           let parameters: string[] = [];
@@ -793,35 +804,19 @@ export default class GqlGenerator {
               let pid = param.indexOf(":");
               param = param.substring(pid + 1).trim();
 
-              /////////// importUrlOrUrls /////////////
-              let importUrlOrUrls = this.getImportUrlFromType(allTypes, param);
-              importUrlOrUrls.forEach((importUrl) => {
-                if (!templateHeaderData.includes(importUrl)) {
-                  templateHeaderData += importUrl;
-                }
-              });
-
-              /////////// Duplicates  ////////////////
-              //
-              //
-              // let start = "";
-              // let end = "";
-              // if (index === parameters.length - 1) {
-              //    start = "[";
-              // }
-              //
-              // parameters[index] =
-              //   start +
-              //   `${NewLine("\n")} ${Tab("\t", 2)}{ input : ${param} }${NewLine(
-              //     "\n"
-              //   )}`;
-              //
-              // if (index === parameters.length - 1) {
-              //   end = `${Tab("\t")}]`;
-              // }
-              //
-              // parameters[index] += end;
-              // parametersFinalResult += parameters[index];
+              if (!singleOutFile) {
+                templateHeaderData = this.getImportUrlFromTypeToString(
+                  allTypes,
+                  param,
+                  templateHeaderData
+                );
+              } else {
+                allHeaderDataSingle = this.getImportUrlFromTypeToString(
+                  allTypes,
+                  param,
+                  allHeaderDataSingle
+                );
+              }
 
               parametersFinalResult += param + " | undefined";
             });
@@ -846,16 +841,26 @@ export default class GqlGenerator {
           }
 
           let typeName = prop.typeName;
-          console.log("Type@Name", typeName);
+          // console.log("ForGetImportUrlFrom@TypeName", typeName);
 
           //importUrls
-          let importUrlOrUrls = this.getImportUrlFromType(allTypes, typeName);
-          importUrlOrUrls.forEach((importUrl) => {
-            if (!templateHeaderData.includes(importUrl)) {
-              templateHeaderData += importUrl;
-            }
-          });
-          ///////////////// duplicate ///////////
+          if (!singleOutFile) {
+            templateHeaderData = this.getImportUrlFromTypeToString(
+              allTypes,
+              typeName,
+              templateHeaderData
+            );
+          } else {
+            allHeaderDataSingle = this.getImportUrlFromTypeToString(
+              allTypes,
+              typeName,
+              allHeaderDataSingle
+            );
+          }
+
+          console.log("@@@templateHeaderData", templateHeaderData);
+          console.clearAfter("templateHeaderData");
+          //
 
           const isNullType = prop.isNull ? " | undefined" : "";
 
@@ -890,32 +895,46 @@ export default class GqlGenerator {
             );
           }
 
-          // if (type.typeName === GQL_Root_Type("Query")) {
+          templateHeaderData = templateHeaderDataOrigianl + templateHeaderData;
+
+          if (!singleOutFile) {
+            templateHeaderData = templateHeaderData.replace(
+              /@anyExtra/g,
+              "../"
+            );
+            outPutData = templateHeaderData + outPutData;
+          }
           outPutData += ExportSyntax("export { TYPE_NAME } ", propertyName);
           outPutData = outPutData.replace(Comment("//"), Empty(""));
-          // }
 
           bodyFileDataArray.push(outPutData);
+
+          if (!singleOutFile) {
+            File.writeToFileSync(
+              [outPutData],
+              File.path(OUTPUT_FOLDER, type.typeName, propertyName + ".ts")
+            );
+          }
         });
         return;
       }
     });
 
-    resultFileDataArray.push(templateHeaderData);
+    resultFileDataArray.push(
+      templateHeaderDataOrigianl.replace(/@anyExtra/g, Empty("")) +
+        allHeaderDataSingle.replace(/@anyExtra/g, "")
+    );
     resultFileDataArray.push(...bodyFileDataArray);
 
     if (singleOutFile) {
       File.writeToFileSync(resultFileDataArray, SINGLE_OUTPUT_FILE);
     }
-
-    console.log(bodyFileDataArray);
-    console.clearAfter("resultFileDataArray mutation");
   }
 
   getType(allTypes: TypeInfo[], typeName: string) {
     typeName = GraphQLUtils.getTrimmedType(typeName);
 
-    console.log("$$$$$$$", typeName);
+    // console.log("@TypeName", typeName);
 
     let type = allTypes.filter((type) => {
       if (type.typeName === typeName) {
@@ -926,6 +945,26 @@ export default class GqlGenerator {
     })[0];
 
     return type;
+  }
+
+  getImportUrlFromTypeToString(
+    allTypes: TypeInfo[],
+    typeName: string | undefined,
+    resultImportString: string,
+    anyExtaPathChar = true
+  ) {
+    const importUrlOrUrls = this.getImportUrlFromType(allTypes, typeName);
+    importUrlOrUrls.forEach((importUrl) => {
+      if (anyExtaPathChar) {
+        importUrl = importUrl.replace('from "', 'from "@anyExtra');
+      }
+
+      if (!resultImportString.includes(importUrl)) {
+        resultImportString += importUrl;
+      }
+    });
+
+    return resultImportString;
   }
 
   getImportUrlFromType(allTypes: TypeInfo[], typeName: string | undefined) {

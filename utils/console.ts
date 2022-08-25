@@ -75,9 +75,26 @@ class MyConsole {
     }
   };
 
+  //private getStackTrace() {
+  //   var obj = { stack: "" };
+  //   Error.captureStackTrace(obj, this.getStackTrace);
+  //   console.log(" @Stack Trace : ",  obj.stack);
+  //   return obj.stack;
+  // }
+
   logErrorFileAndLineNumber = () => {
     let result = RegexExtract.ErrorInfo(new Error().stack);
     console.log("\nLine Number : ", result, "\n\n");
+
+    try {
+      throw new Error("@");
+    } catch (err) {
+      // console.log(
+      //   "\n Log_Error_File_And_Line_Number Error() : \n",
+      //   err,
+      //   "\n\n"
+      // );
+    }
   };
 
   clearAfter = (code: string) => {
