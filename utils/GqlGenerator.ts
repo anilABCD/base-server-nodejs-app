@@ -710,7 +710,95 @@ export default class GqlGenerator {
       appName
     );
 
+    this.writeAllExportsOfQueriesAndMutationsSync(
+      allTypesCombined,
+      singleOutFile,
+      appName
+    );
+
     return graphQLToTs;
+  }
+  writeAllExportsOfQueriesAndMutationsSync(
+    allTypesCombined: TypeInfo[],
+    singleOutFile: boolean,
+    appName: string
+  ) {
+    let queries = "";
+    let queryImports = "";
+
+    let mutations = "";
+    let mutationImports = "";
+
+    let allQuereisCombined = "";
+    let allMutationsCombined = "";
+
+    let outPutSingleFile = File.path(
+      OutPathReactNative_AppName(
+        "./../base-react-native-app/graphql/CURRENT_APP/",
+        appName
+      ),
+      QUERIES_MUTATION_TS_FOLDER("querys.and.mutations"),
+      "export.of.query.and.mutation.ts"
+    );
+
+    let allMutationsAndQuereis = allTypesCombined.filter((allTypes) => {
+      return (
+        allTypes.typeName === GQL_Root_Type("Query") ||
+        allTypes.typeName === GQL_Root_Type("Mutation")
+      );
+    });
+
+    allMutationsAndQuereis.forEach((type) => {
+      type.properties.forEach((prop) => {
+        let indexOfFunction = prop.propertyName.indexOf("(");
+
+        if (indexOfFunction > -1) {
+          prop.propertyName = prop.propertyName.substring(0, indexOfFunction);
+        }
+
+        if (type.typeName === GQL_Root_Type("Query")) {
+          queryImports +=
+            `import { ${prop.propertyName} } from "./${type.typeName}/${prop.propertyName}"` +
+            NewLine("\n");
+          queries += prop.propertyName + "," + NewLine("\n");
+        }
+
+        if (type.typeName === GQL_Root_Type("Mutation")) {
+          mutationImports +=
+            `import { ${prop.propertyName}  } from "./${type.typeName}/${prop.propertyName}"` +
+            NewLine("\n");
+          mutations += prop.propertyName + "," + NewLine("\n");
+        }
+      });
+    });
+
+    allQuereisCombined = `
+const query = {
+  
+@Queries
+};
+`.replace("@Queries", queries);
+
+    allMutationsCombined = `
+const mutation = {
+
+@Mutations
+};
+  `.replace("@Mutations", mutations);
+
+    const queryAndMutationExports = `${NewLine(
+      "\n"
+    )}export { query, mutation }${NewLine("\n")}`;
+
+    let resultExports = "";
+
+    resultExports =
+      queryImports + NewLine("\n") + mutationImports + NewLine("\n");
+    resultExports += allQuereisCombined + NewLine("\n");
+    resultExports += allMutationsCombined + NewLine("\n");
+    resultExports += queryAndMutationExports;
+
+    File.writeToFileSync([resultExports], outPutSingleFile);
   }
 
   //
