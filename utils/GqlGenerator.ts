@@ -45,6 +45,12 @@ import {
 } from "./literal.types";
 import console from "./console";
 
+type FunctionType = {
+  name: string;
+  inputType: string;
+  returnType: string;
+};
+
 export default class GqlGenerator {
   generateAllCombinedGrqphQLSchema(fileNames: string[], appName: string) {
     const data_combinedFromAllGraphqlFiles = File.getFilesDataSync(
@@ -144,6 +150,12 @@ export default class GqlGenerator {
       let exportData = "";
       fileDataArray.forEach((dataEachLine, index) => {
         //#region File Data End Scope ...
+
+        let functionType: FunctionType = {
+          inputType: "",
+          returnType: "",
+          name: "",
+        };
 
         let isNullProperty = false;
         let isArrayProperty = false;
@@ -308,6 +320,45 @@ export default class GqlGenerator {
                 dataEachLine.indexOf(GQL_ScalarType(" Int")) > -1
               )
             ) {
+              //
+              // @For functions in graphql : Mutation and Query : types
+              //
+              if (dataEachLine.indexOf(ExpressionChar("(")) > -1) {
+                if (typeType === GQLFileType("querys.and.mutations")) {
+                  //
+                  const indexOfOpenBrace = dataEachLine.indexOf(
+                    ExpressionChar("(")
+                  );
+                  const indexOfCloseBrace = dataEachLine.indexOf(
+                    ExpressionChar(")")
+                  );
+
+                  const params = dataEachLine.substring(
+                    indexOfOpenBrace + 1,
+                    indexOfCloseBrace
+                  );
+
+                  const paramsArray = params.split(ExpressionChar(","));
+
+                  paramsArray.forEach((param) => {
+                    if (param !== Empty("")) {
+                      let collonIndex = param.indexOf(ExpressionChar(":"));
+
+                      param = param.substring(collonIndex + 1);
+
+                      functionType.inputType += param;
+
+                      console.log("param", param);
+                      allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
+                        GraphQLUtils.getTrimmedType(param)
+                      );
+                    }
+                  });
+
+                  //
+                }
+              }
+
               if (dataEachLine.indexOf(ExpressionChar(":")) > -1) {
                 const propertyName = dataEachLine
                   .substring(0, lastIndexOfCollon)
@@ -349,42 +400,61 @@ export default class GqlGenerator {
                       .replace(ExpressionChar("!"), Empty(""))
                   );
                 }
-                typeAndProperty.properties.push(propInfo);
-              }
 
-              //
-              // @For functions in graphql : Mutation and Query : types
-              //
-              if (dataEachLine.indexOf(ExpressionChar("(")) > -1) {
-                if (typeType === GQLFileType("querys.and.mutations")) {
-                  //
-                  const indexOfOpenBrace = dataEachLine.indexOf(
-                    ExpressionChar("(")
-                  );
-                  const indexOfCloseBrace = dataEachLine.indexOf(
-                    ExpressionChar(")")
-                  );
+                if (functionType.inputType.trim() !== Empty("")) {
+                  let indexOfBrace = propInfo.propertyName.indexOf("(");
+                  functionType.name = propInfo.propertyName;
+                  functionType.returnType = propInfo.typeName;
 
-                  const params = dataEachLine.substring(
-                    indexOfOpenBrace + 1,
-                    indexOfCloseBrace
+                  const APPEND_FUNCTION_NAME = "_Function";
+                  const APPEND_INPUT = "_INPUT";
+
+                  const returnType = functionType.returnType;
+                  const inputType = functionType.inputType;
+
+                  const inputFunctionName = propInfo.propertyName.replace(
+                    "(",
+                    APPEND_FUNCTION_NAME + APPEND_INPUT + "("
                   );
 
-                  const paramsArray = params.split(ExpressionChar(","));
+                  const functionJustName = propInfo.propertyName.substring(
+                    0,
+                    indexOfBrace
+                  );
 
-                  paramsArray.forEach((param) => {
-                    if (param !== Empty("")) {
-                      let collonIndex = param.indexOf(ExpressionChar(":"));
+                  let functionInputProperty: PropertyInfo = {
+                    propertyName: inputFunctionName,
+                    typeName: inputType,
+                    isNull: isNullProperty,
+                    isArray: isArrayProperty,
+                  };
 
-                      param = param.substring(collonIndex + 1);
+                  let functionJustNameWithReturnType: PropertyInfo = {
+                    propertyName: functionJustName,
+                    typeName: returnType,
+                    isNull: isNullProperty,
+                    isArray: isArrayProperty,
+                  };
 
-                      console.log("param", param);
-                      allOtherDependentTypesFromPropertyTypesFromOtherFiles.push(
-                        GraphQLUtils.getTrimmedType(param)
-                      );
-                    }
-                  });
-                  //
+                  propInfo.propertyName = propInfo.propertyName.replace(
+                    "(",
+                    APPEND_FUNCTION_NAME + "("
+                  );
+
+                  console.log(
+                    "APPEND_FUNCTION_NAME",
+                    functionJustNameWithReturnType
+                  );
+
+                  console.clearAfter("APPEND_FUNCTION_NAME");
+
+                  typeAndProperty.properties.push(propInfo);
+                  typeAndProperty.properties.push(functionInputProperty);
+                  typeAndProperty.properties.push(
+                    functionJustNameWithReturnType
+                  );
+                } else {
+                  typeAndProperty.properties.push(propInfo);
                 }
               }
             }
@@ -526,7 +596,31 @@ export default class GqlGenerator {
           dataEachLine = dataEachLine.replace(ExpressionChar("!"), "");
         }
 
-        fileData += dataEachLine;
+        if (functionType.inputType.trim() !== Empty("")) {
+          let indexOfBrace = functionType.name.indexOf("(");
+
+          const APPEND_FUNCTION_NAME = "_Function";
+          const APPEND_INPUT = "_INPUT";
+          const propertyName = functionType.name.substring(0, indexOfBrace);
+          const returnType = functionType.returnType;
+          const inputType = functionType.inputType;
+
+          const originalDataLine = dataEachLine;
+
+          dataEachLine = "";
+
+          dataEachLine += dataEachLine += `
+
+  ${originalDataLine.replace("(", APPEND_FUNCTION_NAME + "(").trim()}
+  ${propertyName}${APPEND_FUNCTION_NAME}${APPEND_INPUT}?: ${inputType};
+  ${propertyName}?: ${returnType};
+
+`;
+
+          fileData += dataEachLine;
+        } else {
+          fileData += dataEachLine;
+        }
         //#endregion File Data End Scope ...
       });
 
@@ -702,6 +796,7 @@ export default class GqlGenerator {
     // `;
     //
 
+    /// write all types and mutations and queries ...
     this.writeGeneratedGraphQLToTsFilesSync(graphQLToTs, singleOutFile);
 
     this.writeAllMutationAndQueriesSeperatelyToTsFilesSync(
@@ -718,6 +813,7 @@ export default class GqlGenerator {
 
     return graphQLToTs;
   }
+
   writeAllExportsOfQueriesAndMutationsSync(
     allTypesCombined: TypeInfo[],
     singleOutFile: boolean,
@@ -748,6 +844,12 @@ export default class GqlGenerator {
       );
     });
 
+    allMutationsAndQuereis.forEach((allTypes) => {
+      console.log(allTypes.properties);
+    });
+
+    console.clearAfter("allmutations");
+
     allMutationsAndQuereis.forEach((type) => {
       type.properties.forEach((prop) => {
         let indexOfFunction = prop.propertyName.indexOf("(");
@@ -756,18 +858,20 @@ export default class GqlGenerator {
           prop.propertyName = prop.propertyName.substring(0, indexOfFunction);
         }
 
-        if (type.typeName === GQL_Root_Type("Query")) {
-          queryImports +=
-            `import { ${prop.propertyName} } from "./${type.typeName}/${prop.propertyName}"` +
-            NewLine("\n");
-          queries += prop.propertyName + "," + NewLine("\n");
-        }
+        if (!prop.propertyName.includes("Function")) {
+          if (type.typeName === GQL_Root_Type("Query")) {
+            queryImports +=
+              `import { ${prop.propertyName} } from "./${type.typeName}/${prop.propertyName}"` +
+              NewLine("\n");
+            queries += prop.propertyName + "," + NewLine("\n");
+          }
 
-        if (type.typeName === GQL_Root_Type("Mutation")) {
-          // mutationImports +=
-          //   `import { ${prop.propertyName}  } from "./${type.typeName}/${prop.propertyName}"` +
-          //   NewLine("\n");
-          // mutations += prop.propertyName + "," + NewLine("\n");
+          if (type.typeName === GQL_Root_Type("Mutation")) {
+            mutationImports +=
+              `import { ${prop.propertyName}  } from "./${type.typeName}/${prop.propertyName}"` +
+              NewLine("\n");
+            mutations += prop.propertyName + "," + NewLine("\n");
+          }
         }
       });
     });
@@ -797,6 +901,7 @@ const mutation = {
 
     resultExports = `import root_type from "./root.query";` + NewLine("\n");
     resultExports += NewLine("\n") + queryImports + NewLine("\n");
+    resultExports += NewLine("\n") + mutationImports + NewLine("\n");
     resultExports += allQuereisCombined + NewLine("\n");
     resultExports += allMutationsCombined + NewLine("\n");
     resultExports += queryAndMutationExports;
@@ -949,8 +1054,8 @@ const mutation = {
             );
           }
 
-          console.log("@@@templateHeaderData", templateHeaderData);
-          console.clearAfter("templateHeaderData");
+          // console.log("@@@templateHeaderData", templateHeaderData);
+          // console.clearAfter("templateHeaderData");
           //
 
           const isNullType = prop.isNull ? " | undefined" : "";
@@ -1101,6 +1206,7 @@ const mutation = {
         return resultImportArray;
       }
     }
+
     return ["//no import url, " + typeName];
   }
 
@@ -1196,7 +1302,7 @@ const mutation = {
     folderToCreate = folderToCreate.toLowerCase();
 
     if (folderToCreate === "") {
-      if ((typeType = GQLFileType("querys.and.mutations"))) {
+      if (typeType === GQLFileType("querys.and.mutations")) {
         folderToCreate = typeType;
       }
     }
