@@ -764,10 +764,10 @@ export default class GqlGenerator {
         }
 
         if (type.typeName === GQL_Root_Type("Mutation")) {
-          mutationImports +=
-            `import { ${prop.propertyName}  } from "./${type.typeName}/${prop.propertyName}"` +
-            NewLine("\n");
-          mutations += prop.propertyName + "," + NewLine("\n");
+          // mutationImports +=
+          //   `import { ${prop.propertyName}  } from "./${type.typeName}/${prop.propertyName}"` +
+          //   NewLine("\n");
+          // mutations += prop.propertyName + "," + NewLine("\n");
         }
       });
     });
@@ -786,14 +786,17 @@ const mutation = {
 };
   `.replace("@Mutations", mutations);
 
-    const queryAndMutationExports = `${NewLine(
-      "\n"
-    )}export { query, mutation }${NewLine("\n")}`;
+    const queryAndMutationExports = `${NewLine("\n")}
+    
+    let client = { query, mutation, rootQuery: new root_type() };
+    
+    export default client;
+    ${NewLine("\n")}`;
 
     let resultExports = "";
 
-    resultExports =
-      queryImports + NewLine("\n") + mutationImports + NewLine("\n");
+    resultExports = `import root_type from "./root.query";` + NewLine("\n");
+    resultExports += NewLine("\n") + queryImports + NewLine("\n");
     resultExports += allQuereisCombined + NewLine("\n");
     resultExports += allMutationsCombined + NewLine("\n");
     resultExports += queryAndMutationExports;
@@ -982,6 +985,23 @@ const mutation = {
               propertyName
             );
           }
+
+          outPutData = outPutData.replace(
+            /QueryInput\[\'@QUERY_INPUT_PROPERTY_NAME\'\]/g,
+            type.typeName + '["' + propertyName + '"]'
+          );
+
+          let baseService = "";
+
+          if (type.typeName === GQL_Root_Type("Query")) {
+            baseService = "BaseGraphQLQueryService";
+          }
+
+          if (type.typeName === GQL_Root_Type("Mutation")) {
+            baseService = "BaseGraphQLMutationService";
+          }
+
+          outPutData = outPutData.replace(/@BaseService/g, baseService);
 
           templateHeaderData = templateHeaderDataOrigianl + templateHeaderData;
 
