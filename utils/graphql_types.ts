@@ -105,6 +105,11 @@ function GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
   return str.replace(CURRENT_APP("CURRENT_APP"), appName);
 }
 
+type FOLDER_SERVER_GQL_APP_ROOT = `./GraphQLAPI/`;
+function FOLDER_SERVER_GQL_APP_ROOT(str: FOLDER_SERVER_GQL_APP_ROOT) {
+  return str;
+}
+
 type QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH =
   `./GraphQLAPI/${FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations}/all.queries.templates.template.header.ts`;
 function QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH(
@@ -238,4 +243,5 @@ export {
   QUERY_PROPERTY_NAME,
   MUTATION_PROPERTY_NAME,
   MUTATION_INPUT_PROPERTY_NAME,
+  FOLDER_SERVER_GQL_APP_ROOT,
 };

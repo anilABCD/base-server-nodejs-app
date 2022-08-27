@@ -33,6 +33,7 @@ import {
   QUERY_PROPERTY_NAME,
   MUTATION_PROPERTY_NAME,
   MUTATION_INPUT_PROPERTY_NAME,
+  FOLDER_SERVER_GQL_APP_ROOT,
 } from "./graphql_types";
 import {
   Comment,
@@ -446,7 +447,7 @@ export default class GqlGenerator {
                     functionJustNameWithReturnType
                   );
 
-                  console.clearAfter("APPEND_FUNCTION_NAME");
+                  // console.clearAfter("APPEND_FUNCTION_NAME");
 
                   typeAndProperty.properties.push(propInfo);
                   typeAndProperty.properties.push(functionInputProperty);
@@ -609,9 +610,8 @@ export default class GqlGenerator {
 
           dataEachLine = "";
 
-          dataEachLine += dataEachLine += `
+          dataEachLine = `
 
-  ${originalDataLine.replace("(", APPEND_FUNCTION_NAME + "(").trim()}
   ${propertyName}${APPEND_FUNCTION_NAME}${APPEND_INPUT}?: ${inputType};
   ${propertyName}?: ${returnType};
 
@@ -811,7 +811,39 @@ export default class GqlGenerator {
       appName
     );
 
+    // Accessing Root of the Query ... Schema : query , mutations , ... query.messaeges , ....
+    this.writeRootQuery(appName);
+
     return graphQLToTs;
+  }
+  writeRootQuery(appName: string) {
+    const OUTPUT_FILE = File.path(
+      OutPathReactNative_AppName(
+        "./../base-react-native-app/graphql/CURRENT_APP/",
+        appName
+      ),
+      QUERIES_MUTATION_TS_FOLDER("querys.and.mutations"),
+      "root.query.ts"
+    );
+
+    //Header file imports ...
+    let rootQueryTemplate = fs
+      .readFileSync(
+        File.path(
+          FOLDER_SERVER_GQL_APP_ROOT("./GraphQLAPI/"),
+          FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
+            "queries.mutation.ts.templates"
+          ),
+          "root.query.template.ts"
+        ),
+        {
+          encoding: "utf8",
+          flag: "r",
+        }
+      )
+      .replace(Comment("//"), Empty(""));
+
+    File.writeToFileSync([rootQueryTemplate], OUTPUT_FILE);
   }
 
   writeAllExportsOfQueriesAndMutationsSync(
@@ -848,7 +880,7 @@ export default class GqlGenerator {
       console.log(allTypes.properties);
     });
 
-    console.clearAfter("allmutations");
+    // console.clearAfter("allmutations");
 
     allMutationsAndQuereis.forEach((type) => {
       type.properties.forEach((prop) => {
@@ -1091,9 +1123,30 @@ const mutation = {
             );
           }
 
+          let hasQueryInput = false;
+          const inputTextContant = "_Function_INPUT";
+
+          if (type.typeName === GQL_Root_Type("Mutation")) {
+            type.properties.forEach((prop) => {
+              if (
+                prop.propertyName.includes(propertyName + "_Function_INPUT")
+              ) {
+                hasQueryInput = true;
+              } else {
+                console.log("prop name", prop.propertyName);
+              }
+            });
+
+            console.clearAfter("prop name");
+          }
+
           outPutData = outPutData.replace(
             /QueryInput\[\'@QUERY_INPUT_PROPERTY_NAME\'\]/g,
-            type.typeName + '["' + propertyName + '"]'
+            type.typeName +
+              '["' +
+              propertyName +
+              (hasQueryInput ? inputTextContant : "") +
+              '"]'
           );
 
           let baseService = "";
