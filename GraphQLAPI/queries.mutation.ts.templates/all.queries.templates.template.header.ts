@@ -5,5 +5,5 @@
 
 //import { Mutation, Query } from "../querys.and.mutations";
 
-//import BaseGraphQLQueryService from "../../../base.graphql.service";
+//import BaseGraphQLQueryService from "../../../base.graphql.query.service";
 //import BaseGraphQLMutationService from "../../../base.graphql.mutation.service";

@@ -799,12 +799,16 @@ export default class GqlGenerator {
     /// write all types and mutations and queries ...
     this.writeGeneratedGraphQLToTsFilesSync(graphQLToTs, singleOutFile);
 
+    //
+    // Writes all base_query_type, base_mutation_type ...
+    // querys.and.mutations/Mutation , querys.and.mutations/Query
     this.writeAllMutationAndQueriesSeperatelyToTsFilesSync(
       graphQLToTs,
       singleOutFile,
       appName
     );
 
+    // Writes to export.of.query.and.mutation.ts ...
     this.writeAllExportsOfQueriesAndMutationsSync(
       allTypesCombined,
       singleOutFile,
@@ -857,8 +861,22 @@ export default class GqlGenerator {
     let mutations = "";
     let mutationImports = "";
 
-    let allQuereisCombined = "";
-    let allMutationsCombined = "";
+    //Header file imports ...
+    let AllExportsOfQueriesAndMutationsTemplate = fs
+      .readFileSync(
+        File.path(
+          FOLDER_SERVER_GQL_APP_ROOT("./GraphQLAPI/"),
+          FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations(
+            "queries.mutation.ts.templates"
+          ),
+          "export.of.query.and.mutation.template.ts"
+        ),
+        {
+          encoding: "utf8",
+          flag: "r",
+        }
+      )
+      .replace(Comment("//"), Empty(""));
 
     let outPutSingleFile = File.path(
       OutPathReactNative_AppName(
@@ -876,9 +894,9 @@ export default class GqlGenerator {
       );
     });
 
-    allMutationsAndQuereis.forEach((allTypes) => {
-      console.log(allTypes.properties);
-    });
+    // allMutationsAndQuereis.forEach((allTypes) => {
+    //   console.log(allTypes.properties);
+    // });
 
     // console.clearAfter("allmutations");
 
@@ -908,37 +926,15 @@ export default class GqlGenerator {
       });
     });
 
-    allQuereisCombined = `
-const query = {
-  
-@Queries
-};
-`.replace("@Queries", queries);
+    const resultData = AllExportsOfQueriesAndMutationsTemplate.replace(
+      /@QueryImports/g,
+      queryImports
+    )
+      .replace(/@MutationImports/g, mutationImports)
+      .replace(/@Queries/g, queries)
+      .replace(/@Mutations/g, mutations);
 
-    allMutationsCombined = `
-const mutation = {
-
-@Mutations
-};
-  `.replace("@Mutations", mutations);
-
-    const queryAndMutationExports = `${NewLine("\n")}
-    
-    let client = { query, mutation, rootQuery: new root_type() };
-    
-    export default client;
-    ${NewLine("\n")}`;
-
-    let resultExports = "";
-
-    resultExports = `import root_type from "./root.query";` + NewLine("\n");
-    resultExports += NewLine("\n") + queryImports + NewLine("\n");
-    resultExports += NewLine("\n") + mutationImports + NewLine("\n");
-    resultExports += allQuereisCombined + NewLine("\n");
-    resultExports += allMutationsCombined + NewLine("\n");
-    resultExports += queryAndMutationExports;
-
-    File.writeToFileSync([resultExports], outPutSingleFile);
+    File.writeToFileSync([resultData], outPutSingleFile);
   }
 
   //
@@ -1008,6 +1004,11 @@ const mutation = {
         type.typeName === GQL_Root_Type("Mutation")
       ) {
         type.properties.forEach((prop) => {
+          /////////
+          if (prop.propertyName.includes("Function")) {
+            return;
+          }
+
           let templateHeaderData = "";
           let propertyName = prop.propertyName;
 
@@ -1262,8 +1263,6 @@ const mutation = {
 
     return ["//no import url, " + typeName];
   }
-
-  generateQueryAndMutationToAppTS(filesDataTs: GraphQLToTS) {}
 
   attachDependentTypesToFile(
     allOtherDependentTypesFromPropertyTypesFromOtherFiles: string[],

@@ -8,6 +8,11 @@ let showVerfify = false;
 let enableConsoleLog = true;
 let enableDecoratorLog = false;
 
+type VerboseText = "verbose-mode";
+function VerboseText(str: VerboseText) {
+  return str;
+}
+
 var log = console.log;
 
 //
@@ -66,14 +71,27 @@ class MyConsole {
           console.log(message);
         }
 
-        if (message === "error-info") {
+        //
+        //
+        if (message === VerboseText("verbose-mode")) {
           this.logErrorFileAndLineNumber();
         }
+        //
+        //
 
         return;
       }
     }
   };
+
+  getVerboseModeText() {
+    return VerboseText("verbose-mode");
+  }
+
+  verbose(message?: any, ...extras: any[]) {
+    let verboseMode = this.getVerboseModeText();
+    this.log(verboseMode, message, extras);
+  }
 
   //private getStackTrace() {
   //   var obj = { stack: "" };
