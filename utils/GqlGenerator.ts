@@ -149,6 +149,7 @@ export default class GqlGenerator {
       };
 
       let exportData = "";
+      let previousEachLine = "";
       fileDataArray.forEach((dataEachLine, index) => {
         //#region File Data End Scope ...
 
@@ -621,6 +622,7 @@ export default class GqlGenerator {
         } else {
           fileData += dataEachLine;
         }
+
         //#endregion File Data End Scope ...
       });
 
@@ -628,12 +630,52 @@ export default class GqlGenerator {
 
       //#region START File Array Scope after data code ...
 
-      // let typeNameToCreate = "";
+      // fileData = "";
 
-      // fileName.split(".").forEach((data) => {
-      //   if (data.toLowerCase() !== "graphql")
-      //     typeNameToCreate += data.charAt(0).toUpperCase() + data.substring(1);
-      // });
+      let fileDataFinal = "";
+      typesAndProperties.forEach((type) => {
+        //
+        const typeStart =
+          NewLine("\n") + "type " + type.typeName + " = { " + NewLine("\n");
+
+        let allProperties = "";
+
+        type.properties.forEach((prop) => {
+          let propertyName = prop.propertyName;
+
+          if (prop.propertyName.includes("_Function(")) {
+            return "";
+          }
+
+          if (prop.propertyName.includes("_Function_INPUT(")) {
+            const indexOfStartBrace = prop.propertyName.indexOf(
+              ExpressionChar("(")
+            );
+
+            propertyName = propertyName.substring(0, indexOfStartBrace);
+          }
+
+          let isNullString = "";
+          if (prop.isNull) {
+            isNullString = "?";
+          }
+
+          allProperties +=
+            NewLine("\n") +
+            propertyName +
+            isNullString +
+            ": " +
+            // replace ! ( non null with Empty )
+            prop.typeName.replace(ExpressionChar("!"), Empty("")) +
+            ";" +
+            NewLine("\n");
+        });
+
+        const typeEnd = NewLine("\n") + "}" + NewLine("\n") + NewLine("\n");
+        const exportType = ExportSyntax("export { TYPE_NAME } ", type.typeName);
+
+        fileDataFinal += typeStart + allProperties + typeEnd + exportType;
+      });
 
       allOtherDependentTypesFromPropertyTypesFromOtherFiles =
         compareAndRemoveDuplicates(
@@ -653,7 +695,7 @@ export default class GqlGenerator {
         fileName: fileName + ".ts",
         type: typeType,
         //finalFileDataAsStringWithImportUrls is in next stage ...
-        convertedTsDataString: fileData,
+        convertedTsDataString: fileDataFinal, // fileData,
         folderToCreate: folderToCreate,
         allTypesInSingleFile: allTypesInSingleFile,
         allTypesInSingleFileCount: allTypesInSingleFile.length,

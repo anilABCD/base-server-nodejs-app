@@ -1,5 +1,5 @@
 //
-// import BaseGraphQLQueryService from "../../base.graphql.service";
+// import BaseGraphQLQueryService from "../../base.graphql.query.service";
 // import base_query_type from "../../common/base.query.type";
 // import MyQueryKeyOfType from "../../common/QueryKeyOfType";
 // import { Schema } from "./querys.and.mutations";
@@ -17,7 +17,7 @@
 //   }
 //
 //   async query(query: Schema) {
-//     return await this.queries?.get(query);
+//     return await this.queries?.query(query);
 //   }
 //
 // }
