@@ -19,7 +19,7 @@ export default class GenerateController {
     }
   }
 
-  generate = catchAsync(
+  private generate = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       if (req.query.CURRENT_APP) {
         this.CURRENT_APP = req.query.CURRENT_APP.toString();

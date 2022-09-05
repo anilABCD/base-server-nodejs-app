@@ -39,7 +39,7 @@ import schema from "./GraphQLAPI/tutorial/at-app-ts.schema";
 
 //@ts-ignore
 import cookies from "cookie-parser";
-import generateRouter from "./routes/generate.routes/generate.router";
+// import generateRouter from "./routes/generate.routes/generate.router";
 import getEnv, { EnvEnumType } from "./env/getEnv";
 import isCurrentApp from "./utils/isCurrentApp";
 import console from "./utils/console";
@@ -139,7 +139,8 @@ startApolloSevrver().then((apolloServer) => {
   // Generate GraphQL for Current Application ...
 
   if (isOnlyDevelopmentEnvironment() || isOnlyTestEnvironment()) {
-    app.use("/api/v1/generate/", generateRouter);
+    // useless generator ...
+    // app.use("/api/v1/generate/", generateRouter);
   }
 
   ///////////////
