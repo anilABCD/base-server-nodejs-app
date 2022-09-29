@@ -11,6 +11,8 @@ import logger from "./utils/logger";
 import TypeDevMode from "./enums/TypeDevMode";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 
+const { ExpressPeerServer } = require("peer");
+
 //////////////////////////////////////////////////////////////////////
 // NOTE :
 // IMPORTANT: Just executes async but without waiting ...
@@ -82,14 +84,31 @@ if (isAllReady) {
       });
     //#endregion
 
-    //#region  listen
+    //#region listen
 
-    app.listen(PORT, () => {
+    const server = app.listen(PORT, () => {
       console.log("\n\n\n******** NODE SERVER STARTED *************\n\n");
       console.log("Listening on port : " + PORT);
       console.log("GrapQL Url :", "http://localhost:" + PORT + "/graphql");
       console.log("isProduction", isProductionEnvironment());
     });
+
+    // #region Peer Server
+
+    const peerServer = ExpressPeerServer(server, {
+      debug: true,
+      path: "/dating.kairo",
+    });
+
+    app.use("/peerjs", peerServer);
+
+    //
+    // Sample Link :
+    // http://localhost:5000/peerjs/dating.kairo
+    //
+
+    // #endregion Peer Server ....
+
     //#endregion
   }
 }

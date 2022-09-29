@@ -4,7 +4,7 @@ import console from "../../utils/console";
 import IUser from "../../interfaces/user.interfaces/user.interface";
 import { Roles } from "../../model.types/user.types/user.model.types";
 import errorController from "../../ErrorHandling/error.controller";
-import MessagingController from "../../controllers/messaging.app/messaging.controllers/messaging.controller";
+import MessagingController from "../../controllers/_dont.do.this.app.messaging.app/messaging.controllers/messaging.controller";
 import isProductionEnvironment from "../../utils/isProductionEnvironment";
 
 /////////////////////////////////////////////////////////////////////////////

@@ -1,6 +1,6 @@
 // @ts-ignore
 import { rateLimit } from "express-rate-limit";
-import express from "express";
+
 // @ts-ignore
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
@@ -16,6 +16,8 @@ import startApolloSevrver from "./GraphQLAPI/apollo.server";
 import { FileParams } from "./utils/File";
 
 import File from "./utils/File";
+
+import ExpressPeerServer from "peer";
 
 // for : /graphql
 import AuthController from "./controllers/user.controllers/auth.controller";
@@ -45,6 +47,7 @@ import isCurrentApp from "./utils/isCurrentApp";
 import console from "./utils/console";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
+import express from "express";
 
 const limiter = rateLimit({
   max: 120,
@@ -53,6 +56,8 @@ const limiter = rateLimit({
 });
 
 const app = express();
+
+app.enable("trust proxy");
 
 const toUseTopLevelAwait = promisify(() => true);
 
