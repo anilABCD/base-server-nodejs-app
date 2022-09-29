@@ -17,7 +17,7 @@ async function startApolloServer() {
 
   const CURRENT_APP = getEnv(EnvEnumType.CURRENT_APP) || "";
 
-  const pathForCurrentApp = CURRENT_APP?.replace("-", ".");
+  const pathForCurrentApp = CURRENT_APP?.replace(/-/g, ".");
 
   let currentProjectTypeDefs = await readFile(
     `${__dirname}/${pathForCurrentApp}/schema.graphql`,
@@ -27,8 +27,8 @@ async function startApolloServer() {
   let currentProjectResolvers =
     require(`${__dirname}/${pathForCurrentApp}/resolvers.js`).default;
 
-  // console.log(currentProjectResolvers);
-  // console.log(currentProjectTypeDefs);
+  console.log(currentProjectResolvers);
+  console.log(currentProjectTypeDefs);
 
   const typeDefs = currentProjectTypeDefs;
   const resolvers = currentProjectResolvers;

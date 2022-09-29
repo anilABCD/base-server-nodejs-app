@@ -48,6 +48,7 @@ import console from "./utils/console";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
 import express from "express";
+import generateRouter from "./routes/generate.routes/generate.router";
 
 const limiter = rateLimit({
   max: 120,
@@ -145,7 +146,7 @@ startApolloSevrver().then((apolloServer) => {
 
   if (isOnlyDevelopmentEnvironment() || isOnlyTestEnvironment()) {
     // useless generator ...
-    // app.use("/api/v1/generate/", generateRouter);
+    app.use("/api/v1/generate/", generateRouter);
   }
 
   ///////////////

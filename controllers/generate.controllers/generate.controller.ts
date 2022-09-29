@@ -19,7 +19,7 @@ export default class GenerateController {
     }
   }
 
-  private generate = catchAsync(
+  generate = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       if (req.query.CURRENT_APP) {
         this.CURRENT_APP = req.query.CURRENT_APP.toString();
@@ -52,47 +52,47 @@ export default class GenerateController {
         data_combinedFromAllGraphqlFiles
       );
 
-      const isSingleOutFile = singleOutFile === "true" ? true : false;
+      // const isSingleOutFile = singleOutFile === "true" ? true : false;
 
-      const obj_generatedFromGraphqlFiles_To_TS =
-        gqlGenerator.generateGraphQLToTs(
-          fileNames,
-          this.CURRENT_APP,
-          isSingleOutFile
-        );
+      // const obj_generatedFromGraphqlFiles_To_TS =
+      //   gqlGenerator.generateGraphQLToTs(
+      //     fileNames,
+      //     this.CURRENT_APP,
+      //     isSingleOutFile
+      //   );
 
-      let dataOfTsFiles = "";
-      obj_generatedFromGraphqlFiles_To_TS.fileAndDataWithTypesInfo.forEach(
-        (value) => {
-          dataOfTsFiles += value.convertedTsDataString;
-        }
-      );
+      // let dataOfTsFiles = "";
+      // obj_generatedFromGraphqlFiles_To_TS.fileAndDataWithTypesInfo.forEach(
+      //   (value) => {
+      //     dataOfTsFiles += value.convertedTsDataString;
+      //   }
+      // );
 
-      let headerInfo = fileAuthorAndHeaderInformation.replace(
-        CURRENT_APP("CURRENT_APP"),
-        this.CURRENT_APP
-      );
+      // let headerInfo = fileAuthorAndHeaderInformation.replace(
+      //   CURRENT_APP("CURRENT_APP"),
+      //   this.CURRENT_APP
+      // );
 
-      dataOfTsFiles = headerInfo + dataOfTsFiles;
+      // dataOfTsFiles = headerInfo + dataOfTsFiles;
 
-      const typeNames =
-        obj_generatedFromGraphqlFiles_To_TS.allTypesCombined?.map((types) => {
-          return types.typeName;
-        });
+      // const typeNames =
+      //   obj_generatedFromGraphqlFiles_To_TS.allTypesCombined?.map((types) => {
+      //     return types.typeName;
+      //   });
 
-      let result = {
-        typeNames,
-        fileNames: obj_generatedFromGraphqlFiles_To_TS.fileNames,
-        appName: obj_generatedFromGraphqlFiles_To_TS.appName,
-        isSingleOutFile,
-      };
+      // let result = {
+      //   typeNames,
+      //   fileNames: obj_generatedFromGraphqlFiles_To_TS.fileNames,
+      //   appName: obj_generatedFromGraphqlFiles_To_TS.appName,
+      //   isSingleOutFile,
+      // };
 
-      res.status(200).json({
-        status: "success",
-        data: {
-          generated: result,
-        },
-      });
+      // res.status(200).json({
+      //   status: "success",
+      //   data: {
+      //     generated: result,
+      //   },
+      // });
     }
   );
 }

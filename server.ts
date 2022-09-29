@@ -90,6 +90,11 @@ if (isAllReady) {
       console.log("\n\n\n******** NODE SERVER STARTED *************\n\n");
       console.log("Listening on port : " + PORT);
       console.log("GrapQL Url :", "http://localhost:" + PORT + "/graphql");
+      console.log(
+        "GrapQL Url :",
+        "http://localhost:" + PORT + "/peerjs/" + CURRENT_APP
+      );
+
       console.log("isProduction", isProductionEnvironment());
     });
 
