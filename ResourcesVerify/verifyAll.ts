@@ -46,7 +46,11 @@ function isAllResourcesReady(): boolean {
 }
 
 function verifyProjectNameOK() {
-  let values: TypeCurrentAppNames[] = ["messaging-app", "quize-app"];
+  let values: TypeCurrentAppNames[] = [
+    "messaging-app",
+    "quize-app",
+    "dating-kairo-app",
+  ];
 
   const allProjectNames = values.join(",").split(",");
 

@@ -1,3 +1,3 @@
-type TypeCurrentAppNames = "messaging-app" | "quize-app";
+type TypeCurrentAppNames = "messaging-app" | "quize-app" | "dating-kairo-app";
 
 export default TypeCurrentAppNames;

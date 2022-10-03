@@ -105,6 +105,11 @@ function GQL_SERVER_OUTPUT_PATH_COMBINED_FILE(
   return str.replace(CURRENT_APP("CURRENT_APP"), appName);
 }
 
+type FOLDER_SERVER_GQL_APP_ROOT = `./GraphQLAPI/`;
+function FOLDER_SERVER_GQL_APP_ROOT(str: FOLDER_SERVER_GQL_APP_ROOT) {
+  return str;
+}
+
 type QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH =
   `./GraphQLAPI/${FolderTemplate_TS_File_For_Generating_Direct_QueriesAndMutations}/all.queries.templates.template.header.ts`;
 function QUERIES_MUTATION_TS_TEMPLATE_FILE_PATH(
@@ -162,10 +167,29 @@ function ExpressionToTS(str: ExpressionToTS) {
   return str;
 }
 
+type TS_Scalar = "number" | "string" | "boolean";
+function TS_Scalar(str: TS_Scalar) {
+  return str;
+}
+
 // ".template" for future ... templates if any ...
 type TypeOfExtesions_StringTypes = ".graphql" | ".template";
 function TypeOfExtesions_StringTypes(str: TypeOfExtesions_StringTypes) {
   return str;
+}
+
+type TypeNewDefaultTypeNameStartingExpression =
+  `let new_TYPE_NAME_ : _TYPE_NAME_ = { `;
+function TypeNewDefaultTypeNameStartingExpression(
+  str: TypeNewDefaultTypeNameStartingExpression,
+  typeName: string
+) {
+  return NewLine("\n") + str.replace("_TYPE_NAME_", typeName) + NewLine("\n");
+}
+
+type TypeNewDefaultObj = `new_TYPE_NAME_`;
+function TypeNewDefaultObj(str: TypeNewDefaultObj, typeName: string) {
+  return str.replace("_TYPE_NAME_", typeName);
 }
 
 type GraphQLToTS = {
@@ -238,4 +262,8 @@ export {
   QUERY_PROPERTY_NAME,
   MUTATION_PROPERTY_NAME,
   MUTATION_INPUT_PROPERTY_NAME,
+  FOLDER_SERVER_GQL_APP_ROOT,
+  TS_Scalar,
+  TypeNewDefaultTypeNameStartingExpression,
+  TypeNewDefaultObj,
 };

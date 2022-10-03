@@ -4,7 +4,8 @@ import console from "../../utils/console";
 import IUser from "../../interfaces/user.interfaces/user.interface";
 import { Roles } from "../../model.types/user.types/user.model.types";
 import errorController from "../../ErrorHandling/error.controller";
-import MessagingController from "../../controllers/_dont.do.this.app.messaging.app/messaging.controllers/messaging.controller";
+
+import QuizeCategoryController from "../../controllers/quize.app/quize.controllers/quize.category.controller";
 import isProductionEnvironment from "../../utils/isProductionEnvironment";
 
 /////////////////////////////////////////////////////////////////////////////
@@ -18,57 +19,27 @@ import isProductionEnvironment from "../../utils/isProductionEnvironment";
 
 //#region Query Resolvers .
 
-const messagingController = new MessagingController();
+const videoCallController = new QuizeCategoryController();
 
 const resolvers = {
   Query: {
     //
-    //
-    test_messages: query(async (_root: any, args: any, context: any) => {
-      // console.log("params", _root, args, context);
-      let result = await messagingController.service?.get();
-
-      if (result) {
-        return result[0];
-      }
-
-      return undefined;
-    }),
-
-    messages: protectedQuery(async (_root: any, args: any, context: any) => {
-      // console.log("params", _root, args, context);
-      return await messagingController.service?.get();
-    }),
-
-    //   // ****************************************************************************
-    //   protectedSampleQuery: protectedQuery(
-    //     async (_root: any, {}: any, context: any) => {
-    //       return await quizeController.service?.get();
-    //     },
-    //     "user" // this is a role ... can pass multiple roles ...
-    //   ),
-
-    //   quizeCategories: query(async (_root: any, {}: any, context: any) => {
-    //     return await quizeController.service?.get();
+    //   //
+    //   test_messages: query(async (_root: any, args: any, context: any) => {
+    //     // console.log("params", _root, args, context);
+    //     return await videoCallController.service?.get();
     //   }),
-    //   // ****************************************************************************
+    //   messages: protectedQuery(async (_root: any, args: any, context: any) => {
+    //     // console.log("params", _root, args, context);
+    //     return await videoCallController.service?.get();
+    //   }),
     // },
-
-    // QuizeCategory: {
-    //   // parent is quizeCategory ...
-    //   quizeNames: async (parent: any) => {
-    //     console.log("quizeCategory id", parent._id);
-    //     return await quizeNameController.service?.getByParent({
-    //       quizeCategoryId: parent._id,
-    //     });
-    //   },
   },
-
   Mutation: {
-    sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args, context);
-      return await messagingController.service?.post({ ...args.input });
-    }),
+    // sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args, context);
+    //   return await videoCallController.service?.post({ ...args.input });
+    // }),
   },
 };
 

@@ -1,4 +1,8 @@
 class GraphQLUtils {
+  static getNonScalarType(propertyType: string) {
+    propertyType = GraphQLUtils.getTrimmedType(propertyType);
+    return propertyType;
+  }
   static isScalarType(propertyType: string) {
     propertyType = GraphQLUtils.getTrimmedType(propertyType);
 
@@ -14,6 +18,17 @@ class GraphQLUtils {
     }
     return false;
   }
+
+  static getScalarType(propertyType: string) {
+    propertyType = GraphQLUtils.getTrimmedType(propertyType);
+
+    if (!GraphQLUtils.isScalarType(propertyType)) {
+      throw "given a non scalar type";
+    }
+
+    return propertyType;
+  }
+
   static getTrimmedType(typeName: string) {
     return typeName
       .replace(/\[/g, "")

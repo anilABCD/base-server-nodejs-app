@@ -2,6 +2,5 @@ type Test {
   id: ID!
   senderId: ID!
   receiverId: ID!
-  input: SendMessageInput
   message: Message!
 }

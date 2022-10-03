@@ -1,6 +1,6 @@
 // @ts-ignore
 import { rateLimit } from "express-rate-limit";
-import express from "express";
+
 // @ts-ignore
 import helmet from "helmet";
 import mongoSanitize from "express-mongo-sanitize";
@@ -16,6 +16,8 @@ import startApolloSevrver from "./GraphQLAPI/apollo.server";
 import { FileParams } from "./utils/File";
 
 import File from "./utils/File";
+
+import ExpressPeerServer from "peer";
 
 // for : /graphql
 import AuthController from "./controllers/user.controllers/auth.controller";
@@ -39,12 +41,14 @@ import schema from "./GraphQLAPI/tutorial/at-app-ts.schema";
 
 //@ts-ignore
 import cookies from "cookie-parser";
-import generateRouter from "./routes/generate.routes/generate.router";
+// import generateRouter from "./routes/generate.routes/generate.router";
 import getEnv, { EnvEnumType } from "./env/getEnv";
 import isCurrentApp from "./utils/isCurrentApp";
 import console from "./utils/console";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
+import express from "express";
+import generateRouter from "./routes/generate.routes/generate.router";
 
 const limiter = rateLimit({
   max: 120,
@@ -53,6 +57,8 @@ const limiter = rateLimit({
 });
 
 const app = express();
+
+app.enable("trust proxy");
 
 const toUseTopLevelAwait = promisify(() => true);
 
@@ -139,6 +145,7 @@ startApolloSevrver().then((apolloServer) => {
   // Generate GraphQL for Current Application ...
 
   if (isOnlyDevelopmentEnvironment() || isOnlyTestEnvironment()) {
+    // useless generator ...
     app.use("/api/v1/generate/", generateRouter);
   }
 
