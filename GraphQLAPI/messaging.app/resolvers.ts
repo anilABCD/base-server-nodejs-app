@@ -26,7 +26,13 @@ const resolvers = {
     //
     test_messages: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
-      return await messagingController.service?.get();
+      let result = await messagingController.service?.get();
+
+      if (result) {
+        return result[0];
+      }
+
+      return undefined;
     }),
 
     messages: protectedQuery(async (_root: any, args: any, context: any) => {
