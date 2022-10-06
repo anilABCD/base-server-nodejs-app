@@ -4,7 +4,7 @@ schema {
 }
 
 type Query {
-  test_messages: Message
+  test_messages: [Message]
   messages: [Message]
 }
 

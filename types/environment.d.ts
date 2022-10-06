@@ -1,7 +1,7 @@
 import IUser from "../interfaces/user.interfaces/user.interface";
 declare global {
   namespace NodeJS {
-    interface ProcessEnv {
+    interface Process {
       PORT: number;
       DATABASE_URL: string;
       DATABASE_PASSWORD: string;
