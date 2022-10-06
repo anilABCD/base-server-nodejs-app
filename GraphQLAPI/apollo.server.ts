@@ -47,7 +47,7 @@ async function startApolloServer() {
     require(`${__dirname}/${pathForCurrentApp}/resolvers.js`).default;
 
   console.log(currentProjectResolvers);
-  console.log(currentProjectTypeDefs);
+  console.log(currentProjectTypeDefs, "new");
 
   const typeDefs = currentProjectTypeDefs;
   const resolvers = currentProjectResolvers;

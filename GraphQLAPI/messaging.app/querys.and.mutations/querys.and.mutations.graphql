@@ -6,6 +6,7 @@ schema {
 type Query {
   test_messages: [Message]
   messages: [Message]
+  message(id: String): Message
 }
 
 type Mutation {

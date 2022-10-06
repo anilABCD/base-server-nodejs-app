@@ -36,6 +36,11 @@ const resolvers = {
       return await messagingController.service?.get();
     }),
 
+    message: query(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args.id, context);
+      return await messagingController.service?.getById(args.id);
+    }),
+
     //   // ****************************************************************************
     //   protectedSampleQuery: protectedQuery(
     //     async (_root: any, {}: any, context: any) => {
