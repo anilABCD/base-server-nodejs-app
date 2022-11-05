@@ -4,8 +4,10 @@ import console from "../../utils/console";
 import IUser from "../../interfaces/user.interfaces/user.interface";
 import { Roles } from "../../model.types/user.types/user.model.types";
 import errorController from "../../ErrorHandling/error.controller";
-import MessagingController from "../../controllers/_dont.do.this.app.messaging.app/messaging.controllers/messaging.controller";
+import MessagingController from "../../controllers/messaging.app/messaging.controllers/messaging.controller";
 import isProductionEnvironment from "../../utils/isProductionEnvironment";
+
+import AnyController from "../../controllers/any.controller";
 
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -20,25 +22,27 @@ import isProductionEnvironment from "../../utils/isProductionEnvironment";
 
 const messagingController = new MessagingController();
 
+const anyController = new AnyController("testing-any-collection");
+
 const resolvers = {
   Query: {
     //
     //
     test_messages: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
-      let result = await messagingController.service?.get();
+      let result = await anyController.service?.get();
 
       return result;
     }),
 
     messages: protectedQuery(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
-      return await messagingController.service?.get();
+      return await anyController.service?.get();
     }),
 
     message: query(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args.id, context);
-      return await messagingController.service?.getById(args.id);
+      return await anyController.service?.getById(args.id);
     }),
 
     //   // ****************************************************************************
@@ -68,7 +72,7 @@ const resolvers = {
   Mutation: {
     sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
-      return await messagingController.service?.post({ ...args.input });
+      return await anyController.service?.post({ ...args.input });
     }),
   },
 };
