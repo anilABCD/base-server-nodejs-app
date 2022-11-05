@@ -1,3 +1,5 @@
+import mongoose from "mongoose";
+
 const filterObject = (bodyObj: any, propertyKeysToUpdate: [string]) => {
   let newObj: any = {};
 
@@ -12,6 +14,19 @@ const filterObject = (bodyObj: any, propertyKeysToUpdate: [string]) => {
   });
 
   return newObj;
+};
+
+const packWithObjectID = (bodyObj: any) => {
+  Object.keys(bodyObj).forEach((key) => {
+    if (key.length >= 2) {
+      let idCharsLiteralInKey = key.substring(key.length - 2);
+      // console.log(idCharsLiteralInKey);
+      if (idCharsLiteralInKey.toLowerCase() === "id") {
+        bodyObj[key] = new mongoose.Types.ObjectId(bodyObj[key]);
+      }
+    }
+  });
+  return bodyObj;
 };
 
 const removeProperty = (bodyObj: any, propertyKeysToRemove: [string]) => {
@@ -83,3 +98,4 @@ export { findDuplicates };
 export { hasDuplicates };
 export { removeDuplicates };
 export { compareAndRemoveDuplicates };
+export { packWithObjectID };

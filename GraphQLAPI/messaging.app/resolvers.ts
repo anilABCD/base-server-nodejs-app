@@ -8,6 +8,8 @@ import MessagingController from "../../controllers/messaging.app/messaging.contr
 import isProductionEnvironment from "../../utils/isProductionEnvironment";
 
 import AnyController from "../../controllers/any.controller";
+import mongoose from "mongoose";
+import { packWithObjectID } from "../../utils/all.util";
 
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -144,6 +146,7 @@ function createOrUpdate(
       restrictTo(userRole, ...roles);
     }
     try {
+      args.input = packWithObjectID(args.input);
       return await fn(_root, args, context);
     } catch (err: any) {
       err.statusCode = 400;
