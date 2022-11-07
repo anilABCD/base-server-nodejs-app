@@ -49,6 +49,7 @@ import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
 import express from "express";
 import generateRouter from "./routes/generate.routes/generate.router";
+import googleRouter from "./routes/google/google.router";
 
 const limiter = rateLimit({
   max: 120,
@@ -150,6 +151,12 @@ startApolloSevrver().then((apolloServer) => {
   }
 
   ///////////////
+
+  /// google ///
+
+  app.use("/api/v1/google", googleRouter);
+
+  /////////////
 
   //#region User Api
 
