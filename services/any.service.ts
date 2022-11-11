@@ -11,4 +11,6 @@ export default class AnyService extends BaseService<AnySI, any, any> {
     super(modelI);
     //console.log("\n\n****** Model injected in service : ****** \n\n", modelI);
   }
+
+  
 }

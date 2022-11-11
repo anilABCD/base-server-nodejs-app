@@ -1,0 +1,7 @@
+type Event {
+  id: ID!
+  startTime: Date
+  name: String
+  description: String
+  groupId: ID!
+}

@@ -4,11 +4,19 @@ schema {
 }
 
 type Query {
+  # Samples Start
   test_messages: [Message]
   messages: [Message]
   message(id: String): Message
+  # Samples End
+
+  groups: [Group]
 }
 
 type Mutation {
+  # Samples Start
   sendMessage(input: SendMessageInput): Message
+  # Samples End
+
+  createGroup(input: CreateGroupInput): Group
 }

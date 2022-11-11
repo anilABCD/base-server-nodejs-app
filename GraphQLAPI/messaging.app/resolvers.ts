@@ -24,7 +24,9 @@ import { packWithObjectID } from "../../utils/all.util";
 
 const messagingController = new MessagingController();
 
-const anyController = new AnyController("testing-any-collection");
+const testAnyController = new AnyController("testing-any-collection");
+
+const groupController = new AnyController("group");
 
 const resolvers = {
   Query: {
@@ -32,19 +34,24 @@ const resolvers = {
     //
     test_messages: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
-      let result = await anyController.service?.get();
+      let result = await testAnyController.service?.get();
 
       return result;
     }),
 
     messages: protectedQuery(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
-      return await anyController.service?.get();
+      return await testAnyController.service?.get();
     }),
 
     message: query(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args.id, context);
-      return await anyController.service?.getById(args.id);
+      return await testAnyController.service?.getById(args.id);
+    }),
+
+    groups: query(async (_root: any, args: any, context: any) => {
+      // console.log("params", _root, args, context);
+      return await groupController.service?.get();
     }),
 
     //   // ****************************************************************************
@@ -74,7 +81,12 @@ const resolvers = {
   Mutation: {
     sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
-      return await anyController.service?.post({ ...args.input });
+      return await testAnyController.service?.post({ ...args.input });
+    }),
+
+    createGroup: createOrUpdate(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args, context);
+      return await groupController.service?.post({ ...args.input });
     }),
   },
 };
