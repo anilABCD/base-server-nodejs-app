@@ -5,5 +5,5 @@ export default interface IGroup extends IBaseModel {
   groupName: String;
   description: String;
   location: String;
-  interests?: [String];
+  interests: String[];
 }

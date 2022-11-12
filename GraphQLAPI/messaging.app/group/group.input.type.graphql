@@ -2,5 +2,5 @@ input CreateGroupInput {
   groupName: String!
   description: String!
   location: String!
-  interests: String!
+  interests: [String!]
 }

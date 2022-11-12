@@ -1,7 +1,7 @@
 import { autoInjectable, injectable } from "tsyringe";
 import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.interface";
 import GroupModel from "../../../Model/messaging.app/group.models/group.model";
-import groupSchema from "../../../Model/messaging.app/group.schemas/group.schema";
+
 import BaseService from "../../base.service";
 
 @autoInjectable()
