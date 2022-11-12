@@ -9,7 +9,7 @@ export default class BaseService<
 > {
   model: T1 | undefined;
 
-  constructor(modelI: ModelI<T, T1, T2>) {
+  constructor(modelI?: ModelI<T, T1, T2>) {
     this.model = modelI?.model;
   }
 

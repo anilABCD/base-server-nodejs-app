@@ -12,18 +12,11 @@
         "splitTerminals": [
           {
             "name": "npm start",
-            "commands": ["pwd", "clear"]
+            "commands": ["pwd", "clear", "yarn start"]
           }
         ]
       },
-      {
-        "splitTerminals": [
-          {
-            "name": "watch graph-ql",
-            "commands": ["pwd", "clear"]
-          }
-        ]
-      },
+
       {
         "splitTerminals": [
           {

@@ -1,6 +1,6 @@
 input CreateGroupInput {
   groupName: String!
-  Description: String!
-  Location: String!
-  Interests: [String!]
+  description: String!
+  location: String!
+  interests: String!
 }

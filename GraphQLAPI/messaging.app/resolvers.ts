@@ -10,6 +10,7 @@ import isProductionEnvironment from "../../utils/isProductionEnvironment";
 import AnyController from "../../controllers/any.controller";
 import mongoose from "mongoose";
 import { packWithObjectID } from "../../utils/all.util";
+import GroupService from "../../services/messaging.app/group.service/group.service";
 
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -26,7 +27,9 @@ const messagingController = new MessagingController();
 
 const testAnyController = new AnyController("testing-any-collection");
 
-const groupController = new AnyController("group");
+// const groupController = new AnyController("group");
+
+const groupService = new GroupService();
 
 const resolvers = {
   Query: {
@@ -51,7 +54,7 @@ const resolvers = {
 
     groups: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
-      return await groupController.service?.get();
+      return await groupService.get();
     }),
 
     //   // ****************************************************************************
@@ -86,7 +89,7 @@ const resolvers = {
 
     createGroup: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
-      return await groupController.service?.post({ ...args.input });
+      return await groupService.post({ ...args.input });
     }),
   },
 };

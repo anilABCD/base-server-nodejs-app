@@ -1,7 +1,7 @@
 type Group {
   id: ID!
   groupName: String!
-  Description: String!
-  Location: String!
-  Interests: [String!]
+  description: String!
+  location: String!
+  interests: String!
 }
