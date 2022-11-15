@@ -3,11 +3,11 @@ import mongoose, { model, Model, Schema } from "mongoose";
 import ModelI from "../../../interfaces/model.interface";
 
 import isCurrentApp from "../../../utils/isCurrentApp";
-import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.interface";
-import getEnv, { EnvEnumType } from "../../../env/getEnv";
+
+import IEvent from "../../../interfaces/messaging.app/event.interfaces/event.interfaces";
 
 @singleton()
-export default class GroupModel implements ModelI<any, any, any> {
+export default class EventModel implements ModelI<any, any, any> {
   schema: Schema<any> = new mongoose.Schema({
     // Sample
     // senderId: {
@@ -15,10 +15,15 @@ export default class GroupModel implements ModelI<any, any, any> {
     //   required: [true, "is required"],
     // },
 
-    groupName: {
+    eventName: {
       type: String,
       default: "",
       required: [true, "is required"],
+    },
+
+    groupId: {
+      type: Schema.Types.ObjectId,
+      ref: "groups",
     },
 
     aboutUs: {
@@ -44,14 +49,18 @@ export default class GroupModel implements ModelI<any, any, any> {
       default: "/public/images/no-image.jpeg",
     },
 
-    interests: {
-      type: [String],
-      default: "",
-      required: [true, "are required"],
+    startTime: {
+      type: Schema.Types.Date,
+      required: [true, "is required"],
+    },
+
+    isOnline: {
+      type: Boolean,
+      required: [true, "is required"],
     },
   });
 
   model: Model<any, any> | null = isCurrentApp("messaging-app")
-    ? model<IGroup>("groups", this.schema)
+    ? model<IEvent>("events", this.schema)
     : null;
 }

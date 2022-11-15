@@ -1,11 +1,11 @@
-type Event {
+input CreateEventInput {
   groupId: ID!
   eventName: String
   aboutUs: String
   description: String
   location: String
-  startTime: Date
-
-  isOnline: String
   image: String
+
+  startTime: Date
+  isOnline: String
 }

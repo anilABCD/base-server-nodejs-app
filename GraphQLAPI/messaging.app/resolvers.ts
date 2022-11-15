@@ -10,7 +10,8 @@ import isProductionEnvironment from "../../utils/isProductionEnvironment";
 import AnyController from "../../controllers/any.controller";
 import mongoose from "mongoose";
 import { packWithObjectID } from "../../utils/all.util";
-import GroupService from "../../services/messaging.app/group.service/group.service";
+import GroupService from "../../services/messaging.app/group.services/group.service";
+import EventService from "../../services/messaging.app/event.services/event.service";
 
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -31,10 +32,12 @@ const testAnyController = new AnyController("testing-any-collection");
 
 const groupService = new GroupService();
 
+const eventService = new EventService();
+
 const resolvers = {
   Query: {
     //
-    //
+    // Sample Code
     test_messages: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
       let result = await testAnyController.service?.get();
@@ -51,10 +54,16 @@ const resolvers = {
       console.log("params", _root, args.id, context);
       return await testAnyController.service?.getById(args.id);
     }),
+    // Sample Code End
 
     groups: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
       return await groupService.get();
+    }),
+
+    events: query(async (_root: any, args: any, context: any) => {
+      // console.log("params", _root, args, context);
+      return await eventService.get();
     }),
 
     //   // ****************************************************************************
@@ -82,14 +91,21 @@ const resolvers = {
   },
 
   Mutation: {
+    // Sample Code
     sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
       return await testAnyController.service?.post({ ...args.input });
     }),
+    // Sample Code End
 
     createGroup: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
       return await groupService.post({ ...args.input });
+    }),
+
+    createEvent: createOrUpdate(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args, context);
+      return await eventService.post({ ...args.input });
     }),
   },
 };

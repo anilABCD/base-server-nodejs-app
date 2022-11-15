@@ -3,4 +3,5 @@ input CreateGroupInput {
   description: String!
   location: String!
   interests: [String!]
+  image: String
 }

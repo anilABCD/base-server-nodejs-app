@@ -1,9 +1,12 @@
 import { IBaseModel } from "../../base.mode.interface";
 
 export default interface IGroup extends IBaseModel {
-  id: String;
   groupName: String;
+  aboutUs: String;
   description: String;
+
   location: String;
+  image?: String;
+
   interests: String[];
 }

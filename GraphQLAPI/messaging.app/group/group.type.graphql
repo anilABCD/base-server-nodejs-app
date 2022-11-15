@@ -4,4 +4,5 @@ type Group {
   description: String!
   location: String!
   interests: [String!]
+  image: String
 }

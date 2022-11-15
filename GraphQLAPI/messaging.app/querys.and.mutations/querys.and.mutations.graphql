@@ -10,6 +10,7 @@ type Query {
   message(id: String): Message
   # Samples End
 
+  events: [Event]
   groups: [Group]
 }
 
@@ -19,4 +20,5 @@ type Mutation {
   # Samples End
 
   createGroup(input: CreateGroupInput): Group
+  createEvent(input: CreateEventInput): Event
 }
