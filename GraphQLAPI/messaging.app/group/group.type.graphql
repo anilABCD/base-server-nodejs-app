@@ -1,6 +1,7 @@
 type Group {
   id: ID!
   groupName: String!
+  aboutUs: String!
   description: String!
   location: String!
   interests: [String!]

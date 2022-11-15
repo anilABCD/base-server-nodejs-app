@@ -1,5 +1,6 @@
 input CreateGroupInput {
   groupName: String!
+  aboutUs: String
   description: String!
   location: String!
   interests: [String!]
