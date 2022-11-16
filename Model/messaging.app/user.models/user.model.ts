@@ -12,6 +12,8 @@ import {
 } from "../../../interfaces/messaging.app/user.interfaces/user.interface";
 import isCurrentApp from "../../../utils/isCurrentApp";
 
+////////////////// User Groups /////////////////
+
 @singleton()
 class UserCreatedGroupModel implements ModelI<any, any, any> {
   schema: Schema<any> = new mongoose.Schema({
@@ -134,4 +136,5 @@ export {
   UserJoinedGroupModel,
   UserCreatedEventModel,
   UserFavoriteEventModel,
+  UserJoinedEventModel,
 };
