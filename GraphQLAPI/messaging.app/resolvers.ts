@@ -79,15 +79,22 @@ const resolvers = {
     //   }),
     //   // ****************************************************************************
     // },
+  },
+  Group: {
+    // parent is quizeCategory ...
+    events: async (parent: any) => {
+      console.log("quizeCategory id", parent._id);
+      return await eventService.getByParent({
+        groupId: parent._id,
+      });
+    },
+  },
 
-    // QuizeCategory: {
-    //   // parent is quizeCategory ...
-    //   quizeNames: async (parent: any) => {
-    //     console.log("quizeCategory id", parent._id);
-    //     return await quizeNameController.service?.getByParent({
-    //       quizeCategoryId: parent._id,
-    //     });
-    //   },
+  Event: {
+    group: async (parent: any) => {
+      console.log("quizeCategory id", parent._id);
+      return await groupService.getById(parent.groupId);
+    },
   },
 
   Mutation: {

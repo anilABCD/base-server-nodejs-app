@@ -6,4 +6,5 @@ type Group {
   location: String!
   interests: [String!]
   image: String
+  events: [Event]
 }

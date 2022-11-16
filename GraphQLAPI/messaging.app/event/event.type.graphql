@@ -1,11 +1,12 @@
 type Event {
+  id: ID!
   groupId: ID!
   eventName: String
   aboutUs: String
   description: String
   location: String
   startTime: Date
-
+  group: Group
   isOnline: String
   image: String
 }
