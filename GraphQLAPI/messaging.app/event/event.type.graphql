@@ -1,7 +1,6 @@
 type Event {
   id: ID!
   groupId: ID!
-  userId: ID!
   eventName: String
   aboutUs: String
   description: String

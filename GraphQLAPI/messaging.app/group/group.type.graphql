@@ -1,6 +1,5 @@
 type Group {
   id: ID!
-  createdId: ID!
   groupName: String!
   aboutUs: String!
   description: String!

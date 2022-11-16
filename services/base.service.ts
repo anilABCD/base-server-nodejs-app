@@ -13,37 +13,69 @@ export default class BaseService<
     this.model = modelI?.model;
   }
 
-  post = async (data: any) => {
+  post = async (data: any, session?: any) => {
     data = data as T;
     let newObj = utils.addCreatedDate(data);
-    const resource = await this.model?.create(newObj);
+    let resource = undefined;
+    if (session) {
+      resource = await this.model?.create(newObj, {
+        session: session,
+      });
+    } else {
+      resource = await this.model?.create(newObj);
+    }
     return resource;
   };
 
-  get = async (filters = {}): Promise<T[]> => {
-    const resource = (await this.model?.find(filters)) as T[];
-    return resource;
+  get = async (filters = {}, session?: any): Promise<T[]> => {
+    if (session) {
+      const resource = (await this.model
+        ?.find(filters)
+        .session(session)) as T[];
+      return resource;
+    } else {
+      const resource = (await this.model?.find(filters)) as T[];
+      return resource;
+    }
   };
 
-  getById = async (id: string, select?: String): Promise<T> => {
-    if (select) {
+  getById = async (id: string, select?: String, session?: any): Promise<T> => {
+    if (session) {
+      if (select) {
+        return (await this.model
+          ?.findOne({
+            _id: new mongoose.Types.ObjectId(id),
+          })
+          .select(select)
+          .session(session)) as T;
+      }
+
       return (await this.model
         ?.findOne({
           _id: new mongoose.Types.ObjectId(id),
         })
-        .select(select)) as T;
-    }
+        .session(session)) as T;
+    } else {
+      if (select) {
+        return (await this.model
+          ?.findOne({
+            _id: new mongoose.Types.ObjectId(id),
+          })
+          .select(select)) as T;
+      }
 
-    return (await this.model?.findOne({
-      _id: new mongoose.Types.ObjectId(id),
-    })) as T;
+      return (await this.model?.findOne({
+        _id: new mongoose.Types.ObjectId(id),
+      })) as T;
+    }
   };
 
   update = async (
     id: string,
     data: any,
     onlyKeys?: [string],
-    removeKeys?: [string]
+    removeKeys?: [string],
+    session?: any
   ): Promise<T> => {
     data = data as T;
 
@@ -57,63 +89,132 @@ export default class BaseService<
     filteredBody = utils.removeProperty(filteredBody, ["createdDate"]);
     filteredBody = utils.addUpdateDate(filteredBody);
 
-    const resource = await this.model?.findOneAndUpdate(
-      { _id: id },
-      filteredBody,
-      {
+    let resource;
+
+    if (session) {
+      resource = await this.model
+        ?.findOneAndUpdate({ _id: id }, filteredBody, {
+          new: true,
+          runValidators: true,
+        })
+        .session(session);
+    } else {
+      resource = await this.model?.findOneAndUpdate({ _id: id }, filteredBody, {
         new: true,
         runValidators: true,
-      }
-    );
+      });
+    }
 
     return resource as T;
   };
 
-  delete = async (id: string): Promise<any> => {
-    return await this.model?.remove({ _id: new mongoose.Types.ObjectId(id) });
+  delete = async (id: string, session?: any): Promise<any> => {
+    if (session) {
+      return await this.model
+        ?.remove({ _id: new mongoose.Types.ObjectId(id) })
+        .session(session);
+    } else {
+      return await this.model?.remove({ _id: new mongoose.Types.ObjectId(id) });
+    }
   };
 
   //#region Query functions :
 
-  getByParent = async (filters: any, select?: String): Promise<T[]> => {
+  getByParent = async (
+    filters: any,
+    select?: String,
+    session?: any
+  ): Promise<T[]> => {
     console.log("parent filters", filters);
-    if (select) {
-      return (await this.model?.find(filters).select(select)) as T[];
-    }
 
-    return (await this.model?.find(filters)) as T[];
+    if (session) {
+      if (select) {
+        return (await this.model
+          ?.find(filters)
+          .select(select)
+          .session(session)) as T[];
+      }
+
+      return (await this.model?.find(filters).session(session)) as T[];
+    } else {
+      if (select) {
+        return (await this.model?.find(filters).select(select)) as T[];
+      }
+
+      return (await this.model?.find(filters)) as T[];
+    }
   };
 
-  findOne = async (filters: any, select?: String): Promise<T> => {
-    if (select) {
-      return (await this.model?.findOne(filters).select(select)) as T;
-    }
+  findOne = async (
+    filters: any,
+    select?: String,
+    session?: any
+  ): Promise<T> => {
+    if (session) {
+      if (select) {
+        return (await this.model
+          ?.findOne(filters)
+          .select(select)
+          .session(session)) as T;
+      }
 
-    return (await this.model?.findOne(filters)) as T;
+      return (await this.model?.findOne(filters).session(session)) as T;
+    } else {
+      if (select) {
+        return (await this.model?.findOne(filters).select(select)) as T;
+      }
+
+      return (await this.model?.findOne(filters)) as T;
+    }
   };
 
   //#region Docuemnt Functions: for methods and static methods ...
 
-  findOneDocument = (filters: any, select?: String) => {
-    if (select && select.trim() !== "") {
-      return this.model?.findOne(filters).select(select);
-    }
+  findOneDocument = (filters: any, select?: String, session?: any) => {
+    if (session) {
+      if (select && select.trim() !== "") {
+        return this.model?.findOne(filters).select(select).session(session);
+      }
 
-    return this.model?.findOne(filters);
+      return this.model?.findOne(filters).session(session);
+    } else {
+      if (select && select.trim() !== "") {
+        return this.model?.findOne(filters).select(select);
+      }
+
+      return this.model?.findOne(filters);
+    }
   };
 
-  getDocumentById = async (id: string, select?: String) => {
-    if (select) {
+  getDocumentById = async (id: string, select?: String, session?: any) => {
+    if (session) {
+      if (select) {
+        return await this.model
+          ?.findOne({
+            _id: new mongoose.Types.ObjectId(id),
+          })
+          .select(select)
+          .session(session);
+      }
+
       return await this.model
         ?.findOne({
           _id: new mongoose.Types.ObjectId(id),
         })
-        .select(select);
-    }
+        .session(session);
+    } else {
+      if (select) {
+        return await this.model
+          ?.findOne({
+            _id: new mongoose.Types.ObjectId(id),
+          })
+          .select(select);
+      }
 
-    return await this.model?.findOne({
-      _id: new mongoose.Types.ObjectId(id),
-    });
+      return await this.model?.findOne({
+        _id: new mongoose.Types.ObjectId(id),
+      });
+    }
   };
   //#endregion Docuemnt Functions
 

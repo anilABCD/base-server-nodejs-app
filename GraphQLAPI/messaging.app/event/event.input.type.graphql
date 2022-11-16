@@ -1,5 +1,4 @@
 input CreateEventInput {
-  id: ID!
   groupId: ID!
   eventName: String
   aboutUs: String

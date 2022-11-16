@@ -1,4 +1,4 @@
-type UserGroup {
+type UserCreatedGroup {
   userId: ID!
   groupId: ID!
 }
@@ -13,7 +13,7 @@ type UserFavoriteGroup {
   groupId: ID!
 }
 
-type UserEvent {
+type UserCreatedEvent {
   userId: ID!
   eventId: ID!
 }
