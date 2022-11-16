@@ -13,6 +13,8 @@ import { packWithObjectID } from "../../utils/all.util";
 import GroupService from "../../services/messaging.app/group.services/group.service";
 import EventService from "../../services/messaging.app/event.services/event.service";
 
+import UserDetailsService from "../../services/messaging.app/user.services/user.service";
+
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
 // exception is occured .
@@ -33,6 +35,8 @@ const testAnyController = new AnyController("testing-any-collection");
 const groupService = new GroupService();
 
 const eventService = new EventService();
+
+const userDetailsService = new UserDetailsService();
 
 const resolvers = {
   Query: {
@@ -107,7 +111,9 @@ const resolvers = {
 
     createGroup: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
-      return await groupService.post({ ...args.input });
+      // return await groupService.post({ ...args.input });
+      console.log("createGroup");
+      return await userDetailsService.createGroup({ ...args.input });
     }),
 
     createEvent: createOrUpdate(async (_root: any, args: any, context: any) => {

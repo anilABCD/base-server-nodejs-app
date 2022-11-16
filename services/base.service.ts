@@ -1,4 +1,4 @@
-import mongoose, { HydratedDocument, Model } from "mongoose";
+import mongoose, { FilterQuery, HydratedDocument, Model } from "mongoose";
 import ModelI from "../interfaces/model.interface";
 import * as utils from "../utils/all.util";
 
@@ -18,7 +18,7 @@ export default class BaseService<
     let newObj = utils.addCreatedDate(data);
     let resource = undefined;
     if (session) {
-      resource = await this.model?.create(newObj, {
+      resource = await this.model?.create([newObj], {
         session: session,
       });
     } else {
@@ -146,7 +146,7 @@ export default class BaseService<
   };
 
   findOne = async (
-    filters: any,
+    filters: FilterQuery<T>,
     select?: String,
     session?: any
   ): Promise<T> => {
