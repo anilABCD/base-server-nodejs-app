@@ -29,7 +29,7 @@ class UserCreatedGroupModel implements ModelI<any, any, any> {
   });
 
   model: Model<any, any> | null = isCurrentApp("messaging-app")
-    ? model<IUserCreatedGroup>("user-groups", this.schema)
+    ? model<IUserCreatedGroup>("user-created-groups", this.schema)
     : null;
 }
 
@@ -88,7 +88,7 @@ class UserCreatedEventModel implements ModelI<any, any, any> {
   });
 
   model: Model<any, any> | null = isCurrentApp("messaging-app")
-    ? model<IUserCreatedEvent>("user-events", this.schema)
+    ? model<IUserCreatedEvent>("user-created-events", this.schema)
     : null;
 }
 
