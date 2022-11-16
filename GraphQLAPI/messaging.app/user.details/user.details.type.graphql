@@ -1,0 +1,29 @@
+type UserGroup {
+  userId: ID!
+  groupId: ID!
+}
+
+type UserJoinedGroup {
+  userId: ID!
+  groupId: ID!
+}
+
+type UserFavoriteGroup {
+  userId: ID!
+  groupId: ID!
+}
+
+type UserEvent {
+  userId: ID!
+  eventId: ID!
+}
+
+type UserJoinedEvent {
+  userId: ID!
+  eventId: ID!
+}
+
+type UserFavoriteEvent {
+  userId: ID!
+  eventId: ID!
+}
