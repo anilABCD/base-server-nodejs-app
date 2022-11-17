@@ -27,7 +27,7 @@ export default class BaseService<
     return resource;
   };
 
-  get = async (filters = {}, session?: any): Promise<T[]> => {
+  get = async (filters: FilterQuery<T> = {}, session?: any): Promise<T[]> => {
     if (session) {
       const resource = (await this.model
         ?.find(filters)
@@ -121,7 +121,7 @@ export default class BaseService<
   //#region Query functions :
 
   getByParent = async (
-    filters: any,
+    filters: FilterQuery<T>,
     select?: String,
     session?: any
   ): Promise<T[]> => {
@@ -170,7 +170,11 @@ export default class BaseService<
 
   //#region Docuemnt Functions: for methods and static methods ...
 
-  findOneDocument = (filters: any, select?: String, session?: any) => {
+  findOneDocument = (
+    filters: FilterQuery<T>,
+    select?: String,
+    session?: any
+  ) => {
     if (session) {
       if (select && select.trim() !== "") {
         return this.model?.findOne(filters).select(select).session(session);
