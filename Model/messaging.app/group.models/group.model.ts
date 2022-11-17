@@ -51,7 +51,12 @@ export default class GroupModel implements ModelI<any, any, any> {
     },
   });
 
-  model: Model<any, any> | null = isCurrentApp("messaging-app")
-    ? model<IGroup>("groups", this.schema)
-    : null;
+  model: Model<any, any> | null = null;
+
+  constructor() {
+    this.schema.index({ groupName: 1 }, { unique: true });
+    this.model = isCurrentApp("messaging-app")
+      ? model<IGroup>("groups", this.schema)
+      : null;
+  }
 }

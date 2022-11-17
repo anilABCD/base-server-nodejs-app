@@ -19,7 +19,7 @@ class UserDetailsService {
 
     await groupService.post(groupInput, session);
 
-    console.clearAfter("HHHHHHHH");
+    // console.clearAfter("HHHHHHHH");
 
     const group = await groupService.findOne(
       { groupName: groupInput.groupName },

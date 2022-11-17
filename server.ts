@@ -73,8 +73,19 @@ if (isAllReady) {
 
     const DB = DB_URL;
 
+    const options = {
+      useNewUrlParser: true,
+
+      autoIndex: true, //this is the code I added that solved it all
+      keepAlive: true,
+
+      connectTimeoutMS: 10000,
+      socketTimeoutMS: 45000,
+      family: 4, // Use IPv4, skip trying IPv6
+    };
+
     mongoose
-      .connect(DB)
+      .connect(DB, options)
       .then((con) => {
         // console.log(con.connections);
         console.log("DB connection successfull!\n");
