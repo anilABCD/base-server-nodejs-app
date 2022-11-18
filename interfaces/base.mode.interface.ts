@@ -1,9 +1,9 @@
 export interface IBaseModel_With_Time extends IBaseModel {
-  id: any;
+  id: string | undefined;
   createdDate: Date;
   updatedDate: Date;
 }
 
 export interface IBaseModel {
-  id: any;
+  id: string | undefined;
 }

@@ -9,6 +9,4 @@ export default interface IGroup extends IBaseModel {
   image?: String;
 
   interests: String[];
-
-  save(): any;
 }

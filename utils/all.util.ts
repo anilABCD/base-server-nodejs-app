@@ -24,6 +24,16 @@ const packWithObjectID = (bodyObj: any) => {
       if (idCharsLiteralInKey.toLowerCase() === "id") {
         bodyObj[key] = new mongoose.Types.ObjectId(bodyObj[key]);
       }
+
+      let idsCharsLiteralInKey = key.substring(key.length - 3);
+      // console.log(idsCharsLiteralInKey);
+      if (idsCharsLiteralInKey.toLowerCase() === "ids") {
+        if (Array.isArray(bodyObj[key])) {
+          for (let i = 0; i < bodyObj[key].length; i++) {
+            bodyObj[key][i] = new mongoose.Types.ObjectId(bodyObj[key][i]);
+          }
+        }
+      }
     }
   });
   return bodyObj;

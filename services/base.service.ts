@@ -1,4 +1,9 @@
-import mongoose, { FilterQuery, HydratedDocument, Model } from "mongoose";
+import mongoose, {
+  FilterQuery,
+  HydratedDocument,
+  Model,
+  UpdateQuery,
+} from "mongoose";
 import ModelI from "../interfaces/model.interface";
 import * as utils from "../utils/all.util";
 
@@ -39,7 +44,15 @@ export default class BaseService<
     }
   };
 
-  getById = async (id: string, select?: String, session?: any): Promise<T> => {
+  getById = async (
+    id: string | undefined,
+    select?: String,
+    session?: any
+  ): Promise<T> => {
+    if (id === undefined) {
+      throw "id is required";
+    }
+
     if (session) {
       if (select) {
         return (await this.model
@@ -71,13 +84,17 @@ export default class BaseService<
   };
 
   update = async (
-    id: string,
-    data: any,
+    id: string | undefined,
+    data: UpdateQuery<T>,
     onlyKeys?: [string],
     removeKeys?: [string],
     session?: any
   ): Promise<T> => {
-    data = data as T;
+    // data = data as T;
+
+    if (id === undefined) {
+      throw "id is required";
+    }
 
     let filteredBody: any;
     if (onlyKeys) {

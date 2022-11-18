@@ -7,7 +7,7 @@ import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.int
 import getEnv, { EnvEnumType } from "../../../env/getEnv";
 
 @singleton()
-export default class GroupModel implements ModelI<any, any, any> {
+export default class GroupModel implements ModelI<IGroup, any, any> {
   schema: Schema<any> = new mongoose.Schema({
     // Sample
     // senderId: {
@@ -60,3 +60,10 @@ export default class GroupModel implements ModelI<any, any, any> {
       : null;
   }
 }
+
+// const claimSchema = mongoose.Schema({
+//   billed_insurances: [
+//     { type: mongoose.Schema.Types.ObjectId, ref: "Insurance" },
+//   ],
+// });
+// const Claim = mongoose.model("Claim", claimSchema);
