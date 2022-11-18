@@ -78,11 +78,16 @@ export default class AuthController extends BaseController<
   signup = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const newUser = await this.service?.post({
+        id: "",
+        photo: "",
+        createdDate: new Date(),
+        updatedDate: new Date(),
         name: req.body.name,
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
         gender: req.body.gender,
+        active: true,
       });
 
       const url = `${req.protocol}://${req.get("host")}/me`;

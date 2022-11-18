@@ -13,7 +13,7 @@ export default class BaseService<
     this.model = modelI?.model;
   }
 
-  post = async (data: any, session?: any) => {
+  post = async (data: T, session?: any) => {
     data = data as T;
     let newObj = utils.addCreatedDate(data);
     let resource = undefined;

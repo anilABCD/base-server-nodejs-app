@@ -4,6 +4,7 @@ import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.int
 import console from "../../../utils/console";
 
 import GroupService from "../group.services/group.service";
+import UserCreatedGroupService from "./user.created.group.service";
 
 @autoInjectable()
 class UserDetailsService {
@@ -24,6 +25,19 @@ class UserDetailsService {
     const group = await groupService.findOne(
       { groupName: groupInput.groupName },
       undefined,
+      session
+    );
+
+    console.log("group id", group.id);
+
+    let userCreatedGroupService = new UserCreatedGroupService();
+
+    await userCreatedGroupService.post(
+      {
+        id: "",
+        userId: "637723084b55ed318c050dda",
+        groupId: group.id,
+      },
       session
     );
 
