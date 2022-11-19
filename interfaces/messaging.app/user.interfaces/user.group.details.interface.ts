@@ -1,16 +1,12 @@
 import { IBaseModel } from "../../base.mode.interface";
 
-interface IUserDetails extends IBaseModel {
+interface IUserGroupDetails extends IBaseModel {
   userId: string | undefined;
-
-  createdGroupIds?: String[];
-  createdEventIds?: String[];
-
-  favoriteGroupIds?: String[];
-  favoriteEventIds?: String[];
-
-  joinedGroupIds?: String[];
-  joinedEventIds?: String[];
+  groupId: string | undefined;
+  role: string;
+  isJoined?: boolean;
+  isOwner?: boolean;
+  isFavorite?: boolean;
 }
 
 // interface IUserJoinedGroup extends IBaseModel {
@@ -39,7 +35,7 @@ interface IUserDetails extends IBaseModel {
 // }
 
 export {
-  IUserDetails,
+  IUserGroupDetails,
   // IUserJoinedGroup,
   // IUserFavoriteGroup,
   // IUserCreatedEvent,

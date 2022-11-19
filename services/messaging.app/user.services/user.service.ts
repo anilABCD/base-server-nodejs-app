@@ -1,11 +1,12 @@
 import mongoose, { Schema } from "mongoose";
 import { autoInjectable, injectable } from "tsyringe";
 import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.interface";
+import { GroupRoles } from "../../../model.types/messaging.app/role.group";
 import console from "../../../utils/console";
 import AuthService from "../../user.services/auth.service";
 
 import GroupService from "../group.services/group.service";
-import UserDetailsService from "./user.details.service";
+import UserGroupDetailsService from "./user.details.service";
 // import UserCreatedGroupService from "./user.created.group.service";
 
 @autoInjectable()
@@ -38,44 +39,18 @@ class UserService {
 
       console.log("group id", group.id);
 
-      let userDetailsService = new UserDetailsService();
+      let userGroupDetailsService = new UserGroupDetailsService();
 
-      let userDetail = (
-        await userDetailsService.getByParent({
-          userId: userId,
-        })
-      )[0];
-
-      console.log(userDetail);
-      let userdetailsId;
-      if (userDetail === undefined) {
-        await userDetailsService.post({ userId: userId, id: "" });
-
-        userDetail = (
-          await userDetailsService.getByParent(
-            { userId: userId },
-            undefined,
-            session
-          )
-        )[0];
-      }
-
-      userdetailsId = userDetail.id;
-
-      console.log(userDetail);
-
-      let createdGroupDetails = await userDetailsService.update(
-        userdetailsId,
+      userGroupDetailsService.post(
         {
-          $push: { createdGroupIds: group.id },
+          userId: userId,
+          groupId: group.id,
+          isOwner: true,
+          role: GroupRoles[GroupRoles.admin],
+          id: "",
         },
-        undefined,
-        undefined,
         session
       );
-
-      //@ts-ignore NOTE:SAVE
-      await createdGroupDetails.save();
 
       // Getter/setter for the session associated with this document.
       // assert.ok(user.$session());

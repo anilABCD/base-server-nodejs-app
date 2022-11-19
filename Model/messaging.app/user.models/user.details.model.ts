@@ -1,32 +1,39 @@
 import { singleton } from "tsyringe";
 import mongoose, { model, Model, Schema } from "mongoose";
 import ModelI from "../../../interfaces/model.interface";
-
-import { IUserDetails } from "../../../interfaces/messaging.app/user.interfaces/user.interface";
+import { GroupRoles } from "../../../model.types/messaging.app/role.group";
+import { IUserGroupDetails } from "../../../interfaces/messaging.app/user.interfaces/user.group.details.interface";
 import isCurrentApp from "../../../utils/isCurrentApp";
 
 ////////////////// User Groups /////////////////
 
 @singleton()
-class UserDetailsModel implements ModelI<any, any, any> {
+class UserGroupDetailsModel implements ModelI<any, any, any> {
   schema: Schema<any> = new mongoose.Schema({
     userId: {
       type: Schema.Types.ObjectId,
       ref: "users",
     },
 
-    createdGroupIds: [{ type: Schema.Types.ObjectId, ref: "groups" }],
-    createdEventIds: [{ type: Schema.Types.ObjectId, ref: "events" }],
+    role: {
+      type: String,
+      enum: {
+        values: Object.values(GroupRoles),
+        message: "{VALUE} is not supported",
+      },
+      default: GroupRoles[GroupRoles.user],
+      required: [true, "role is required"],
+    },
 
-    favoriteGroupIds: [{ type: Schema.Types.ObjectId, ref: "groups" }],
-    favoriteEventIds: [{ type: Schema.Types.ObjectId, ref: "events" }],
+    groupId: { type: Schema.Types.ObjectId, ref: "groups" },
 
-    joinedGroupIds: [{ type: Schema.Types.ObjectId, ref: "groups" }],
-    joinedEventIds: [{ type: Schema.Types.ObjectId, ref: "events" }],
+    isJoined: { type: Schema.Types.Boolean },
+    isOwner: { type: Schema.Types.Boolean },
+    isFavorite: { type: Schema.Types.Boolean },
   });
 
   model: Model<any, any> | null = isCurrentApp("messaging-app")
-    ? model<IUserDetails>("user-details", this.schema)
+    ? model<IUserGroupDetails>("user-group-details", this.schema)
     : null;
 }
 
@@ -127,4 +134,4 @@ class UserDetailsModel implements ModelI<any, any, any> {
 //     : null;
 // }
 
-export { UserDetailsModel };
+export { UserGroupDetailsModel };
