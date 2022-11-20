@@ -12,6 +12,7 @@ type Query {
 
   events: [Event]
   groups: [Group]
+  group(id: String): Group
 }
 
 type Mutation {
