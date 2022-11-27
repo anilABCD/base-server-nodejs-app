@@ -145,7 +145,7 @@ const resolvers = {
 
       let obj = await fieldController.service?.get({
         typeName: args.input.typeName,
-        propertyTypeName: args.input.propertyTypeName,
+        propertyName: args.input.propertyName,
       });
 
       if (obj && obj?.length == 1) {
