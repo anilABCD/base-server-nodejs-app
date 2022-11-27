@@ -1,0 +1,6 @@
+type Index {
+  id: ID!
+  typeName: String!
+  index: String!
+  isUnique: Boolean!
+}

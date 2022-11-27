@@ -33,6 +33,8 @@ const testAnyController = new AnyController("testing-any-collection");
 // const groupController = new AnyController("group");
 const fieldController = new AnyController("all-fields");
 
+const indexController = new AnyController("all-indexes");
+
 const groupService = new GroupService();
 
 const eventService = new EventService();
@@ -80,13 +82,26 @@ const resolvers = {
       return await fieldController.service?.get();
     }),
 
+    indexes: query(async (_root: any, args: any, context: any) => {
+      // console.log("params", _root, args, context);
+      return await indexController.service?.get();
+    }),
+
     type: query(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args.typeName, context);
-      const response = await fieldController.service?.get({
+      const fields = await fieldController.service?.get({
         typeName: args.typeName,
       });
-      console.log(response);
-      return response;
+
+      const indexes = await indexController.service?.get({
+        typeName: args.typeName,
+      });
+      const result = {
+        fields: fields,
+        indexes: indexes,
+      };
+      // console.log(result);
+      return result;
     }),
 
     //   // ****************************************************************************
@@ -161,6 +176,19 @@ const resolvers = {
       console.log("params", _root, args, context);
 
       await fieldController.service?.delete(args.id);
+
+      return { deleted: true };
+    }),
+
+    createIndex: createOrUpdate(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args, context);
+      return await indexController.service?.post({ ...args.input });
+    }),
+
+    deleteIndex: createOrUpdate(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args, context);
+
+      await indexController.service?.delete(args.id);
 
       return { deleted: true };
     }),

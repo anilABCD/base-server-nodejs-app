@@ -1,0 +1,5 @@
+input IndexInput {
+  typeName: String!
+  index: String!
+  isUnique: Boolean!
+}

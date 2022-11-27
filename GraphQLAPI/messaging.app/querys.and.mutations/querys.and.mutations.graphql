@@ -14,8 +14,11 @@ type Query {
   groups: [Group]
   group(id: String): Group
 
+  # Fields Schema Generating APP .
   fields: [Field]
-  type(typeName: String): [Field]
+  indexes: [Index]
+  type(typeName: String): TypeDetails
+  # Fileds Schema Generating App END .
 }
 
 type Mutation {
@@ -26,6 +29,11 @@ type Mutation {
   createGroup(input: CreateGroupInput): Group
   createEvent(input: CreateEventInput): Event
 
+  # Fields Schema Generating APP .
   createField(input: FieldInput): Field
+  createIndex(input: IndexInput): Index
+
   deleteField(id: String): Result
+  deleteIndex(id: String): Result
+  # Fileds Schema Generating App END .
 }
