@@ -142,6 +142,18 @@ const resolvers = {
 
     createField: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
+
+      let obj = await fieldController.service?.get({
+        typeName: args.input.typeName,
+        propertyTypeName: args.input.propertyTypeName,
+      });
+
+      if (obj && obj?.length == 1) {
+        return await fieldController.service?.update(obj[0].id, {
+          ...args.input,
+        });
+      }
+
       return await fieldController.service?.post({ ...args.input });
     }),
   },
