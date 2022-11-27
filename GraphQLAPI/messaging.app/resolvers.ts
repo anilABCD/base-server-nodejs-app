@@ -31,6 +31,7 @@ const messagingController = new MessagingController();
 const testAnyController = new AnyController("testing-any-collection");
 
 // const groupController = new AnyController("group");
+const fieldController = new AnyController("all-fields");
 
 const groupService = new GroupService();
 
@@ -72,6 +73,20 @@ const resolvers = {
     events: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
       return await eventService.get();
+    }),
+
+    fields: query(async (_root: any, args: any, context: any) => {
+      // console.log("params", _root, args, context);
+      return await fieldController.service?.get();
+    }),
+
+    type: query(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args.typeName, context);
+      const response = await fieldController.service?.get({
+        typeName: args.typeName,
+      });
+      console.log(response);
+      return response;
     }),
 
     //   // ****************************************************************************
@@ -123,6 +138,11 @@ const resolvers = {
     createEvent: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
       return await eventService.post({ ...args.input });
+    }),
+
+    createField: createOrUpdate(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args, context);
+      return await fieldController.service?.post({ ...args.input });
     }),
   },
 };

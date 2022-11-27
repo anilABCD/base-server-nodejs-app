@@ -1,0 +1,9 @@
+input FieldInput {
+  propertyName: String!
+  isUnique: Boolean!
+  isRequired: Boolean!
+  isArray: Boolean!
+  propertyTypeName: String!
+  typeName: String!
+  order: Int!
+}
