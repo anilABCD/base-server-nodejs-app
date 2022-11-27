@@ -27,4 +27,5 @@ type Mutation {
   createEvent(input: CreateEventInput): Event
 
   createField(input: FieldInput): Field
+  deleteField(id: String): Result
 }

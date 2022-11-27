@@ -17,6 +17,17 @@ const filterObject = (bodyObj: any, propertyKeysToUpdate: [string]) => {
 };
 
 const packWithObjectID = (bodyObj: any) => {
+  if (!bodyObj) {
+    console.log("args.input is empty");
+  }
+
+  try {
+    Object.keys(bodyObj);
+  } catch {
+    console.log("args.input has no keys");
+    return;
+  }
+
   Object.keys(bodyObj).forEach((key) => {
     if (key.length >= 2) {
       let idCharsLiteralInKey = key.substring(key.length - 2);

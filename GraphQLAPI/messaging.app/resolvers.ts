@@ -156,6 +156,14 @@ const resolvers = {
 
       return await fieldController.service?.post({ ...args.input });
     }),
+
+    deleteField: createOrUpdate(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args, context);
+
+      await fieldController.service?.delete(args.id);
+
+      return { deleted: true };
+    }),
   },
 };
 
