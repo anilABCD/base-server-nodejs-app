@@ -3,6 +3,7 @@ import mongoose, {
   HydratedDocument,
   Model,
   UpdateQuery,
+  PopulateOptions,
 } from "mongoose";
 import ModelI from "../interfaces/model.interface";
 import * as utils from "../utils/all.util";
@@ -132,6 +133,22 @@ export default class BaseService<
         .session(session);
     } else {
       return await this.model?.remove({ _id: new mongoose.Types.ObjectId(id) });
+    }
+  };
+
+  populateByFilter = async (
+    filters: FilterQuery<T>,
+    docs: string,
+    options: string | PopulateOptions | PopulateOptions[],
+    select?: String
+  ): Promise<any> => {
+    if (select) {
+      return await this.model
+        ?.find(filters)
+        .populate(docs, options)
+        .select(select);
+    } else {
+      return await this.model?.find(filters).populate(docs, options);
     }
   };
 

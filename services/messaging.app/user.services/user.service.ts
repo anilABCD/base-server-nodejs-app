@@ -3,16 +3,47 @@ import { autoInjectable, injectable } from "tsyringe";
 import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.interface";
 import { GroupRoles } from "../../../model.types/messaging.app/role.group";
 import console from "../../../utils/console";
+import AnyService from "../../any.service";
 import AuthService from "../../user.services/auth.service";
+
+import { Types } from "mongoose";
 
 import GroupService from "../group.services/group.service";
 import UserGroupDetailsService from "./user.details.service";
 // import UserCreatedGroupService from "./user.created.group.service";
 
+// let userServiceAny = new AnyService("users");
+
 @autoInjectable()
 class UserService {
   constructor() {
     console.log("user service model");
+  }
+
+  async getUserGroupDetails() {
+    // userServiceAny.model.db.getCollection("user-group-details").aggregate([
+    //   { $match: { userId: new Types.ObjectId("637753258b7231ad519c961f") } },
+    //   {
+    //     $lookup: {
+    //       from: "groups",
+    //       localField: "groupId",
+    //       foreignField: "_id",
+    //       as: "group",
+    //     },
+    //   },
+    //   //          {   $unwind:"$userGroupDetails" },
+    //   //
+    //   //           {
+    //   //          $lookup: {
+    //   //            from: "groups",
+    //   //            localField: "userGroupDetails.groupId",
+    //   //            foreignField: "_id",
+    //   //            as: "group"
+    //   //          }
+    //   //         } ,
+    //   //           {   $unwind:"$group" },
+    //   //        {$wind :"$group}
+    // ]);
   }
 
   async createGroup(groupInput: IGroup) {
@@ -51,6 +82,12 @@ class UserService {
         },
         session
       );
+
+      //  let userGroup = await userGroupDetailsService.findOne(
+      //     {  groupName: groupInput.groupName },
+      //     undefined,
+      //     session
+      //   );
 
       // Getter/setter for the session associated with this document.
       // assert.ok(user.$session());

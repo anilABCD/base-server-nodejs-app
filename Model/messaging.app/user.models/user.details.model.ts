@@ -25,7 +25,7 @@ class UserGroupDetailsModel implements ModelI<any, any, any> {
       required: [true, "role is required"],
     },
 
-    groupId: { type: Schema.Types.ObjectId, ref: "groups" },
+    groupId: { type: Schema.Types.ObjectId, ref: "groups", alias: "group" },
 
     isJoined: { type: Schema.Types.Boolean },
     isOwner: { type: Schema.Types.Boolean },

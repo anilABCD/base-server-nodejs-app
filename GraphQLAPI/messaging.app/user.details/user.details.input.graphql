@@ -1,0 +1,8 @@
+input UserDetailsInput {
+  userId: ID!
+  role: String!
+  groupId: String!
+  isJoined: Boolean!
+  isOwner: Boolean!
+  isFavorite: Boolean!
+}

@@ -14,6 +14,7 @@ import GroupService from "../../services/messaging.app/group.services/group.serv
 import EventService from "../../services/messaging.app/event.services/event.service";
 
 import UserService from "../../services/messaging.app/user.services/user.service";
+import UserGroupDetailsService from "../../services/messaging.app/user.services/user.details.service";
 
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -27,6 +28,8 @@ import UserService from "../../services/messaging.app/user.services/user.service
 //#region Query Resolvers .
 
 const messagingController = new MessagingController();
+
+const userGroupDetails = new UserGroupDetailsService();
 
 const testAnyController = new AnyController("testing-any-collection");
 
@@ -63,10 +66,85 @@ const resolvers = {
     }),
     // Sample Code End
 
+    userGroupsDetails: query(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args.id, context);
+
+      let response = await userGroupDetails.model
+        .find({
+          userId: "637753258b7231ad519c961f",
+        })
+        .populate("groupId");
+
+      console.log(response);
+
+      return response;
+    }),
+
     groups: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
       return await groupService.get();
+
+      // Samples for example :
+      // let response = await groupService.model.aggregate([
+      //   // {
+      //   //   $group: {
+      //   //     _id: {
+      //   //       id: "$_id",
+      //   //       groupName: "$groupName",
+      //   //       aboutUs: "$aboutUs",
+      //   //       description: "$description",
+      //   //       location: "$location",
+      //   //     },
+      //   //   },
+      //   // },
+
+      //   // {
+      //   //   $project: {
+      //   //     _id: 0,
+      //   //     id: "$_id.id",
+      //   //     groupName: "$_id.groupName",
+      //   //     aboutUs: "$_id.aboutUs",
+      //   //     description: "$_id.description",
+      //   //     location: "$_id.location",
+      //   //   },
+      //   // },
+      //   // { $sort: { groupName: 1 } },
+      //   // { $limit: req.query.limit | limit }
+      //   // {
+      //   //   $project: {
+      //   //     id: 1,
+      //   //     grouName: 1,
+      //   //   },
+      //   // },
+
+      //   {
+      //     $project: {
+      //       _id: 0,
+      //       id: "$_id",
+      //       groupName: 1,
+      //       aboutUs: 1,
+      //       description: 1,
+      //       location: 1,
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "user-group-details",
+      //       localField: "_id",
+      //       foreignField: "_id",
+      //       as: "joinedGroups",
+      //     },
+      //   },
+
+      //   // { $limit: 5 },
+      // ]);
     }),
+
+    // userDetails : query(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args.id, context);
+    //   return await userService.
+    // }),
+
     group: query(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args.id, context);
       return await groupService.getById(args.id);
@@ -76,6 +154,8 @@ const resolvers = {
       // console.log("params", _root, args, context);
       return await eventService.get();
     }),
+
+    ////////////////////////////////// fields project.
 
     fields: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
@@ -121,7 +201,7 @@ const resolvers = {
   Group: {
     // parent is quizeCategory ...
     events: async (parent: any) => {
-      console.log("quizeCategory id", parent._id);
+      console.log("group id", parent._id);
       return await eventService.getByParent({
         groupId: parent._id,
       });
@@ -143,6 +223,15 @@ const resolvers = {
     }),
     // Sample Code End
 
+    // Owner group is not saved here .
+    // Only favorite and unfavorite and joined and unjoined
+    saveUserGroupDetails: createOrUpdate(
+      async (_root: any, args: any, context: any) => {
+        console.log("params", _root, args, context);
+        return await userGroupDetails.post({ ...args.input });
+      }
+    ),
+
     createGroup: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
       // return await groupService.post({ ...args.input });
@@ -154,6 +243,8 @@ const resolvers = {
       console.log("params", _root, args, context);
       return await eventService.post({ ...args.input });
     }),
+
+    ////////////////////////////////////// Filed realated othe project ////////////
 
     createField: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);

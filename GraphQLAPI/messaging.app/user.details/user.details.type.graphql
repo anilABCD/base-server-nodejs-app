@@ -1,29 +1,19 @@
-type UserCreatedGroup {
+type UserDetails {
+  id: ID!
   userId: ID!
-  groupId: ID!
+  role: String!
+  groupId: String!
+  isJoined: Boolean
+  isOwner: Boolean!
+  isFavorite: Boolean
 }
 
-type UserJoinedGroup {
+type UserDetailsResult {
+  id: ID!
   userId: ID!
-  groupId: ID!
-}
-
-type UserFavoriteGroup {
-  userId: ID!
-  groupId: ID!
-}
-
-type UserCreatedEvent {
-  userId: ID!
-  eventId: ID!
-}
-
-type UserJoinedEvent {
-  userId: ID!
-  eventId: ID!
-}
-
-type UserFavoriteEvent {
-  userId: ID!
-  eventId: ID!
+  role: String!
+  group: Group
+  isJoined: Boolean
+  isOwner: Boolean!
+  isFavorite: Boolean
 }
