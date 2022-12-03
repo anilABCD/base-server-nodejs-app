@@ -13,7 +13,7 @@ type Query {
   events: [Event]
   groups: [Group]
   group(id: String): Group
-  userGroupsDetails: [UserDetailsResult]
+  userGroupsDetails: [UserGroupDetailsResult]
   # userDetails: UserDetails
 
   # Fields Schema Generating APP .

@@ -1,4 +1,4 @@
-type UserDetails {
+type UserGroupDetails {
   id: ID!
   userId: ID!
   role: String!
@@ -8,7 +8,7 @@ type UserDetails {
   isFavorite: Boolean
 }
 
-type UserDetailsResult {
+type UserGroupDetailsResult {
   id: ID!
   userId: ID!
   role: String!
