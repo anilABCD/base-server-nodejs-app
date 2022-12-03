@@ -66,8 +66,18 @@ export default class EventModel implements ModelI<any, any, any> {
       default: "/public/images/no-image.jpeg",
     },
 
-    startTime: {
+    startDate: {
       type: Schema.Types.Date,
+      required: [true, "is required"],
+    },
+
+    startTime: {
+      type: Number,
+      required: [true, "is required"],
+    },
+
+    timeZoneOffset: {
+      type: Number,
       required: [true, "is required"],
     },
 

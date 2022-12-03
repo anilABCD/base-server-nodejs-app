@@ -12,7 +12,7 @@ import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import startApolloSevrver from "./GraphQLAPI/apollo.server";
-
+import { graphqlUploadExpress } from "graphql-upload";
 import { FileParams } from "./utils/File";
 
 import File from "./utils/File";
@@ -167,6 +167,7 @@ startApolloSevrver().then((apolloServer) => {
   //#region Apollo GraphQL
 
   app.post("/graphql", authController.protectGrqphQL);
+  app.use(graphqlUploadExpress());
   apolloServer.applyMiddleware({ app, path: "/graphql" });
 
   //#endregion End Apollo GraphQL

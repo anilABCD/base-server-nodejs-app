@@ -1,11 +1,12 @@
 input CreateEventInput {
   groupId: ID!
-  eventName: String
-  aboutUs: String
-  description: String
-  location: String
-  image: String
-
-  startTime: Date
-  isOnline: String
+  eventName: String!
+  aboutUs: String!
+  description: String!
+  location: String!
+  image: String!
+  startDate: Date!
+  startTime: Int!
+  timeZoneOffset: Int!
+  isOnline: String!
 }

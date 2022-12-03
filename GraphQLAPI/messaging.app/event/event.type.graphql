@@ -2,11 +2,14 @@ type Event {
   id: ID!
   groupId: ID!
   eventName: String!
-  aboutUs: String
-  description: String
-  location: String
-  startTime: Date
+  aboutUs: String!
+  description: String!
+  location: String!
+  startDate: Date!
+  startTime: Int!
+  timeZoneOffset: Int!
+  isOnline: String!
+  image: String!
+
   group: Group
-  isOnline: String
-  image: String
 }

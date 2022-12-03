@@ -15,7 +15,7 @@ import EventService from "../../services/messaging.app/event.services/event.serv
 
 import UserService from "../../services/messaging.app/user.services/user.service";
 import UserGroupDetailsService from "../../services/messaging.app/user.services/user.details.service";
-
+// import { GraphQLUpload } from "graphql-upload";
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
 // exception is occured .
@@ -243,6 +243,12 @@ const resolvers = {
       console.log("params", _root, args, context);
       return await eventService.post({ ...args.input });
     }),
+
+    singleUpload: createOrUpdate(
+      async (_root: any, args: any, context: any) => {
+        console.log(args);
+      }
+    ),
 
     ////////////////////////////////////// Filed realated othe project ////////////
 
