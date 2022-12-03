@@ -4,9 +4,9 @@ input CreateEventInput {
   aboutUs: String!
   description: String!
   location: String!
-  image: String!
   startDate: Date!
   startTime: Int!
   timeZoneOffset: Int!
-  isOnline: String!
+  isOnline: Boolean!
+  image: String
 }

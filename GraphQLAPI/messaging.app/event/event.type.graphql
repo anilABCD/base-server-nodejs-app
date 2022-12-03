@@ -8,8 +8,8 @@ type Event {
   startDate: Date!
   startTime: Int!
   timeZoneOffset: Int!
-  isOnline: String!
-  image: String!
+  isOnline: Boolean!
+  image: Upload
 
   group: Group
 }
