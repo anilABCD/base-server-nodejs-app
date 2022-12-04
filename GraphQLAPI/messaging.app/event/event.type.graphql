@@ -9,7 +9,7 @@ type Event {
   startTime: Int!
   timeZoneOffset: Int!
   isOnline: Boolean!
-  image: Upload
+  image: String
 
   group: Group
 }

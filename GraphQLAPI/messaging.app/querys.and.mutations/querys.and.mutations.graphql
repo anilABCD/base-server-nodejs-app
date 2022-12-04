@@ -33,7 +33,7 @@ type Mutation {
   createGroup(input: CreateGroupInput): Group
   createEvent(input: CreateEventInput): Event
 
-  singleUpload(file: Upload!): UploadedFileResponse!
+  singleUpload(file: Upload): UploadedFileResponse
 
   # Fields Schema Generating APP .
   createField(input: FieldInput): Field

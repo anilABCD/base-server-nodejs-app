@@ -62,6 +62,8 @@ async function startApolloServer() {
   const apolloServer = new ApolloServer({
     typeDefs,
     resolvers,
+    csrfPrevention: true,
+
     context,
     formatError: (err) => {
       if (isProductionEnvironment()) {
@@ -70,6 +72,7 @@ async function startApolloServer() {
 
       return err;
     },
+    
   });
 
   await apolloServer.start();

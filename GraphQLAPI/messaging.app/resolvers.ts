@@ -1,6 +1,8 @@
 import AppError from "../../ErrorHandling/AppError";
 import console from "../../utils/console";
 
+import fs from "fs";
+
 import IUser from "../../interfaces/user.interfaces/user.interface";
 import { Roles } from "../../model.types/user.types/user.model.types";
 import errorController from "../../ErrorHandling/error.controller";
@@ -12,9 +14,10 @@ import mongoose from "mongoose";
 import { packWithObjectID } from "../../utils/all.util";
 import GroupService from "../../services/messaging.app/group.services/group.service";
 import EventService from "../../services/messaging.app/event.services/event.service";
-
+import { GraphQLUpload } from "graphql-upload";
 import UserService from "../../services/messaging.app/user.services/user.service";
 import UserGroupDetailsService from "../../services/messaging.app/user.services/user.details.service";
+import path from "path";
 // import { GraphQLUpload } from "graphql-upload";
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -214,7 +217,7 @@ const resolvers = {
       return await groupService.getById(parent.groupId);
     },
   },
-
+  Upload: GraphQLUpload,
   Mutation: {
     // Sample Code
     sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
@@ -247,6 +250,7 @@ const resolvers = {
     singleUpload: createOrUpdate(
       async (_root: any, args: any, context: any) => {
         console.log(args);
+        return uploadFileOrImage(args.file);
       }
     ),
 
@@ -359,7 +363,11 @@ function createOrUpdate(
       restrictTo(userRole, ...roles);
     }
     try {
-      args.input = packWithObjectID(args.input);
+      console.log("args", args);
+      if (!args.file) {
+        args.input = packWithObjectID(args.input);
+      }
+
       return await fn(_root, args, context);
     } catch (err: any) {
       err.statusCode = 400;
@@ -367,5 +375,28 @@ function createOrUpdate(
     }
   };
 }
+
+const uploadFileOrImage = async (
+  file: any,
+  isImage: boolean = true,
+  publicFolderName: string = ""
+) => {
+  const { createReadStream, filename, mimetype, encoding } = await file;
+
+  let publicFolder = publicFolderName;
+  if (isImage === true) {
+    publicFolder = "images";
+  }
+
+  const stream = createReadStream();
+  const pathName = `/public/${publicFolder}/${filename}`;
+  await stream.pipe(fs.createWriteStream(pathName));
+  return {
+    filename,
+    mimetype,
+    url: `http://localhost:5000/images/${filename}`,
+    encoding,
+  };
+};
 
 export default resolvers;

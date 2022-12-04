@@ -167,7 +167,11 @@ startApolloSevrver().then((apolloServer) => {
   //#region Apollo GraphQL
 
   app.post("/graphql", authController.protectGrqphQL);
-  app.use(graphqlUploadExpress());
+  app.use(
+    // "/graphql",
+    // graphqlUploadExpress({ maxFileSize: 30000, maxFiles: 2 })
+    graphqlUploadExpress()
+  );
   apolloServer.applyMiddleware({ app, path: "/graphql" });
 
   //#endregion End Apollo GraphQL
