@@ -250,7 +250,7 @@ const resolvers = {
     singleUpload: createOrUpdate(
       async (_root: any, args: any, context: any) => {
         console.log(args);
-        return uploadFileOrImage(args.file);
+        return await uploadFileOrImage(args.file);
       }
     ),
 
@@ -368,7 +368,8 @@ function createOrUpdate(
         args.input = packWithObjectID(args.input);
       }
 
-      return await fn(_root, args, context);
+      const response = await fn(_root, args, context);
+      return response;
     } catch (err: any) {
       err.statusCode = 400;
       return errorController(err);
@@ -387,11 +388,29 @@ const uploadFileOrImage = async (
   if (isImage === true) {
     publicFolder = "images";
   }
-
+  debugger;
   const stream = createReadStream();
   console.log("directory name", __dirname);
-  const pathName = `${__dirname}/../../../public/${publicFolder}/${filename}`;
-  await stream.pipe(fs.createWriteStream(pathName));
+
+  let dotdotPath = "/../../..";
+  if (isProductionEnvironment()) {
+    dotdotPath = "/../..";
+  }
+
+  const pathName = `${__dirname}${dotdotPath}/public/${publicFolder}/${filename}`;
+
+  await stream
+    .pipe(
+      fs.createWriteStream(pathName).on("error", function (err: any) {
+        console.log("stream.createWriteStream error", err);
+        errorController(err);
+      })
+    )
+    .on("error", function (err: any) {
+      console.log("stream.pipe error", err);
+      errorController(err);
+    });
+
   return {
     filename,
     mimetype,

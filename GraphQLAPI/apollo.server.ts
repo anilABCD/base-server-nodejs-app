@@ -66,13 +66,13 @@ async function startApolloServer() {
 
     context,
     formatError: (err) => {
+      console.log("formatError apollo server ", err);
       if (isProductionEnvironment()) {
         delete err.extensions["exception"].stacktrace;
       }
 
       return err;
     },
-    
   });
 
   await apolloServer.start();
