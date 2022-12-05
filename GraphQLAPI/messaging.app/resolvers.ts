@@ -389,7 +389,8 @@ const uploadFileOrImage = async (
   }
 
   const stream = createReadStream();
-  const pathName = `/public/${publicFolder}/${filename}`;
+  console.log("directory name", __dirname);
+  const pathName = `${__dirname}/../../../public/${publicFolder}/${filename}`;
   await stream.pipe(fs.createWriteStream(pathName));
   return {
     filename,
