@@ -5,7 +5,7 @@ input CreateEventInput {
   description: String!
   location: String!
   startDate: Date!
-  startTime: Int!
+  startTime: Date!
   timeZoneOffset: Int!
   isOnline: Boolean!
   image: String

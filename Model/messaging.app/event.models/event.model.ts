@@ -72,7 +72,7 @@ export default class EventModel implements ModelI<any, any, any> {
     },
 
     startTime: {
-      type: Number,
+      type: Schema.Types.Date,
       required: [true, "is required"],
     },
 
