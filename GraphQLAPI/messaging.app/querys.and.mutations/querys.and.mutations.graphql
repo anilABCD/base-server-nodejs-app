@@ -32,6 +32,7 @@ type Mutation {
 
   createGroup(input: CreateGroupInput): Group
   createEvent(input: CreateEventInput): Event
+  updateEvent(file: Upload): Event
 
   singleUpload(file: Upload): UploadedFileResponse
 

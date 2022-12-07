@@ -57,6 +57,7 @@ async function startApolloServer() {
   //@ts-ignore
   const context = ({ req }) => ({
     user: req.user,
+    headers: req.headers,
   });
 
   const apolloServer = new ApolloServer({

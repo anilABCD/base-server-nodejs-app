@@ -247,6 +247,17 @@ const resolvers = {
       return await eventService.post({ ...args.input });
     }),
 
+    updateEvent: createOrUpdate(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, JSON.stringify(args), context);
+
+      const eventId = context.headers["id-"];
+      const result = await uploadFileOrImage(args.file);
+
+      let imageUrl = result.url;
+
+      return await eventService.update(eventId, { image: imageUrl }, ["image"]);
+    }),
+
     singleUpload: createOrUpdate(
       async (_root: any, args: any, context: any) => {
         console.log(args);
