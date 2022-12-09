@@ -13,6 +13,8 @@ import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import startApolloSevrver from "./GraphQLAPI/apollo.server";
 import { graphqlUploadExpress } from "graphql-upload";
+
+import cors from "cors";
 import { FileParams } from "./utils/File";
 
 import File from "./utils/File";
@@ -115,6 +117,17 @@ startApolloSevrver().then((apolloServer) => {
   app.use(express.static("public"));
 
   //#endregion End Static Files
+
+  // cors
+
+  var corsOptions = {
+    origin: "http://localhost:19006",
+    optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
+  };
+
+  app.use("*", cors(corsOptions));
+
+  ///////
 
   //#region  Graph QL
 
