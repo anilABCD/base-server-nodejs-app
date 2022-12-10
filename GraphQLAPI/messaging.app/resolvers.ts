@@ -69,19 +69,21 @@ const resolvers = {
     }),
     // Sample Code End
 
-    userGroupsDetails: query(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args.id, context);
+    userGroupsDetails: protectedQuery(
+      async (_root: any, args: any, context: any) => {
+        console.log("params", _root, args.id, context);
 
-      let response = await userGroupDetails.model
-        .find({
-          userId: "637753258b7231ad519c961f",
-        })
-        .populate("groupId");
+        let response = await userGroupDetails.model
+          .find({
+            userId: context.user.id,
+          })
+          .populate("groupId");
 
-      console.log(response);
+        console.log(response);
 
-      return response;
-    }),
+        return response;
+      }
+    ),
 
     groups: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);

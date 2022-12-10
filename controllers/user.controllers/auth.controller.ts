@@ -202,9 +202,9 @@ export default class AuthController extends BaseController<
 
       // console.log("is Auth Required ", isAuthRequired);
 
-      if (!isAuthRequired) {
-        return next();
-      }
+      // if (!isAuthRequired) {
+      //   return next();
+      // }
 
       // IMPORTANT: 891218775666826437ec6c0ac
       // if this string is equal : then authentication is not required for
@@ -220,6 +220,7 @@ export default class AuthController extends BaseController<
       // 1) Getting token and check of it's there
       let token;
       // console.log("Protected Route");
+      console.log(req.headers);
       if (
         req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")
