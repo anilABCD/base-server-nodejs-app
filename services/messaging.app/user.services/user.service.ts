@@ -46,15 +46,12 @@ class UserService {
     // ]);
   }
 
-  async createGroup(groupInput: IGroup) {
+  async createGroup(groupInput: IGroup, userId: string) {
     const session = await mongoose.startSession();
 
     session.startTransaction();
 
     let group: any;
-
-    let userId = "637753258b7231ad519c961f";
-
     try {
       let groupService = new GroupService();
 

@@ -3,6 +3,7 @@ import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import { IBaseModel_With_Time } from "../base.mode.interface";
 
 export default interface IUser extends IBaseModel_With_Time {
+  _id?: string;
   name: String;
   email: String;
   photo: String;

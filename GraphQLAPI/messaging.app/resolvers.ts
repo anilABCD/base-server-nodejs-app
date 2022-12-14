@@ -50,24 +50,24 @@ const userService = new UserService();
 const resolvers = {
   Query: {
     //
-    // Sample Code
-    test_messages: query(async (_root: any, args: any, context: any) => {
-      // console.log("params", _root, args, context);
-      let result = await testAnyController.service?.get();
+    // // Sample Code
+    // test_messages: query(async (_root: any, args: any, context: any) => {
+    //   // console.log("params", _root, args, context);
+    //   let result = await testAnyController.service?.get();
 
-      return result;
-    }),
+    //   return result;
+    // }),
 
-    messages: protectedQuery(async (_root: any, args: any, context: any) => {
-      // console.log("params", _root, args, context);
-      return await testAnyController.service?.get();
-    }),
+    // messages: protectedQuery(async (_root: any, args: any, context: any) => {
+    //   // console.log("params", _root, args, context);
+    //   return await testAnyController.service?.get();
+    // }),
 
-    message: query(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args.id, context);
-      return await testAnyController.service?.getById(args.id);
-    }),
-    // Sample Code End
+    // message: query(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args.id, context);
+    //   return await testAnyController.service?.getById(args.id);
+    // }),
+    // // Sample Code End
 
     userGroupsDetails: protectedQuery(
       async (_root: any, args: any, context: any) => {
@@ -75,7 +75,7 @@ const resolvers = {
 
         let response = await userGroupDetails.model
           .find({
-            userId: context.user.id,
+            userId: new mongoose.Types.ObjectId("639435ba8bd310c10dc87b0b"),
           })
           .populate("groupId");
 
@@ -162,32 +162,32 @@ const resolvers = {
 
     ////////////////////////////////// fields project.
 
-    fields: query(async (_root: any, args: any, context: any) => {
-      // console.log("params", _root, args, context);
-      return await fieldController.service?.get();
-    }),
+    // fields: query(async (_root: any, args: any, context: any) => {
+    //   // console.log("params", _root, args, context);
+    //   return await fieldController.service?.get();
+    // }),
 
-    indexes: query(async (_root: any, args: any, context: any) => {
-      // console.log("params", _root, args, context);
-      return await indexController.service?.get();
-    }),
+    // indexes: query(async (_root: any, args: any, context: any) => {
+    //   // console.log("params", _root, args, context);
+    //   return await indexController.service?.get();
+    // }),
 
-    type: query(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args.typeName, context);
-      const fields = await fieldController.service?.get({
-        typeName: args.typeName,
-      });
+    // type: query(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args.typeName, context);
+    //   const fields = await fieldController.service?.get({
+    //     typeName: args.typeName,
+    //   });
 
-      const indexes = await indexController.service?.get({
-        typeName: args.typeName,
-      });
-      const result = {
-        fields: fields,
-        indexes: indexes,
-      };
-      // console.log(result);
-      return result;
-    }),
+    //   const indexes = await indexController.service?.get({
+    //     typeName: args.typeName,
+    //   });
+    //   const result = {
+    //     fields: fields,
+    //     indexes: indexes,
+    //   };
+    //   // console.log(result);
+    //   return result;
+    // }),
 
     //   // ****************************************************************************
     //   protectedSampleQuery: protectedQuery(
@@ -221,12 +221,12 @@ const resolvers = {
   },
   Upload: GraphQLUpload,
   Mutation: {
-    // Sample Code
-    sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args, context);
-      return await testAnyController.service?.post({ ...args.input });
-    }),
-    // Sample Code End
+    // // Sample Code
+    // sendMessage: createOrUpdate(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args, context);
+    //   return await testAnyController.service?.post({ ...args.input });
+    // }),
+    // // Sample Code End
 
     // Owner group is not saved here .
     // Only favorite and unfavorite and joined and unjoined
@@ -241,12 +241,29 @@ const resolvers = {
       console.log("params", _root, args, context);
       // return await groupService.post({ ...args.input });
       console.log("createGroup");
-      return await userService.createGroup({ ...args.input });
+
+      return await userService.createGroup({ ...args.input }, context.user.id);
     }),
 
     createEvent: createOrUpdate(async (_root: any, args: any, context: any) => {
       console.log("params", _root, args, context);
-      return await eventService.post({ ...args.input });
+
+      const groupDetails = await userGroupDetails.getByParent({
+        userId: new mongoose.Types.ObjectId(context.user.id),
+        isOwner: true,
+      });
+
+      if (groupDetails.length > 0) {
+        let gds = groupDetails.filter((gd) => {
+          return gd.id === args.input.groupId;
+        });
+
+        if (gds.length === 1) {
+          return await eventService.post({ ...args.input });
+        }
+      }
+
+      return null;
     }),
 
     updateEvent: createOrUpdate(async (_root: any, args: any, context: any) => {
@@ -269,43 +286,43 @@ const resolvers = {
 
     ////////////////////////////////////// Filed realated othe project ////////////
 
-    createField: createOrUpdate(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args, context);
+    // createField: createOrUpdate(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args, context);
 
-      let obj = await fieldController.service?.get({
-        typeName: args.input.typeName,
-        propertyName: args.input.propertyName,
-      });
+    //   let obj = await fieldController.service?.get({
+    //     typeName: args.input.typeName,
+    //     propertyName: args.input.propertyName,
+    //   });
 
-      if (obj && obj?.length == 1) {
-        return await fieldController.service?.update(obj[0].id, {
-          ...args.input,
-        });
-      }
+    //   if (obj && obj?.length == 1) {
+    //     return await fieldController.service?.update(obj[0].id, {
+    //       ...args.input,
+    //     });
+    //   }
 
-      return await fieldController.service?.post({ ...args.input });
-    }),
+    //   return await fieldController.service?.post({ ...args.input });
+    // }),
 
-    deleteField: createOrUpdate(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args, context);
+    // deleteField: createOrUpdate(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args, context);
 
-      await fieldController.service?.delete(args.id);
+    //   await fieldController.service?.delete(args.id);
 
-      return { deleted: true };
-    }),
+    //   return { deleted: true };
+    // }),
 
-    createIndex: createOrUpdate(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args, context);
-      return await indexController.service?.post({ ...args.input });
-    }),
+    // createIndex: createOrUpdate(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args, context);
+    //   return await indexController.service?.post({ ...args.input });
+    // }),
 
-    deleteIndex: createOrUpdate(async (_root: any, args: any, context: any) => {
-      console.log("params", _root, args, context);
+    // deleteIndex: createOrUpdate(async (_root: any, args: any, context: any) => {
+    //   console.log("params", _root, args, context);
 
-      await indexController.service?.delete(args.id);
+    //   await indexController.service?.delete(args.id);
 
-      return { deleted: true };
-    }),
+    //   return { deleted: true };
+    // }),
   },
 };
 

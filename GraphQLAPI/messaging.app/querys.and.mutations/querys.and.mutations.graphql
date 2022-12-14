@@ -5,9 +5,9 @@ schema {
 
 type Query {
   # Samples Start
-  test_messages: [Message]
-  messages: [Message]
-  message(id: String): Message
+  # test_messages: [Message]
+  # messages: [Message]
+  # message(id: String): Message
   # Samples End
 
   events: [Event]
@@ -17,15 +17,15 @@ type Query {
   # userDetails: UserDetails
 
   # Fields Schema Generating APP .
-  fields: [Field]
-  indexes: [Index]
-  type(typeName: String): TypeDetails
+  # fields: [Field]
+  # indexes: [Index]
+  # type(typeName: String): TypeDetails
   # Fileds Schema Generating App END .
 }
 
 type Mutation {
   # Samples Start
-  sendMessage(input: SendMessageInput): Message
+  # sendMessage(input: SendMessageInput): Message
   # Samples End
 
   saveUserGroupDetails(input: UserDetailsInput): UserDetails
@@ -37,10 +37,10 @@ type Mutation {
   singleUpload(file: Upload): UploadedFileResponse
 
   # Fields Schema Generating APP .
-  createField(input: FieldInput): Field
-  createIndex(input: IndexInput): Index
+  # createField(input: FieldInput): Field
+  # createIndex(input: IndexInput): Index
 
-  deleteField(id: String): Result
-  deleteIndex(id: String): Result
+  # deleteField(id: String): Result
+  # deleteIndex(id: String): Result
   # Fileds Schema Generating App END .
 }
