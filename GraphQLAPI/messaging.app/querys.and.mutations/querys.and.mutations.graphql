@@ -28,7 +28,7 @@ type Mutation {
   # sendMessage(input: SendMessageInput): Message
   # Samples End
 
-  saveUserGroupDetails(input: UserDetailsInput): UserDetails
+  saveUserGroupDetails(input: UserDetailsInput): UserGroupDetailsResult
 
   createGroup(input: CreateGroupInput): Group
   createEvent(input: CreateEventInput): Event

@@ -69,21 +69,19 @@ const resolvers = {
     // }),
     // // Sample Code End
 
-    userGroupsDetails: protectedQuery(
-      async (_root: any, args: any, context: any) => {
-        console.log("params", _root, args.id, context);
+    userGroupsDetails: query(async (_root: any, args: any, context: any) => {
+      console.log("params", _root, args.id, context);
 
-        let response = await userGroupDetails.model
-          .find({
-            userId: new mongoose.Types.ObjectId("639435ba8bd310c10dc87b0b"),
-          })
-          .populate("groupId");
+      let response = await userGroupDetails.model
+        .find({
+          userId: new mongoose.Types.ObjectId("639435ba8bd310c10dc87b0b"),
+        })
+        .populate("groupId");
 
-        console.log(response);
+      console.log(response);
 
-        return response;
-      }
-    ),
+      return response;
+    }),
 
     groups: query(async (_root: any, args: any, context: any) => {
       // console.log("params", _root, args, context);
