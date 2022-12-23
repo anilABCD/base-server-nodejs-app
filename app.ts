@@ -19,7 +19,7 @@ import { FileParams } from "./utils/File";
 
 import File from "./utils/File";
 
-import ExpressPeerServer from "peer";
+import { ExpressPeerServer } from "peer";
 
 // for : /graphql
 import AuthController from "./controllers/user.controllers/auth.controller";

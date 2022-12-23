@@ -12,6 +12,7 @@ import TypeDevMode from "./enums/TypeDevMode";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 
 const { ExpressPeerServer } = require("peer");
+import { Server } from "socket.io";
 
 //////////////////////////////////////////////////////////////////////
 // NOTE :
@@ -112,9 +113,24 @@ if (isAllReady) {
 
     // #region Peer Server
 
+    const io = new Server(server, { cors: { origin: "*" } });
+
+    io.on("connect", (socket) => {
+      console.log("connected");
+    });
+
+    io.use((socket, next) => {
+      console.log("socket use");
+      next();
+    });
+
+    const customGenerationFunction = () =>
+      (Math.random().toString(36) + "0000000000000000000").substr(2, 16);
+
     const peerServer = ExpressPeerServer(server, {
       debug: true,
-      path: "/dating.kairo",
+      path: "/messaging-app",
+      generateClientId: customGenerationFunction,
     });
 
     app.use("/peerjs", peerServer);

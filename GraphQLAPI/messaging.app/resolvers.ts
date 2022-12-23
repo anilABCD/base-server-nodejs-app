@@ -18,6 +18,7 @@ import { GraphQLUpload } from "graphql-upload";
 import UserService from "../../services/messaging.app/user.services/user.service";
 import UserGroupDetailsService from "../../services/messaging.app/user.services/user.details.service";
 import path from "path";
+import { extractObjectId } from "../../utils/extractObjectId";
 // import { GraphQLUpload } from "graphql-upload";
 /////////////////////////////////////////////////////////////////////////////
 // IMPORTANT: NOTE : INFORMATION :  next(err) is called automatically when
@@ -74,7 +75,7 @@ const resolvers = {
 
       let response = await userGroupDetails.model
         .find({
-          userId: new mongoose.Types.ObjectId("639435ba8bd310c10dc87b0b"),
+          userId: context.user._id,
         })
         .populate("groupId");
 
@@ -251,12 +252,17 @@ const resolvers = {
         isOwner: true,
       });
 
+      console.log(groupDetails);
+
       if (groupDetails.length > 0) {
         let gds = groupDetails.filter((gd) => {
-          return gd.id === args.input.groupId;
+          return (
+            extractObjectId(gd.groupId) === extractObjectId(args.input.groupId)
+          );
         });
 
         if (gds.length === 1) {
+          console.log("success");
           return await eventService.post({ ...args.input });
         }
       }
