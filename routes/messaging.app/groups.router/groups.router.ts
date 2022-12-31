@@ -159,11 +159,25 @@ groupsRouter.route("/your-groups/:from/:to?").get(
             location: 1,
             description: 1,
             image: 1,
+
+            isJoined: {
+              $cond: {
+                // if fieldB is not present in the document (missing)
+                if: {
+                  $in: [true, "$details.isJoined"],
+                },
+                // then set it to some fallback value
+                then: true,
+                // else return it as is
+                else: false,
+              },
+            },
+
             isOwner: {
               $cond: {
                 // if fieldB is not present in the document (missing)
                 if: {
-                  details: { userId: req.user?._id },
+                  $in: [req.user?._id, "$details.userId"],
                 },
                 // then set it to some fallback value
                 then: true,
@@ -174,6 +188,48 @@ groupsRouter.route("/your-groups/:from/:to?").get(
           },
         },
       ])
+      // sample : of excluding property in arrays :
+      // aggregate([
+      //   {
+      //      $lookup:
+      //        {
+      //          from: "user-group-details",
+      //          localField: "_id",
+      //          foreignField: "groupId",
+
+      //          as: "details"
+      //        }
+      //   },{ $project: {
+      //       groupName:1 ,
+      //       aboutUs:1,
+      //       location:1,
+      //       description:1,
+      //       image : 1,
+      //       "details":1,
+      //       isOwner: {
+      //         $cond: {
+      //           // if fieldB is not present in the document (missing)
+      //           if: {
+      //              "details": { "userId" : new ObjectId("63931279c9844d83aec441d4") }
+      //           },
+      //           // then set it to some fallback value
+      //           then: true,
+      //           // else return it as is
+      //           else: false,
+      //         },
+
+      //       },
+
+      //     }
+      //   },
+      //     {
+
+      //         $project : {
+      //             "details.userId":0,
+      //             "details.role" : 0,
+      //         }
+
+      //     }])
 
       .skip(Number(fromTo.from))
       .limit(Number(fromTo.to))
