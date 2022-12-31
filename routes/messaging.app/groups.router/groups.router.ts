@@ -4,7 +4,7 @@ import catchAsync from "../../../ErrorHandling/catchAsync";
 const groupsRouter = express.Router();
 import { Request, Response, NextFunction } from "express";
 
-import { db } from "../../../server";
+import { client, db } from "../../../server";
 import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.interface";
 import { packWithObjectID } from "../../../utils/all.util";
 import { extractObjectId } from "../../../utils/extractObjectId";
@@ -15,22 +15,82 @@ interface FromTo {
   to: number;
 }
 
+groupsRouter.route("/:groupId").get(
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    let response = await db
+      .collection("groups")
+      .findOne({ _id: new ObjectId(req.params.groupId) });
+
+    res.status(200).json({
+      status: "success",
+      data: response,
+    });
+  })
+);
+
 groupsRouter
   .route("/:groupId?")
   .post(
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
       let input = req.body as IGroup;
+
       let group = await db
         .collection("groups")
         .findOne({ userId: req.user?._id, groupName: input.groupName });
       console.log(group);
       if (!group) {
-        input.userId = extractObjectId(req.user?._id);
-        input = packWithObjectID(input);
+        const transactionOptions = {
+          readPreference: "primary",
+          readConcern: { level: "local" },
+          writeConcern: { w: "majority" },
+        };
+        let response;
+        const session = client.startSession();
+        try {
+          const transactionOutput = await session.withTransaction(
+            async () => {
+              input.userId = extractObjectId(req.user?._id);
+              input = packWithObjectID(input);
 
-        let response = await db.collection("groups").insertOne({
-          ...input,
-        });
+              response = await db.collection("groups").insertOne(
+                {
+                  ...input,
+                },
+                { session }
+              );
+
+              await db.collection("user-group-details").insertOne(
+                {
+                  userId: new ObjectId(extractObjectId(req.user?._id)),
+                  role: "admin",
+                  groupId: response.insertedId,
+                  isJoined: false,
+                  isOwner: true,
+                  isFavorite: false,
+                },
+                { session }
+              );
+            },
+            {
+              readPreference: "primary",
+              readConcern: { level: "local" },
+              writeConcern: { w: "majority" },
+            }
+          );
+
+          if (transactionOutput) {
+            console.log("The group was successfully created.");
+          } else {
+            console.log("The group was intentionally aborted.");
+          }
+        } catch (e) {
+          console.log(
+            "The transaction was aborted due to an unexpected error: " + e
+          );
+        } finally {
+          await session.endSession();
+        }
+
         res.status(201).json({
           status: "success",
           data: response,
@@ -47,7 +107,7 @@ groupsRouter
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
       let input = req.body as IGroup;
       let group = await db.collection("groups").updateOne(
-        { _id: new ObjectId(req.params.groupId) },
+        { _id: new ObjectId(req.params.groupId), userId: req.user?._id },
         {
           $set: {
             image: input.image,
@@ -82,7 +142,39 @@ groupsRouter.route("/your-groups/:from/:to?").get(
 
     let response = await db
       .collection("groups")
-      .find({})
+      .aggregate([
+        {
+          $lookup: {
+            from: "user-group-details",
+            localField: "_id",
+            foreignField: "groupId",
+
+            as: "details",
+          },
+        },
+        {
+          $project: {
+            groupName: 1,
+            aboutUs: 1,
+            location: 1,
+            description: 1,
+            image: 1,
+            isOwner: {
+              $cond: {
+                // if fieldB is not present in the document (missing)
+                if: {
+                  details: { userId: req.user?._id },
+                },
+                // then set it to some fallback value
+                then: true,
+                // else return it as is
+                else: false,
+              },
+            },
+          },
+        },
+      ])
+
       .skip(Number(fromTo.from))
       .limit(Number(fromTo.to))
       .toArray();

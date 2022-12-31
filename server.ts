@@ -26,7 +26,7 @@ import AppError from "./ErrorHandling/AppError";
 
 const PORT = getEnv(EnvEnumType.PORT);
 let db: mongodb.Db;
-
+let client: mongodb.MongoClient;
 console.log("\n\n******************************************\n\n");
 console.log(process.env.ENV);
 console.log(PORT);
@@ -98,7 +98,7 @@ if (isAllReady) {
         console.log("\nDB Connection Error \n", err);
       });
 
-    const client: mongodb.MongoClient = new mongodb.MongoClient(DB);
+    client = new mongodb.MongoClient(DB);
 
     client
       .connect()
@@ -168,4 +168,4 @@ if (isAllReady) {
   }
 }
 
-export { db };
+export { db, client };
