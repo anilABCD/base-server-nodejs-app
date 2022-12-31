@@ -11,8 +11,10 @@ import logger from "./utils/logger";
 import TypeDevMode from "./enums/TypeDevMode";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 
+import * as mongodb from "mongodb";
 const { ExpressPeerServer } = require("peer");
 import { Server } from "socket.io";
+import AppError from "./ErrorHandling/AppError";
 
 //////////////////////////////////////////////////////////////////////
 // NOTE :
@@ -23,6 +25,7 @@ import { Server } from "socket.io";
 //////////////////////////////////////////////////////////////////////
 
 const PORT = getEnv(EnvEnumType.PORT);
+let db: mongodb.Db;
 
 console.log("\n\n******************************************\n\n");
 console.log(process.env.ENV);
@@ -95,21 +98,42 @@ if (isAllReady) {
         console.log("\nDB Connection Error \n", err);
       });
 
+    const client: mongodb.MongoClient = new mongodb.MongoClient(DB);
+
+    client
+      .connect()
+      .then((response) => {
+        console.log("connected db");
+      })
+      .catch((err) => {
+        console.log("error db connect", err);
+      });
+
+    db = client.db();
+
     //#endregion
 
     //#region listen
-
-    const server = app.listen(PORT, () => {
+    var server = require("http").createServer(app);
+    server.listen(PORT, () => {
       console.log("\n\n\n******** NODE SERVER STARTED *************\n\n");
       console.log("Listening on port : " + PORT);
-      console.log("GrapQL Url :", "http://localhost:" + PORT + "/graphql");
-      console.log(
-        "GrapQL Url :",
-        "http://localhost:" + PORT + "/peerjs/" + CURRENT_APP
-      );
+
+      console.log("PeerJs Url :", "http://localhost:" + PORT + "/peerjs/app");
 
       console.log("isProduction", isProductionEnvironment());
     });
+
+    const customGenerationFunction = () =>
+      (Math.random().toString(36) + "0000000000000000000").substr(2, 16);
+
+    const peerServer = ExpressPeerServer(server, {
+      debug: true,
+      path: "/app",
+      generateClientId: customGenerationFunction,
+    });
+
+    app.use("/peerjs", peerServer);
 
     // #region Peer Server
 
@@ -124,16 +148,14 @@ if (isAllReady) {
       next();
     });
 
-    const customGenerationFunction = () =>
-      (Math.random().toString(36) + "0000000000000000000").substr(2, 16);
-
-    const peerServer = ExpressPeerServer(server, {
-      debug: true,
-      path: "/messaging-app",
-      generateClientId: customGenerationFunction,
+    // 404 NOTE: all("*") : get, post, patch , delete All URLs .
+    app.all("*", (req, res, next) => {
+      // res.status(404).json({
+      //   status: "fail",
+      //   message: `Can't find ${req.originalUrl} on this server.`,
+      // });
+      next(new AppError(`Can't find ${req.originalUrl} on this server.`, 404));
     });
-
-    app.use("/peerjs", peerServer);
 
     //
     // Sample Link :
@@ -145,3 +167,5 @@ if (isAllReady) {
     //#endregion
   }
 }
+
+export { db };

@@ -25,6 +25,7 @@
     "@types/nodemailer": "^6.4.4",
     "@types/pug": "^2.0.6",
     "@types/validator": "^13.7.3",
+    "@types/web-push": "^3.3.2",
     "cpy-cli": "^2.0.0",
     "del-cli": "^3.0.1",
     "graphql-cli": "4.1.0",
@@ -55,6 +56,7 @@
     "html-to-text": "^8.2.0",
     "jsonwebtoken": "^8.5.1",
     "logger": "^0.0.1",
+    "mongodb": "^4.13.0",
     "mongoose": "6.4.3",
     "mongoose-schema-to-graphql": "^2.8.1",
     "morgan": "^1.10.0",
@@ -66,6 +68,7 @@
     "tsyringe": "^4.7.0",
     "util": "^0.12.4",
     "validator": "^13.7.0",
+    "web-push": "^3.5.0",
     "xss-clean": "^0.1.1"
   },
   "engines": {

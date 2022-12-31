@@ -7,8 +7,16 @@
     <title>Document</title>
   </head>
   <body>
-    <div class="ui inverted footer">
-       
-    </div>
+    <div class="ui inverted footer">Hello</div>
+    <script type="text/javascript">
+      const publicVapiKey =
+        "BItsr9CWH8QtZW6lsoVdj4V6of9OnoYlLTyhoJtLmkXRIPTY2CxdnrfHWDVArJPZi4kwybD9Fbh-mwCcXJgapXs";
+
+      if ("serviceWorker" in navigator) {
+        send().catch((err) => console.error(err));
+      }
+
+      async function send() {}
+    </script>
   </body>
 </html>

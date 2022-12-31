@@ -132,7 +132,7 @@ export default class AuthController extends BaseController<
     async (req: Request, res: Response, next: NextFunction) => {
       // 1) Getting token and check of it's there
       let token;
-      // console.log("Protected Route");
+      console.log("Protected Route", req.headers);
       if (
         req.headers.authorization &&
         req.headers.authorization.startsWith("Bearer")
@@ -142,7 +142,7 @@ export default class AuthController extends BaseController<
         token = req.cookies.jwt;
       }
 
-      console.log("token", token);
+      // console.log("token", token);
 
       if (!token) {
         return next(
@@ -164,7 +164,7 @@ export default class AuthController extends BaseController<
         decoded = { id: "            " };
       }
 
-      console.log(decoded);
+      // console.log(decoded);
 
       // 3) Check if user still exists
       const currentUser = await this.service?.getDocumentById(decoded.id);
@@ -191,7 +191,7 @@ export default class AuthController extends BaseController<
       // GRANT ACCESS TO PROTECTED ROUTE
       req.user = currentUser as IUser;
       res.locals.user = currentUser as IUser;
-      console.log(req);
+      console.log(req.user);
       next();
     }
   );
