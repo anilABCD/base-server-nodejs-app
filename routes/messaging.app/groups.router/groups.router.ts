@@ -122,11 +122,16 @@ groupsRouter
     })
   );
 
-groupsRouter.route("/your-groups/:from/:to?").get(
+groupsRouter.route("/all/:from?/:to?/").post(
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     let fromTo: FromTo = { from: 0, to: 10 };
     let from = req.params.from;
     let to = req.params.to;
+
+    let isOwner = req.body.isOwner;
+    let isJoined = req.body.isJoined;
+
+    let groupName: string = req.body.groupName;
 
     if (from) {
       fromTo.from = Number(req.params.from);
@@ -143,6 +148,17 @@ groupsRouter.route("/your-groups/:from/:to?").get(
     let response = await db
       .collection("groups")
       .aggregate([
+        groupName
+          ? {
+              $match: {
+                groupName: { $regex: `.*${groupName}.*`, $options: "i" },
+              },
+            }
+          : {
+              $project: {
+                someFiled: 0,
+              },
+            },
         {
           $lookup: {
             from: "user-group-details",
@@ -187,50 +203,21 @@ groupsRouter.route("/your-groups/:from/:to?").get(
             },
           },
         },
+        isOwner
+          ? { $match: { isOwner: true } }
+          : {
+              $project: {
+                someFiled: 0,
+              },
+            },
+        isJoined
+          ? { $match: { isJoined: true } }
+          : {
+              $project: {
+                someFiled: 0,
+              },
+            },
       ])
-      // sample : of excluding property in arrays :
-      // aggregate([
-      //   {
-      //      $lookup:
-      //        {
-      //          from: "user-group-details",
-      //          localField: "_id",
-      //          foreignField: "groupId",
-
-      //          as: "details"
-      //        }
-      //   },{ $project: {
-      //       groupName:1 ,
-      //       aboutUs:1,
-      //       location:1,
-      //       description:1,
-      //       image : 1,
-      //       "details":1,
-      //       isOwner: {
-      //         $cond: {
-      //           // if fieldB is not present in the document (missing)
-      //           if: {
-      //              "details": { "userId" : new ObjectId("63931279c9844d83aec441d4") }
-      //           },
-      //           // then set it to some fallback value
-      //           then: true,
-      //           // else return it as is
-      //           else: false,
-      //         },
-
-      //       },
-
-      //     }
-      //   },
-      //     {
-
-      //         $project : {
-      //             "details.userId":0,
-      //             "details.role" : 0,
-      //         }
-
-      //     }])
-
       .skip(Number(fromTo.from))
       .limit(Number(fromTo.to))
       .toArray();
