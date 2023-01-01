@@ -131,12 +131,11 @@ groupsRouter
 
       let paramsGroupId = req.params.groupId;
 
-      let group = await db
-        .collection("user-group-details")
-        .findOne({
-          groupId: new ObjectId(paramsGroupId),
-          userId: req.user?._id,
-        });
+      let group = await db.collection("user-group-details").findOne({
+        groupId: new ObjectId(paramsGroupId),
+        userId: req.user?._id,
+        isOwner: true,
+      });
 
       if (group) {
         let group = await db.collection("groups").updateOne(
