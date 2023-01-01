@@ -131,15 +131,15 @@ groupsRouter
 
       let paramsGroupId = req.params.groupId;
 
-      let group = await db.collection("user-group-details").findOne({
+      let groupDetails = await db.collection("user-group-details").findOne({
         groupId: new ObjectId(paramsGroupId),
         userId: req.user?._id,
         isOwner: true,
       });
 
-      if (group) {
+      if (groupDetails) {
         let group = await db.collection("groups").updateOne(
-          { _id: new ObjectId(req.params.groupId) },
+          { _id: new ObjectId(paramsGroupId) },
           {
             $set: {
               image: input.image,
