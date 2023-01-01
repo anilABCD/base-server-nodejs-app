@@ -55,6 +55,7 @@ import express from "express";
 import generateRouter from "./routes/generate.routes/generate.router";
 import googleRouter from "./routes/google/google.router";
 import groupsRouter from "./routes/messaging.app/groups.router/groups.router";
+import { eventRouter } from "./routes/messaging.app/groups.router/events.router";
 
 const limiter = rateLimit({
   max: 120,
@@ -202,6 +203,8 @@ app.use("/google", googleRouter);
 app.use("/auth/", authRouter);
 
 app.use("/groups/", authController.protect, groupsRouter);
+
+app.use("/events/", authController.protect, eventRouter);
 
 //#endregion End User Api
 

@@ -9,6 +9,7 @@ import IGroup from "../../../interfaces/messaging.app/group.interfaces/group.int
 import { packWithObjectID } from "../../../utils/all.util";
 import { extractObjectId } from "../../../utils/extractObjectId";
 import { ObjectId } from "mongodb";
+import AppError from "../../../ErrorHandling/AppError";
 
 interface FromTo {
   from: number;
@@ -32,13 +33,35 @@ groupsRouter
   .route("/:groupId?")
   .post(
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-      let input = req.body as IGroup;
+      let input: IGroup = req.body;
 
       let group = await db
-        .collection("groups")
-        .findOne({ userId: req.user?._id, groupName: input.groupName });
+        .collection("user-group-details")
+        .aggregate([
+          {
+            $match: {
+              userId: req.user?._id,
+            },
+          },
+          {
+            $lookup: {
+              from: "groups",
+              localField: "groupId",
+              foreignField: "_id",
+
+              as: "details",
+            },
+          },
+          {
+            $match: {
+              "details.groupName": input.groupName,
+            },
+          },
+        ])
+        .toArray();
+
       console.log(group);
-      if (!group) {
+      if (group.length == 0) {
         const transactionOptions = {
           readPreference: "primary",
           readConcern: { level: "local" },
@@ -49,7 +72,6 @@ groupsRouter
         try {
           const transactionOutput = await session.withTransaction(
             async () => {
-              input.userId = extractObjectId(req.user?._id);
               input = packWithObjectID(input);
 
               response = await db.collection("groups").insertOne(
@@ -106,19 +128,33 @@ groupsRouter
   .patch(
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
       let input = req.body as IGroup;
-      let group = await db.collection("groups").updateOne(
-        { _id: new ObjectId(req.params.groupId), userId: req.user?._id },
-        {
-          $set: {
-            image: input.image,
-          },
-        }
-      );
 
-      res.status(200).json({
-        status: "success",
-        data: group,
-      });
+      let paramsGroupId = req.params.groupId;
+
+      let group = await db
+        .collection("user-group-details")
+        .findOne({
+          groupId: new ObjectId(paramsGroupId),
+          userId: req.user?._id,
+        });
+
+      if (group) {
+        let group = await db.collection("groups").updateOne(
+          { _id: new ObjectId(req.params.groupId) },
+          {
+            $set: {
+              image: input.image,
+            },
+          }
+        );
+
+        res.status(200).json({
+          status: "success",
+          data: group,
+        });
+      } else {
+        throw new AppError("Internal Server Error", 500);
+      }
     })
   );
 

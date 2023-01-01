@@ -1,7 +1,7 @@
 import { IBaseModel } from "../../base.mode.interface";
 
 export default interface IEvent extends IBaseModel {
-  name: String;
+  eventName: String;
   aboutUs: String;
   description: String;
   groupId: any;
