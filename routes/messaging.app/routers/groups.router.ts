@@ -35,33 +35,38 @@ groupsRouter
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
       let input: IGroup = req.body;
 
-      let group = await db
-        .collection("user-group-details")
-        .aggregate([
-          {
-            $match: {
-              userId: req.user?._id,
-            },
-          },
-          {
-            $lookup: {
-              from: "groups",
-              localField: "groupId",
-              foreignField: "_id",
+      let group = await db.collection("user-group-details").findOne({
+        userId: req.user?._id,
+        groupName: input.groupName,
+      });
 
-              as: "details",
-            },
-          },
-          {
-            $match: {
-              "details.groupName": input.groupName,
-            },
-          },
-        ])
-        .toArray();
+      // let group = await db
+      //   .collection("user-group-details")
+      //   .aggregate([
+      //     {
+      //       $match: {
+      //         userId: req.user?._id,
+      //       },
+      //     },
+      //     {
+      //       $lookup: {
+      //         from: "groups",
+      //         localField: "groupId",
+      //         foreignField: "_id",
+
+      //         as: "details",
+      //       },
+      //     },
+      //     {
+      //       $match: {
+      //         "details.groupName": input.groupName,
+      //       },
+      //     },
+      //   ])
+      //   .toArray();
 
       console.log(group);
-      if (group.length == 0) {
+      if (!group) {
         const transactionOptions = {
           readPreference: "primary",
           readConcern: { level: "local" },
@@ -86,6 +91,7 @@ groupsRouter
                   userId: new ObjectId(extractObjectId(req.user?._id)),
                   role: "admin",
                   groupId: response.insertedId,
+                  groupName: input.groupName,
                   isJoined: false,
                   isOwner: true,
                   isFavorite: false,

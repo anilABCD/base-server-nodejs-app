@@ -33,33 +33,39 @@ eventRouter
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
       let input: IEvent = req.body;
 
-      let group = await db
-        .collection("user-event-details")
-        .aggregate([
-          {
-            $match: {
-              userId: req.user?._id,
-            },
-          },
-          {
-            $lookup: {
-              from: "events",
-              localField: "eventId",
-              foreignField: "_id",
+      let event = await db.collection("user-event-details").findOne({
+        userId: req.user?._id,
+        eventName: input.eventName,
+      });
 
-              as: "details",
-            },
-          },
-          {
-            $match: {
-              "details.eventName": input.eventName,
-            },
-          },
-        ])
-        .toArray();
+      // sample :
+      // let group = await db
+      // .collection("user-event-details")
+      // .aggregate([
+      //   {
+      //     $match: {
+      //       userId: req.user?._id,
+      //     },
+      //   },
+      //   {
+      //     $lookup: {
+      //       from: "events",
+      //       localField: "eventId",
+      //       foreignField: "_id",
 
-      console.log(group);
-      if (group.length == 0) {
+      //       as: "details",
+      //     },
+      //   },
+      //   {
+      //     $match: {
+      //       "details.eventName": input.eventName,
+      //     },
+      //   },
+      // ])
+      // .toArray();
+
+      console.log(event);
+      if (!event) {
         const transactionOptions = {
           readPreference: "primary",
           readConcern: { level: "local" },
@@ -79,11 +85,12 @@ eventRouter
                 { session }
               );
 
-              await db.collection("user-events-details").insertOne(
+              await db.collection("user-event-details").insertOne(
                 {
                   userId: new ObjectId(extractObjectId(req.user?._id)),
                   role: "admin",
                   eventId: response.insertedId,
+                  eventName: input.eventName,
                   isOwner: true,
                   isFavorite: false,
                 },
@@ -130,7 +137,7 @@ eventRouter
 
       console.log(paramsEventId);
 
-      let eventDetails = await db.collection("user-events-details").findOne({
+      let eventDetails = await db.collection("user-event-details").findOne({
         eventId: new ObjectId(paramsEventId),
         userId: req.user?._id,
         isOwner: true,
