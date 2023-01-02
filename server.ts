@@ -119,7 +119,7 @@ if (isAllReady) {
       console.log("\n\n\n******** NODE SERVER STARTED *************\n\n");
       console.log("Listening on port : " + PORT);
 
-      console.log("PeerJs Url :", "http://localhost:" + PORT + "/peerjs/app");
+      console.log("PeerJs Url :", "http://localhost:" + PORT + "/peerjs/");
 
       console.log("isProduction", isProductionEnvironment());
     });
@@ -129,7 +129,7 @@ if (isAllReady) {
 
     const peerServer = ExpressPeerServer(server, {
       debug: true,
-      path: "/app",
+      path: "/",
       generateClientId: customGenerationFunction,
     });
 
@@ -141,6 +141,86 @@ if (isAllReady) {
 
     io.on("connect", (socket) => {
       console.log("connected");
+      socket.on("join-general-room", (params) => {
+        console.log("room-id", params);
+        socket.join(params);
+      });
+
+      socket.on("user-exists", async ({ user, socketID }: any) => {
+        let info = await db
+          .collection("active_chats")
+          .findOne({ email: user.emailId });
+        console.log("on user-exists");
+        if (info) {
+          io.in(socketID).emit("user-found", user);
+          console.log("user-found emitted");
+        }
+      });
+
+      socket.on(
+        "update-user",
+        async ({ user, socketId: socketID, allUserRoomID }: any) => {
+          socket.join(allUserRoomID);
+
+          let doc = await db.collection("active_chats").findOneAndUpdate(
+            {
+              emaild: user.emailId,
+            },
+            {
+              $set: { socketId: socketID },
+            },
+            {
+              returnDocument: "after",
+            }
+          );
+
+          if (doc) {
+            let allUsers = await db
+              .collection("active_chats")
+              .find({})
+              .toArray();
+            let otherUsers = allUsers.filter(({ email: otherEmails }) => {
+              return otherEmails !== user.emailId;
+            });
+
+            io.in(socketID).emit("activeUsers", otherUsers);
+          }
+
+          socket
+            .to(allUserRoomID)
+            .emit("new-user-join", [{ ...user, socketID }]);
+        }
+
+        //** Notify other user about updated or joined users */
+      );
+      socket.on("user-join", async ({ allUserRoomID, user, socketID }) => {
+        socket.join(allUserRoomID);
+
+        //* Store new user in active chats */
+
+        let activeUser = await db
+          .collection("active-chats")
+          .findOne({ emailId: user.emailId });
+
+        if (!activeUser) {
+          const active = await db.collection("active-chats").insertOne({
+            ...user,
+            socketID,
+          });
+
+          const users = await db.collection("active-chats").find({}).toArray();
+
+          let otherUsers = users.filter(
+            ({ email: otherEmails }) => otherEmails !== user.emaild
+          );
+
+          // ** Send others to new connected user
+
+          io.in(socketID).emit("activeUsers", otherUsers);
+        } else {
+          //inc yesterday.
+        }
+      });
     });
 
     io.use((socket, next) => {
