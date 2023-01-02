@@ -259,6 +259,7 @@ groupsRouter.route("/all/:from?/:to?/").post(
               },
             },
       ])
+      .sort({ groupName: 1 })
       .skip(Number(fromTo.from))
       .limit(Number(fromTo.to))
       .toArray();
