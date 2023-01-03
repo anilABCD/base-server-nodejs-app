@@ -147,14 +147,15 @@ if (isAllReady) {
       });
 
       socket.on("user-exists", async ({ user, socketID }: any) => {
-        let info = await db
-          .collection("active_chats")
-          .findOne({ email: user.emailId });
+        let userInfo = await db
+          .collection("active-chats")
+          .findOne({ email: user.email });
         console.log("on user-exists");
-        if (info) {
-          io.in(socketID).emit("user-found", user);
-          console.log("user-found emitted");
-        }
+
+        console.log(userInfo);
+
+        io.in(socketID).emit("user-found", userInfo);
+        console.log("user-found emitted", socketID);
       });
 
       socket.on(
@@ -162,9 +163,9 @@ if (isAllReady) {
         async ({ user, socketId: socketID, allUserRoomID }: any) => {
           socket.join(allUserRoomID);
 
-          let doc = await db.collection("active_chats").findOneAndUpdate(
+          let doc = await db.collection("active-chats").findOneAndUpdate(
             {
-              emaild: user.emailId,
+              email: user.email,
             },
             {
               $set: { socketId: socketID },
@@ -176,11 +177,11 @@ if (isAllReady) {
 
           if (doc) {
             let allUsers = await db
-              .collection("active_chats")
+              .collection("active-chats")
               .find({})
               .toArray();
             let otherUsers = allUsers.filter(({ email: otherEmails }) => {
-              return otherEmails !== user.emailId;
+              return otherEmails !== user.email;
             });
 
             io.in(socketID).emit("activeUsers", otherUsers);
@@ -200,7 +201,7 @@ if (isAllReady) {
 
         let activeUser = await db
           .collection("active-chats")
-          .findOne({ emailId: user.emailId });
+          .findOne({ email: user.email });
 
         if (!activeUser) {
           const active = await db.collection("active-chats").insertOne({
@@ -211,7 +212,7 @@ if (isAllReady) {
           const users = await db.collection("active-chats").find({}).toArray();
 
           let otherUsers = users.filter(
-            ({ email: otherEmails }) => otherEmails !== user.emaild
+            ({ email: otherEmails }) => otherEmails !== user.email
           );
 
           // ** Send others to new connected user
@@ -219,6 +220,9 @@ if (isAllReady) {
           io.in(socketID).emit("activeUsers", otherUsers);
         } else {
           //inc yesterday.
+          // Emit to all other users the last joined user
+
+          socket.to(allUserRoomID).emit("new-user-joined", user);
         }
       });
     });
