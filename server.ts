@@ -160,7 +160,7 @@ if (isAllReady) {
 
       socket.on(
         "update-user",
-        async ({ user, socketId: socketID, allUserRoomID }: any) => {
+        async ({ user, socketID: socketID, allUserRoomID }: any) => {
           socket.join(allUserRoomID);
 
           let doc = await db.collection("active-chats").findOneAndUpdate(
@@ -168,7 +168,7 @@ if (isAllReady) {
               email: user.email,
             },
             {
-              $set: { socketId: socketID },
+              $set: { socketID: socketID },
             },
             {
               returnDocument: "after",
