@@ -11,6 +11,7 @@ import { ObjectId } from "mongodb";
 
 import IEvent from "../../../interfaces/messaging.app/event.interfaces/event.interfaces";
 import AppError from "../../../ErrorHandling/AppError";
+import { FromTo } from "./common";
 
 const eventRouter = express.Router();
 
@@ -31,7 +32,38 @@ eventRouter
   .route("/:eventId?")
   .post(
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-      let input: IEvent = req.body;
+      let eventInput: IEvent = req.body;
+
+      let error = false;
+      if (!eventInput.eventName) {
+        error = true;
+      }
+
+      if (!eventInput.startDate) {
+        error = true;
+      }
+
+      if (!eventInput.startTime) {
+        error = true;
+      }
+
+      if (!eventInput.aboutUs) {
+        error = true;
+      }
+
+      if (!eventInput.description) {
+        error = true;
+      }
+
+      if (!eventInput.location) {
+        error = true;
+      }
+
+      if (error == true) {
+        throw new AppError("Internal Server Error", 500);
+      }
+
+      let input = eventInput as IEvent;
 
       let event = await db.collection("user-event-details").findOne({
         userId: req.user?._id,
@@ -81,6 +113,7 @@ eventRouter
               response = await db.collection("events").insertOne(
                 {
                   ...input,
+                  createdDate: new Date(Date.now()),
                 },
                 { session }
               );
@@ -93,6 +126,7 @@ eventRouter
                   eventName: input.eventName,
                   isOwner: true,
                   isFavorite: false,
+                  createdDate: new Date(Date.now()),
                 },
                 { session }
               );
@@ -149,6 +183,7 @@ eventRouter
           {
             $set: {
               image: input.image,
+              updatedDate: new Date(Date.now()),
             },
           }
         );
@@ -163,112 +198,97 @@ eventRouter
     })
   );
 
-// groupsRouter.route("/all/:from?/:to?/").post(
-//   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-//     let fromTo: FromTo = { from: 0, to: 10 };
-//     let from = req.params.from;
-//     let to = req.params.to;
+eventRouter.route("/all/:from?/:to?/").post(
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    let fromTo: FromTo = { from: 0, to: 10 };
+    let from = req.params.from;
+    let to = req.params.to;
 
-//     let isOwner = req.body.isOwner;
-//     let isJoined = req.body.isJoined;
+    let isOwner = req.body.isOwner;
+    let isJoined = req.body.isJoined;
 
-//     let groupName: string = req.body.groupName;
+    let eventName: string = req.body.eventName;
 
-//     if (from) {
-//       fromTo.from = Number(req.params.from);
-//     }
+    if (from) {
+      fromTo.from = Number(req.params.from);
+    }
 
-//     if (to) {
-//       fromTo.to = Number(req.params.to);
+    if (to) {
+      fromTo.to = Number(req.params.to);
 
-//       if (fromTo.to > 20) {
-//         fromTo.to = 20;
-//       }
-//     }
+      if (fromTo.to > 20) {
+        fromTo.to = 20;
+      }
+    }
 
-//     let response = await db
-//       .collection("groups")
-//       .aggregate([
-//         groupName
-//           ? {
-//               $match: {
-//                 groupName: { $regex: `.*${groupName}.*`, $options: "i" },
-//               },
-//             }
-//           : {
-//               $project: {
-//                 someFiled: 0,
-//               },
-//             },
-//         {
-//           $lookup: {
-//             from: "user-group-details",
-//             localField: "_id",
-//             foreignField: "groupId",
+    let response = await db
+      .collection("events")
+      .aggregate([
+        eventName
+          ? {
+              $match: {
+                eventName: { $regex: `.*${eventName}.*`, $options: "i" },
+              },
+            }
+          : {
+              $project: {
+                someFiled: 0,
+              },
+            },
+        {
+          $lookup: {
+            from: "groups",
+            localField: "groupId",
+            foreignField: "_id",
 
-//             as: "details",
-//           },
-//         },
-//         {
-//           $project: {
-//             groupName: 1,
-//             aboutUs: 1,
-//             location: 1,
-//             description: 1,
-//             image: 1,
+            as: "group",
+          },
+        },
+        {
+          $unwind: {
+            path: "$group",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        isOwner
+          ? {
+              $lookup: {
+                from: "user-event-details",
+                localField: "_id",
+                foreignField: "eventId",
+                pipeline: [
+                  {
+                    $match: {
+                      userId: req.user?._id,
+                    },
+                  },
+                ],
+                as: "details",
+              },
+            }
+          : {
+              $project: {
+                someField: 0,
+              },
+            },
+        {
+          $unwind: {
+            path: "$details",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+      ])
+      .sort({ createdDate: -1 })
+      .skip(Number(fromTo.from))
+      .limit(Number(fromTo.to))
+      .toArray();
 
-//             isJoined: {
-//               $cond: {
-//                 // if fieldB is not present in the document (missing)
-//                 if: {
-//                   $in: [true, "$details.isJoined"],
-//                 },
-//                 // then set it to some fallback value
-//                 then: true,
-//                 // else return it as is
-//                 else: false,
-//               },
-//             },
-
-//             isOwner: {
-//               $cond: {
-//                 // if fieldB is not present in the document (missing)
-//                 if: {
-//                   $in: [req.user?._id, "$details.userId"],
-//                 },
-//                 // then set it to some fallback value
-//                 then: true,
-//                 // else return it as is
-//                 else: false,
-//               },
-//             },
-//           },
-//         },
-//         isOwner
-//           ? { $match: { isOwner: true } }
-//           : {
-//               $project: {
-//                 someFiled: 0,
-//               },
-//             },
-//         isJoined
-//           ? { $match: { isJoined: true } }
-//           : {
-//               $project: {
-//                 someFiled: 0,
-//               },
-//             },
-//       ])
-//       .skip(Number(fromTo.from))
-//       .limit(Number(fromTo.to))
-//       .toArray();
-
-//     res.status(200).json({
-//       status: "success",
-//       data: response,
-//     });
-//   })
-// );
+    res.status(200).json({
+      status: "success",
+      data: response,
+    });
+  })
+);
 
 // // quizeNameRouter
 // //   .route("/:id")

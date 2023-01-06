@@ -10,11 +10,7 @@ import { packWithObjectID } from "../../../utils/all.util";
 import { extractObjectId } from "../../../utils/extractObjectId";
 import { ObjectId } from "mongodb";
 import AppError from "../../../ErrorHandling/AppError";
-
-interface FromTo {
-  from: number;
-  to: number;
-}
+import { FromTo } from "./common";
 
 groupsRouter.route("/:groupId").get(
   catchAsync(async (req: Request, res: Response, next: NextFunction) => {
@@ -82,6 +78,7 @@ groupsRouter
               response = await db.collection("groups").insertOne(
                 {
                   ...input,
+                  createdDate: new Date(Date.now()),
                 },
                 { session }
               );
@@ -95,6 +92,7 @@ groupsRouter
                   isJoined: false,
                   isOwner: true,
                   isFavorite: false,
+                  createdDate: new Date(Date.now()),
                 },
                 { session }
               );
@@ -149,6 +147,7 @@ groupsRouter
           {
             $set: {
               image: input.image,
+              updatedDate: new Date(Date.now()),
             },
           }
         );
@@ -216,7 +215,7 @@ groupsRouter.route("/all/:from?/:to?/").post(
             location: 1,
             description: 1,
             image: 1,
-
+            createdDate: 1,
             isJoined: {
               $cond: {
                 // if fieldB is not present in the document (missing)
@@ -259,7 +258,7 @@ groupsRouter.route("/all/:from?/:to?/").post(
               },
             },
       ])
-      .sort({ groupName: 1 })
+      .sort({ createdDate: -1 })
       .skip(Number(fromTo.from))
       .limit(Number(fromTo.to))
       .toArray();

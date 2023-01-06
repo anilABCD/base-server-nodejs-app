@@ -11,4 +11,5 @@ export default interface IEvent extends IBaseModel {
   startTime: Date;
   timeZoneOffset: Number;
   isOnline: Boolean;
+  location: string;
 }
