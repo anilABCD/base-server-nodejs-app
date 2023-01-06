@@ -2,10 +2,13 @@ import { autoInjectable } from "tsyringe";
 import BaseController from "../base.controller";
 import getEnv, { EnvEnumType } from "../../env/getEnv";
 import { Request, Response, NextFunction } from "express";
-
+//@ts-ignore
+import { v4 as uuidv4 } from "uuid";
 const crypto = require("crypto");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
+
+import validator from "email-validator";
 
 import catchAsync from "../../ErrorHandling/catchAsync";
 import AppError from "../../ErrorHandling/AppError";
@@ -14,7 +17,7 @@ import IUser, {
   IUserMethods,
   IUserModel,
 } from "../../interfaces/user.interfaces/user.interface";
-import { Roles } from "../../model.types/user.types/user.model.types";
+import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import AuthService from "../../services/user.services/auth.service";
 import console from "../../utils/console";
 
@@ -119,6 +122,62 @@ export default class AuthController extends BaseController<
       this.createSendToken(user, 200, req, res);
     }
   );
+
+  signUpWithGoogle = async (
+    email: string,
+    name: string,
+    photo: string,
+    req: Request,
+    res: Response
+  ) => {
+    let password = uuidv4();
+
+    const newUser = await this.service?.post({
+      id: "",
+      photo: photo,
+      createdDate: new Date(),
+      updatedDate: new Date(),
+      name: name,
+      email: email,
+      password: password,
+      passwordConfirm: password,
+      gender: Gender.male,
+      active: true,
+    });
+
+    const url = `${req.protocol}://${req.get("host")}/me`;
+    // console.log(url);
+    //@Production : Email
+    await new Email(newUser, url).sendWelcome();
+
+    return this.createSendToken(newUser, 201, req, res);
+  };
+
+  loginWithGoogle = async (
+    email: string,
+    name: string,
+    photo: string,
+    req: Request,
+    res: Response
+  ) => {
+    const isEmail = validator.validate(email);
+
+    // 1) Check is email valid.
+    if (!isEmail) {
+      console.log("not a email in google login.");
+      throw new AppError("Internal Server Error", 500);
+    }
+
+    // 2) Check if user exists && password is correct
+    const user = await this.service?.findOneDocument({ email });
+
+    if (!user) {
+      return this.signUpWithGoogle(email, name, photo, req, res);
+    }
+
+    // 3) If everything ok, send token to client
+    this.createSendToken(user, 200, req, res);
+  };
 
   logout = catchAsync(async (req: Request, res: Response) => {
     res.cookie("jwt", "", {

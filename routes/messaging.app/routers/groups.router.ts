@@ -31,6 +31,28 @@ groupsRouter
     catchAsync(async (req: Request, res: Response, next: NextFunction) => {
       let input: IGroup = req.body;
 
+      let isError = false;
+
+      if (input.groupName.trim() == "") {
+        isError = true;
+      }
+
+      if (input.aboutUs.trim() == "") {
+        isError = true;
+      }
+
+      if (input.description.trim() == "") {
+        isError = true;
+      }
+
+      if (input.location.trim() == "") {
+        isError = true;
+      }
+
+      if (isError == true) {
+        throw new AppError("Internal Server Error", 500);
+      }
+
       let group = await db.collection("user-group-details").findOne({
         userId: req.user?._id,
         groupName: input.groupName,

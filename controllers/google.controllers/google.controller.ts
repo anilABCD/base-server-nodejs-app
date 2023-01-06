@@ -2,17 +2,59 @@ import { autoInjectable } from "tsyringe";
 import catchAsync from "../../ErrorHandling/catchAsync";
 import { Request, Response, NextFunction } from "express";
 
+import { OAuth2Client } from "google-auth-library";
+import AppError from "../../ErrorHandling/AppError";
+import AuthController from "../user.controllers/auth.controller";
+
+const CLIENT_ID =
+  "346488674498-khsv3qojg3bgjn5k9560knrqk68shegv.apps.googleusercontent.com";
+
+const client = new OAuth2Client(CLIENT_ID);
+
+async function verify(token: string) {
+  const ticket = await client.verifyIdToken({
+    idToken: token,
+    audience: CLIENT_ID, // Specify the CLIENT_ID of the app that accesses the backend
+    // Or, if multiple clients access the backend:
+    //[CLIENT_ID_1, CLIENT_ID_2, CLIENT_ID_3]
+  });
+  const payload = ticket.getPayload();
+  const userid = payload?.sub;
+  console.log(payload);
+  return payload;
+  // If request specified a G Suite domain:
+  // const domain = payload['hd'];
+}
+
 export default class GoogleController {
   constructor() {}
+
   signIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      //   const resource = await this.service?.post(req.body);
-      res.status(201).json({
-        status: "success",
-        data: {
-          //   resource,
-        },
-      });
+      const token = req.body.token;
+
+      try {
+        let response = await verify(token);
+
+        let auth = new AuthController();
+
+        if (!response?.email || response.email.trim() == "") {
+          console.log("did not got email form google.");
+          throw new AppError("Internal Server Error", 500);
+        }
+
+        return auth.loginWithGoogle(
+          response?.email ? response?.email : "",
+          response?.name ? response?.name : "",
+          response?.picture ? response?.picture : "",
+          req,
+          res
+        );
+      } catch (error) {
+        console.log(error);
+
+        throw new AppError("Internal Server Error", 500);
+      }
     }
   );
 }

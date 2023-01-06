@@ -35,7 +35,7 @@ eventRouter
       let eventInput: IEvent = req.body;
 
       let error = false;
-      if (!eventInput.eventName) {
+      if (eventInput.eventName.trim() == "") {
         error = true;
       }
 
@@ -47,15 +47,15 @@ eventRouter
         error = true;
       }
 
-      if (!eventInput.aboutUs) {
+      if (eventInput.aboutUs.trim() == "") {
         error = true;
       }
 
-      if (!eventInput.description) {
+      if (eventInput.description.trim() == "") {
         error = true;
       }
 
-      if (!eventInput.location) {
+      if (eventInput.location.trim() == "") {
         error = true;
       }
 
