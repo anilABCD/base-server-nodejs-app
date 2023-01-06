@@ -225,6 +225,22 @@ if (isAllReady) {
           socket.to(allUserRoomID).emit("new-user-joined", user);
         }
       });
+
+      // Listen for peer connections
+
+      socket.on(
+        "join-stream-room",
+        ({ roomID, peerID, socketID, user }: any) => {
+          socket.join(roomID);
+
+          socket.to(roomID).emit("user-connected", {
+            peerID,
+            user,
+            roomID,
+            socketID,
+          });
+        }
+      );
     });
 
     io.use((socket, next) => {
