@@ -190,6 +190,8 @@ groupsRouter.route("/all/:from?/:to?/").post(
     let from = req.params.from;
     let to = req.params.to;
 
+    console.log("isOwner ", req.body);
+
     let isOwner = req.body.isOwner;
     let isJoined = req.body.isJoined;
 
