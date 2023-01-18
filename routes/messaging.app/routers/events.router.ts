@@ -207,6 +207,8 @@ eventRouter.route("/all/:from?/:to?/").post(
     let isOwner = req.body.isOwner;
     let isJoined = req.body.isJoined;
 
+    console.log(req.body);
+
     let eventName: string = req.body.eventName;
 
     if (from) {
@@ -277,6 +279,13 @@ eventRouter.route("/all/:from?/:to?/").post(
             preserveNullAndEmptyArrays: true,
           },
         },
+        isOwner
+          ? { $match: { "details.isOwner": true } }
+          : {
+              $project: {
+                someFiled: 0,
+              },
+            },
       ])
       .sort({ createdDate: -1 })
       .skip(Number(fromTo.from))

@@ -102,6 +102,44 @@ export default class AuthController extends BaseController<
     }
   );
 
+  update = catchAsync(
+    async (req: Request, res: Response, next: NextFunction) => {
+      const id = req.body.id;
+
+      const gender = req.body.gender;
+      const name = req.body.name;
+
+      let updateObject = {};
+      if (gender) {
+        updateObject = {
+          ...updateObject,
+          gender: gender,
+        };
+      }
+
+      if (name) {
+        updateObject = {
+          ...updateObject,
+          name: name,
+        };
+      }
+
+      const newUser = await this.service?.update(id, {
+        ...updateObject,
+        updatedDate: new Date(),
+      });
+
+      console.log(newUser);
+
+      return res.status(200).json({
+        status: "success",
+        body: {
+          user: newUser,
+        },
+      });
+    }
+  );
+
   login = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const { email, password } = req.body;
