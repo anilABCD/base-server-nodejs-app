@@ -56,6 +56,7 @@ import generateRouter from "./routes/generate.routes/generate.router";
 import googleRouter from "./routes/google/google.router";
 import groupsRouter from "./routes/messaging.app/routers/groups.router";
 import eventRouter from "./routes/messaging.app/routers/events.router";
+import userRouter from "./routes/messaging.app/routers/user.routes";
 
 const limiter = rateLimit({
   max: 120,
@@ -201,6 +202,7 @@ app.use("/google", googleRouter);
 //#region User Api
 
 app.use("/auth/", authRouter);
+app.use("/user/", authController.protect, userRouter);
 
 app.use("/groups/", authController.protect, groupsRouter);
 

@@ -85,17 +85,18 @@ export default class AuthController extends BaseController<
         photo: "",
         createdDate: new Date(),
         updatedDate: new Date(),
-        name: req.body.name,
+        name: "",
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
-        gender: req.body.gender,
+
         active: true,
       });
 
       const url = `${req.protocol}://${req.get("host")}/me`;
       // console.log(url);
       //@Production : Email
+
       await new Email(newUser, url).sendWelcome();
 
       this.createSendToken(newUser, 201, req, res);
