@@ -25,6 +25,19 @@ userRouter.route("/").get(
   })
 );
 
+userRouter.route("/info").get(
+  catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    req.user;
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user: req.user,
+      },
+    });
+  })
+);
+
 userRouter
   .route("/")
   .patch(

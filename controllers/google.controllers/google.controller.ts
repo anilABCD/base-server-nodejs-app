@@ -7,7 +7,7 @@ import AppError from "../../ErrorHandling/AppError";
 import AuthController from "../user.controllers/auth.controller";
 
 const CLIENT_ID =
-  "346488674498-khsv3qojg3bgjn5k9560knrqk68shegv.apps.googleusercontent.com";
+  "346488674498-473kab7r2k8e5j5fcqmh7js4dfvgr6j6.apps.googleusercontent.com";
 
 const client = new OAuth2Client(CLIENT_ID);
 

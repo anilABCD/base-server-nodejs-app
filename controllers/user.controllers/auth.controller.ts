@@ -62,8 +62,10 @@ export default class AuthController extends BaseController<
             1000
       ),
       httpOnly: true,
+      secure: false,
+
       // @Production : add below line in production if commented
-      secure: req.secure || req.headers["x-forwarded-proto"] === "https",
+      // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     });
 
     // Remove password from output
@@ -239,6 +241,8 @@ export default class AuthController extends BaseController<
       } else if (req.cookies.jwt) {
         token = req.cookies.jwt;
       }
+
+      console.log(req.cookies.jwt);
 
       // console.log("token", token);
 

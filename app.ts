@@ -84,6 +84,19 @@ toUseTopLevelAwait().then((_result) => {});
 // });
 //#endregion
 
+////// i dont know about this :
+// app.use((req, res, next) => {
+//   res.header("Access-Control-Allow-Origin", "*");
+//   res.header("Access-Control-Allow-Credentials", "true");
+//   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+//   res.header(
+//     "Access-Control-Allow-Headers",
+//     "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+//   );
+//   next();
+// });
+//////////////////////////
+
 // Request logger
 app.use(morgan("dev"));
 
@@ -126,7 +139,8 @@ app.use(express.static("public"));
 // cors
 
 var corsOptions = {
-  origin: "*",
+  credentials: true,
+  origin: "http://localhost:3000",
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
