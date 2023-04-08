@@ -70,7 +70,7 @@ const checkAuthenticated = (context: any) => {
 
 const restrictTo = (role: Roles, ...roles: String[]) => {
   if (roles.length > 0) {
-    let roleIndex: number = parseInt(Roles[role]);
+    let roleIndex = Roles[role];
     let userRole = Roles[roleIndex];
 
     if (!roles.includes(userRole)) {

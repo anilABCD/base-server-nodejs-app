@@ -247,10 +247,22 @@ export default class AuthController extends BaseController<
   };
 
   logout = catchAsync(async (req: Request, res: Response) => {
+    console.log("logout called");
+
     res.cookie("jwt", "", {
-      expires: new Date(Date.now() + 10 * 1000),
+      expires: new Date(Date.now() - 1),
+      maxAge: 0,
       httpOnly: true,
+      secure: false,
     });
+
+    // res.clearCookie("jwt", {
+    //   httpOnly: true,
+    //   secure: false,
+    //   domain: "localhost",
+    //   path: "/",
+    // });
+
     res.status(200).json({ status: "success" });
   });
 
