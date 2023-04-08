@@ -32,6 +32,7 @@ export default class GoogleController {
   signIn = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       const token = req.body.token;
+      const extra = req.body.extra;
 
       try {
         let response = await verify(token);
@@ -48,7 +49,8 @@ export default class GoogleController {
           response?.name ? response?.name : "",
           response?.picture ? response?.picture : "",
           req,
-          res
+          res,
+          extra
         );
       } catch (error) {
         console.log(error);

@@ -1,3 +1,4 @@
+import { RolesEnum } from "./../../model.types/user.types/user.model.types";
 import { autoInjectable } from "tsyringe";
 import BaseController from "../base.controller";
 import getEnv, { EnvEnumType } from "../../env/getEnv";
@@ -46,7 +47,8 @@ export default class AuthController extends BaseController<
     user: any,
     statusCode: number,
     req: Request,
-    res: Response
+    res: Response,
+    extra: string
   ) => {
     const token = this.signToken(user._id);
     user = user as IUser;
@@ -95,13 +97,15 @@ export default class AuthController extends BaseController<
         active: true,
       });
 
+      const extra = req.body.extra;
+
       const url = `${req.protocol}://${req.get("host")}/me`;
       // console.log(url);
       //@Production : Email
 
       await new Email(newUser, url).sendWelcome();
 
-      this.createSendToken(newUser, 201, req, res);
+      this.createSendToken(newUser, 201, req, res, extra);
     }
   );
 
@@ -145,7 +149,7 @@ export default class AuthController extends BaseController<
 
   login = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const { email, password } = req.body;
+      const { email, password, extra } = req.body;
 
       // 1) Check if email and password exist
       if (!email || !password) {
@@ -160,7 +164,7 @@ export default class AuthController extends BaseController<
       }
 
       // 3) If everything ok, send token to client
-      this.createSendToken(user, 200, req, res);
+      this.createSendToken(user, 200, req, res, extra);
     }
   );
 
@@ -169,9 +173,19 @@ export default class AuthController extends BaseController<
     name: string,
     photo: string,
     req: Request,
-    res: Response
+    res: Response,
+    extra: string
   ) => {
     let password = uuidv4();
+
+    let role = undefined;
+    if (extra == "freelancer") {
+      role = Roles.freelancer;
+    }
+
+    if (extra == "hire") {
+      role = Roles.hire;
+    }
 
     const newUser = await this.service?.post({
       id: "",
@@ -182,8 +196,9 @@ export default class AuthController extends BaseController<
       email: email,
       password: password,
       passwordConfirm: password,
-      gender: Gender.male,
+      gender: Gender.None,
       active: true,
+      role: role,
     });
 
     const url = `${req.protocol}://${req.get("host")}/me`;
@@ -191,7 +206,7 @@ export default class AuthController extends BaseController<
     //@Production : Email
     await new Email(newUser, url).sendWelcome();
 
-    return this.createSendToken(newUser, 201, req, res);
+    return this.createSendToken(newUser, 201, req, res, extra);
   };
 
   loginWithGoogle = async (
@@ -199,7 +214,8 @@ export default class AuthController extends BaseController<
     name: string,
     photo: string,
     req: Request,
-    res: Response
+    res: Response,
+    extra: string
   ) => {
     const isEmail = validator.validate(email);
 
@@ -212,12 +228,22 @@ export default class AuthController extends BaseController<
     // 2) Check if user exists && password is correct
     const user = await this.service?.findOneDocument({ email });
 
+    if (user?.role != Roles[extra as keyof typeof Roles]) {
+      await this.service?.update(
+        user?.id,
+        {
+          role: Roles[extra as keyof typeof Roles],
+        },
+        ["role"]
+      );
+    }
+
     if (!user) {
-      return this.signUpWithGoogle(email, name, photo, req, res);
+      return this.signUpWithGoogle(email, name, photo, req, res, extra);
     }
 
     // 3) If everything ok, send token to client
-    this.createSendToken(user, 200, req, res);
+    this.createSendToken(user, 200, req, res, extra);
   };
 
   logout = catchAsync(async (req: Request, res: Response) => {
@@ -469,6 +495,8 @@ export default class AuthController extends BaseController<
       .update(req.params.token)
       .digest("hex");
 
+    const extra = req.params.extra;
+
     const user = await this.service?.findOneDocument({
       passwordResetToken: hashedToken,
       passwordResetExpires: { $gt: Date.now() },
@@ -487,13 +515,14 @@ export default class AuthController extends BaseController<
 
     // 3) Update changedPasswordAt property for the user
     // 4) Log the user in, send JWT
-    this.createSendToken(user, 200, req, res);
+    this.createSendToken(user, 200, req, res, extra);
   });
 
   updatePassword = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
       // 1) Get user from collection
       const user = await this.service?.getById(req.user?.id, "+password");
+      const extra = req.body.extra;
 
       if (user) {
         // CHECK :
@@ -512,7 +541,7 @@ export default class AuthController extends BaseController<
         // User.findByIdAndUpdate will NOT work as intended!
 
         // 4) Log user in, send JWT
-        this.createSendToken(user, 200, req, res);
+        this.createSendToken(user, 200, req, res, extra);
       }
     }
   );
