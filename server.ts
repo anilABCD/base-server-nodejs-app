@@ -291,6 +291,8 @@ if (isAllReady) {
 
       console.log("Error Authentication :", validateToken.message);
       return next(new AppError(validateToken.message, 401));
+
+      // return next();
     });
 
     // 404 NOTE: all("*") : get, post, patch , delete All URLs .

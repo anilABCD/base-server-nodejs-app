@@ -54,7 +54,7 @@ export default class GoogleController {
           extra
         );
 
-        console.log("step last ");
+      
       } catch (error) {
         console.log(error);
 
