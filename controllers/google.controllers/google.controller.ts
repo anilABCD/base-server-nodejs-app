@@ -34,6 +34,7 @@ export default class GoogleController {
       const token = req.body.token;
       const extra = req.body.extra;
 
+      console.log("step 1");
       try {
         let response = await verify(token);
 
@@ -52,6 +53,8 @@ export default class GoogleController {
           res,
           extra
         );
+
+        console.log("step last ");
       } catch (error) {
         console.log(error);
 

@@ -11,7 +11,6 @@ const jwt = require("jsonwebtoken");
 
 import validator from "email-validator";
 
-import catchAsync from "../../ErrorHandling/catchAsync";
 import AppError from "../../ErrorHandling/AppError";
 import Email from "../../utils/email";
 import IUser, {
@@ -21,6 +20,7 @@ import IUser, {
 import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import AuthService from "../../services/user.services/auth.service";
 import console from "../../utils/console";
+import catchAsync from "../../ErrorHandling/catchAsync";
 
 @autoInjectable()
 export default class AuthController extends BaseController<
@@ -50,7 +50,9 @@ export default class AuthController extends BaseController<
     res: Response,
     extra: string
   ) => {
+    console.log("step 4 creating token");
     const token = this.signToken(user._id);
+
     user = user as IUser;
     res.cookie("jwt", token, {
       expires: new Date(
@@ -228,17 +230,22 @@ export default class AuthController extends BaseController<
     // 2) Check if user exists && password is correct
     const user = await this.service?.findOneDocument({ email });
 
-    if (user?.role != Roles[extra as keyof typeof Roles]) {
-      await this.service?.update(
-        user?.id,
-        {
-          role: Roles[extra as keyof typeof Roles],
-        },
-        ["role"]
-      );
+    console.log("step 2 finding user ");
+
+    if (user) {
+      if (user?.role != Roles[extra as keyof typeof Roles]) {
+        await this.service?.update(
+          user?.id,
+          {
+            role: Roles[extra as keyof typeof Roles],
+          },
+          ["role"]
+        );
+      }
     }
 
     if (!user) {
+      console.log("step 3 crating user ");
       return this.signUpWithGoogle(email, name, photo, req, res, extra);
     }
 
@@ -335,6 +342,62 @@ export default class AuthController extends BaseController<
       next();
     }
   );
+
+  protectSocket = async (token: string) => {
+    // 1) Getting token and check of it's there
+
+    console.log("token");
+
+    // console.log("token", token);
+
+    if (!token) {
+      return {
+        message: "You are not logged in! Please log in to get access. 401",
+        success: false,
+        user: null,
+      };
+    }
+
+    // 2) Verification token
+    let decoded: any;
+    try {
+      decoded = await promisify(jwt.verify)(
+        token,
+        getEnv(EnvEnumType.JWT_SECRET)
+      );
+    } catch (err) {
+      decoded = { id: "            " };
+    }
+
+    // console.log(decoded);
+
+    // 3) Check if user still exists
+    const currentUser = await this.service?.getDocumentById(decoded.id);
+    if (!currentUser) {
+      return {
+        message: "You are not logged in! Please log in to get access. 401",
+        success: false,
+        user: null,
+      };
+    }
+
+    // CHECK :
+    // 4)  Check if user changed password after the token was issued
+    if (currentUser.changedPasswordAfter(decoded.iat)) {
+      return {
+        message: "You are not logged in! Please log in to get access. 401",
+        success: false,
+        user: null,
+      };
+    }
+
+    // GRANT ACCESS TO PROTECTED ROUTE
+    return {
+      message: "success",
+      user: currentUser,
+      success: true,
+    };
+  };
 
   protectGrqphQL = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {

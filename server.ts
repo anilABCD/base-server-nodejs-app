@@ -15,6 +15,8 @@ import * as mongodb from "mongodb";
 const { ExpressPeerServer } = require("peer");
 import { Server } from "socket.io";
 import AppError from "./ErrorHandling/AppError";
+import AuthController from "./controllers/user.controllers/auth.controller";
+import IUser from "./interfaces/user.interfaces/user.interface";
 
 //////////////////////////////////////////////////////////////////////
 // NOTE :
@@ -32,6 +34,8 @@ console.log(process.env.ENV);
 console.log(PORT);
 
 const isAllReady = isAllResourcesReady();
+
+let authController = new AuthController();
 
 if (!isAllReady) {
   console.log("setShowVerify");
@@ -140,112 +144,153 @@ if (isAllReady) {
     const io = new Server(server, { cors: { origin: "*" } });
 
     io.on("connect", (socket) => {
+      // below is room Code ::::::::::::::::::::::::::::::::
       console.log("connected");
-      socket.on("join-general-room", (params) => {
-        console.log("room-id", params);
-        socket.join(params);
+      // socket.on("join-general-room", (params) => {
+      //   console.log("room-id", params);
+      //   socket.join(params);
+      // });
+
+      // socket.on("user-exists", async ({ user, socketID }: any) => {
+      //   let userInfo = await db
+      //     .collection("active-chats")
+      //     .findOne({ email: user.email });
+      //   console.log("on user-exists");
+
+      //   console.log(userInfo);
+
+      //   io.in(socketID).emit("user-found", userInfo);
+      //   console.log("user-found emitted", socketID);
+      // });
+
+      // socket.on(
+      //   "update-user",
+      //   async ({ user, socketID: socketID, allUserRoomID }: any) => {
+      //     socket.join(allUserRoomID);
+
+      //     let doc = await db.collection("active-chats").findOneAndUpdate(
+      //       {
+      //         email: user.email,
+      //       },
+      //       {
+      //         $set: { socketID: socketID },
+      //       },
+      //       {
+      //         returnDocument: "after",
+      //       }
+      //     );
+
+      //     if (doc) {
+      //       let allUsers = await db
+      //         .collection("active-chats")
+      //         .find({})
+      //         .toArray();
+      //       let otherUsers = allUsers.filter(({ email: otherEmails }) => {
+      //         return otherEmails !== user.email;
+      //       });
+
+      //       io.in(socketID).emit("activeUsers", otherUsers);
+      //     }
+
+      //     socket
+      //       .to(allUserRoomID)
+      //       .emit("new-user-join", [{ ...user, socketID }]);
+      //   }
+
+      //   //** Notify other user about updated or joined users */
+      // );
+      // socket.on("user-join", async ({ allUserRoomID, user, socketID }) => {
+      //   socket.join(allUserRoomID);
+
+      //   //* Store new user in active chats */
+
+      //   let activeUser = await db
+      //     .collection("active-chats")
+      //     .findOne({ email: user.email });
+
+      //   if (!activeUser) {
+      //     const active = await db.collection("active-chats").insertOne({
+      //       ...user,
+      //       socketID,
+      //     });
+
+      //     const users = await db.collection("active-chats").find({}).toArray();
+
+      //     let otherUsers = users.filter(
+      //       ({ email: otherEmails }) => otherEmails !== user.email
+      //     );
+
+      //     // ** Send others to new connected user
+
+      //     io.in(socketID).emit("activeUsers", otherUsers);
+      //   } else {
+      //     //inc yesterday.
+      //     // Emit to all other users the last joined user
+
+      //     socket.to(allUserRoomID).emit("new-user-joined", user);
+      //   }
+      // });
+
+      // // Listen for peer connections
+
+      // socket.on(
+      //   "join-stream-room",
+      //   ({ roomID, peerID, socketID, user }: any) => {
+      //     socket.join(roomID);
+
+      //     socket.to(roomID).emit("user-connected", {
+      //       peerID,
+      //       user,
+      //       roomID,
+      //       socketID,
+      //     });
+      //   }
+      // );
+
+      // Above is room code ::::::::::::::::::::::::::::::::
+
+      /////////////////// chat gpt user to user communication code ///////////
+
+      console.log("New client connected:", socket.id);
+
+      socket.on("joinRoom", (userId) => {
+        console.log(`Socket ${socket.id} joined user room ${userId}`);
+        socket.join(userId);
       });
 
-      socket.on("user-exists", async ({ user, socketID }: any) => {
-        let userInfo = await db
-          .collection("active-chats")
-          .findOne({ email: user.email });
-        console.log("on user-exists");
+      socket.on("sendMessage", ({ userId, message }) => {
+        console.log("Received new message:", message);
+        // Save the message to the database
 
-        console.log(userInfo);
-
-        io.in(socketID).emit("user-found", userInfo);
-        console.log("user-found emitted", socketID);
+        // Emit the new message event to the user room
+        io.to(userId).emit("newMessage", message);
       });
 
-      socket.on(
-        "update-user",
-        async ({ user, socketID: socketID, allUserRoomID }: any) => {
-          socket.join(allUserRoomID);
-
-          let doc = await db.collection("active-chats").findOneAndUpdate(
-            {
-              email: user.email,
-            },
-            {
-              $set: { socketID: socketID },
-            },
-            {
-              returnDocument: "after",
-            }
-          );
-
-          if (doc) {
-            let allUsers = await db
-              .collection("active-chats")
-              .find({})
-              .toArray();
-            let otherUsers = allUsers.filter(({ email: otherEmails }) => {
-              return otherEmails !== user.email;
-            });
-
-            io.in(socketID).emit("activeUsers", otherUsers);
-          }
-
-          socket
-            .to(allUserRoomID)
-            .emit("new-user-join", [{ ...user, socketID }]);
-        }
-
-        //** Notify other user about updated or joined users */
-      );
-      socket.on("user-join", async ({ allUserRoomID, user, socketID }) => {
-        socket.join(allUserRoomID);
-
-        //* Store new user in active chats */
-
-        let activeUser = await db
-          .collection("active-chats")
-          .findOne({ email: user.email });
-
-        if (!activeUser) {
-          const active = await db.collection("active-chats").insertOne({
-            ...user,
-            socketID,
-          });
-
-          const users = await db.collection("active-chats").find({}).toArray();
-
-          let otherUsers = users.filter(
-            ({ email: otherEmails }) => otherEmails !== user.email
-          );
-
-          // ** Send others to new connected user
-
-          io.in(socketID).emit("activeUsers", otherUsers);
-        } else {
-          //inc yesterday.
-          // Emit to all other users the last joined user
-
-          socket.to(allUserRoomID).emit("new-user-joined", user);
-        }
+      socket.on("disconnect", () => {
+        console.log("Client disconnected:", socket.id);
       });
 
-      // Listen for peer connections
-
-      socket.on(
-        "join-stream-room",
-        ({ roomID, peerID, socketID, user }: any) => {
-          socket.join(roomID);
-
-          socket.to(roomID).emit("user-connected", {
-            peerID,
-            user,
-            roomID,
-            socketID,
-          });
-        }
-      );
+      // Above is chat gpt user to user communication code . ///////////
     });
 
-    io.use((socket, next) => {
-      console.log("socket use");
-      next();
+    io.use(async (socket, next) => {
+      const token = socket.handshake.query.token as string;
+
+      let validateToken = await authController.protectSocket(token);
+      if (validateToken.success == true) {
+        // Authentication successful
+
+        //@ts-ignore
+        socket.user = validateToken.user;
+
+        //@ts-ignore
+        console.log(" Authentication ", validateToken.message, socket.user);
+
+        return next();
+      }
+
+      console.log("Error Authentication :", validateToken.message);
+      return next(new AppError(validateToken.message, 401));
     });
 
     // 404 NOTE: all("*") : get, post, patch , delete All URLs .
