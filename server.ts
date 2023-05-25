@@ -262,6 +262,8 @@ if (isAllReady) {
         console.log("Received new message:", message);
         // Save the message to the database
 
+        message.timestamp = new Date(Date.now());
+
         // Emit the new message event to the user room
         io.to(userId).emit("newMessage", message);
       });
