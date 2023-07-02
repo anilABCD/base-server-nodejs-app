@@ -1,6 +1,9 @@
 
 :::: RECENT ::::
 
+    // original working 
+    // "start": "nodemon --ext js,graphql,html,json,pug,env --ignore './node_modules/'  --no-warnings ./dist/server.js",
+
     "start": "nodemon --ext js,graphql,html,json,pug,env --no-warnings --harmony-top-level-await ./dist/server.js",
     "build": "tsc -p ./",
     "watch-gql": "watch -p './GraphQLAPI/**/*.graphql' -c  'clear & curl -X POST http://localhost/api/v1/generate'"
