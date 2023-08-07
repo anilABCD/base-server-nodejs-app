@@ -66,7 +66,7 @@ export default class AuthController extends BaseController<
             1000
       ),
       httpOnly: true,
-      secure: false,
+      secure: true,
       domain: "freenextjs.azurewebsites.net",
       // @Production : add below line in production if commented
       // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
