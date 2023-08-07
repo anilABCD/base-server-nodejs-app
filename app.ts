@@ -140,7 +140,7 @@ app.use(express.static("public"));
 
 var corsOptions = {
   credentials: true,
-  origin: "http://localhost:3000",
+  origin: ["http://localhost:3000", "https://freenextjs.azurewebsites.net"],
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };
 
