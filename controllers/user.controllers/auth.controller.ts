@@ -66,11 +66,10 @@ export default class AuthController extends BaseController<
             1000
       ),
       httpOnly: true,
-      secure: true,
+      secure: true, // Set secure to true for HTTPS
       domain: "freenextjs.azurewebsites.net",
-      // sameSite: "none",
-      path: "/",
-      // domain: ".freenextjs.azurewebsites.net",
+      sameSite: "none", // Required for cross-origin cookies
+      path: "/", // Set the appropriate path
       // @Production : add below line in production if commented
       // secure: req.secure || req.headers["x-forwarded-proto"] === "https",
     });
