@@ -262,7 +262,10 @@ export default class AuthController extends BaseController<
       expires: new Date(Date.now() - 1),
       maxAge: 0,
       httpOnly: true,
-      secure: false,
+      secure: true,
+      domain: ".developerext.com",
+      sameSite: "none", // Required for cross-origin cookies
+      path: "/", // Set the appropriate path
     });
 
     // res.clearCookie("jwt", {
