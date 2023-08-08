@@ -67,7 +67,7 @@ export default class AuthController extends BaseController<
       ),
       httpOnly: true,
       secure: true, // Set secure to true for HTTPS
-      domain: ".azurewebsites.net",
+      domain: ".developerext.com",
       sameSite: "none", // Required for cross-origin cookies
       path: "/", // Set the appropriate path
       // @Production : add below line in production if commented
