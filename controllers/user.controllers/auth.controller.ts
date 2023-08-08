@@ -67,7 +67,7 @@ export default class AuthController extends BaseController<
       ),
       httpOnly: true,
       secure: true,
-      domain: ".azurewebsites.net",
+      domain: "freenextjs.azurewebsites.net",
       sameSite: "none",
       path: "/",
       // domain: ".freenextjs.azurewebsites.net",

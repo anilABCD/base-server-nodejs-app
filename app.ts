@@ -69,7 +69,7 @@ const app = express();
 // Enable "trust proxy" when behind a reverse proxy
 app.enable("trust proxy");
 // Enable "trust proxy" when behind a reverse proxy
-// app.set("trust proxy", 1);
+app.set("trust proxy", 1);
 
 const toUseTopLevelAwait = promisify(() => true);
 
