@@ -11,6 +11,13 @@ import morgan from "morgan";
 import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
+
+import messagesRouter from "./routes/developerDating/messages";
+
+import matchesRouter from "./routes/developerDating/matchs";
+
+import interactionsRouter from "./routes/developerDating/interactions";
+
 // import startApolloSevrver from "./GraphQLAPI/apollo.server";
 import { graphqlUploadExpress } from "graphql-upload";
 
@@ -228,6 +235,12 @@ app.use("/user/", authController.protect, userRouter);
 app.use("/groups/", authController.protect, groupsRouter);
 
 app.use("/events/", authController.protect, eventRouter);
+
+app.use("/messages/", messagesRouter);
+
+app.use("/matches/", matchesRouter);
+
+app.use("/interactions/", interactionsRouter);
 
 //#endregion End User Api
 
