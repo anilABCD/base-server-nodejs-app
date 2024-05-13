@@ -1,6 +1,7 @@
 import catchAsync from "../../ErrorHandling/catchAsync";
 
 const express = require("express");
+const User = require("../../Model/user.models/user.model");
 const Match = require("../../Model/deverloperDating/match");
 
 const router = express.Router();
@@ -10,7 +11,9 @@ router.post(
   "/",
   catchAsync(async (req: any, res: any) => {
     try {
-      const { user1_id, user2_id } = req.body;
+      const user1_id = req.user?._id;
+
+      const { user2_id } = req.body;
 
       const newMatch = new Match({
         user1_id,
@@ -29,14 +32,16 @@ router.post(
 
 // Get matches for a user
 router.get(
-  "/:userId",
+  "/",
   catchAsync(async (req: any, res: any) => {
     try {
-      const userId = req.params.userId;
+      const userId = req.user?._id;
 
       const matches = await Match.find({
         $or: [{ user1_id: userId }, { user2_id: userId }],
-      });
+      })
+        .populate("user1_id")
+        .populate("user2_id");
 
       res.status(200).send(matches);
     } catch (error) {

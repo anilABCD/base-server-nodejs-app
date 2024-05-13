@@ -246,7 +246,7 @@ app.use("/events/", authController.protect, eventRouter);
 
 app.use("/messages/", messagesRouter);
 
-app.use("/matches/", matchesRouter);
+app.use("/matches/", authController.protect, matchesRouter);
 
 app.use("/interactions/", interactionsRouter);
 
