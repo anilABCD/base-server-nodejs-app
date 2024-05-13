@@ -5,6 +5,7 @@ const express = require("express");
 import AuthService from "../../services/user.services/auth.service";
 import User from "../../Model/user.models/user.model";
 import catchAsync from "../../ErrorHandling/catchAsync";
+import Rejection from "../../Model/deverloperDating/rejection";
 
 const router = express.Router();
 
@@ -12,20 +13,41 @@ let service = new AuthService(User);
 
 // Route to fetch profiles with matching technologies
 router.get(
-  "/search",
+  "/matches",
   catchAsync(async (req: any, res: any) => {
-    const requestedTechnologies = req.query.technologies.split(",");
-    const minExperience = req.query.minExperience;
-    const maxExperience = req.query.maxExperience;
+    const requestedTechnologies = req.body.technologies.split(",");
+    const minExperience = req.body.minExperience;
+    const maxExperience = req.body.maxExperience;
+
+    let rejectedUsers: ObjectId[] = [];
 
     const userId = new ObjectId(extractObjectId(req.user?._id));
 
+    let rejection = await Rejection.findOne({ userId });
+
+    rejectedUsers.push(userId);
+
+    if (rejection && rejection.rejectedUsers) {
+      rejectedUsers.push(...rejection.rejectedUsers);
+    }
+
+    console.log("rejected users", rejectedUsers);
+
     try {
-      const profiles = await service.get({
-        technology: { $in: requestedTechnologies },
-        experience: { $gte: minExperience, $lte: maxExperience },
-        id: { $nin: [userId] }, // Exclude the specified user ID
-      });
+      const profiles = await service.get(
+        {
+          technology: { $in: requestedTechnologies },
+          experience: {
+            $gte: minExperience,
+            $lte: maxExperience,
+            $exists: true,
+          },
+          _id: { $nin: [...rejectedUsers] }, // Exclude the specified user ID
+        },
+        null,
+        { experience: -1 }
+      );
+
       res.json(profiles);
     } catch (err: any) {
       res.status(500).json({ message: err.message });

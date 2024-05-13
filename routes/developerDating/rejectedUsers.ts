@@ -1,26 +1,8 @@
 import catchAsync from "../../ErrorHandling/catchAsync";
+import Rejection from "../../Model/deverloperDating/rejection";
 
-// 1. Define the Rejection Schema
 const mongoose = require("mongoose");
 
-const rejectionSchema = new mongoose.Schema({
-  userId: {
-    type: mongoose.Schema.Types.ObjectId,
-    required: true,
-    unique: true,
-  },
-  rejectedUsers: [
-    {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User", // Assuming your user model is named 'User'
-    },
-  ],
-});
-
-// 2. Create the Rejection Model
-const Rejection = mongoose.model("Rejection", rejectionSchema);
-
-// 3. Implement the Route
 const express = require("express");
 const router = express.Router();
 
@@ -29,19 +11,21 @@ router.post(
   "/reject/:userId",
   catchAsync(async (req: any, res: any) => {
     const userId = req.user?._id;
-    const { rejectedUsers } = req.body;
+    const rejectedId = req.params.userId;
 
     try {
       let rejection = await Rejection.findOne({ userId });
 
       if (!rejection) {
         rejection = new Rejection({
-          userId,
+          userId: userId,
           rejectedUsers: [],
         });
       }
 
-      rejection.rejectedUsers.push(...rejectedUsers);
+      console.log(rejection);
+
+      rejection.rejectedUsers.push(rejectedId);
       await rejection.save();
 
       res.status(201).json(rejection);

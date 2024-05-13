@@ -31,14 +31,28 @@ export default class BaseService {
 
   get = async (
     filters: FilterQuery<any> = {},
-    session?: any
+    session?: any,
+    sort: any = {},
+    skip: number = 0,
+    limit: number = 10
   ): Promise<any[]> => {
+    console.log(sort);
+
     if (session) {
-      const resource = await this.model?.find(filters).session(session);
+      const resource = await this.model
+        ?.find(filters)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit)
+        .session(session);
       return resource;
     } else {
       console.log(filters);
-      const resource = await this.model?.find(filters);
+      const resource = await this.model
+        ?.find(filters)
+        .sort(sort)
+        .skip(skip)
+        .limit(limit);
       return resource;
     }
   };

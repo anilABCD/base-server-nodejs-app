@@ -250,7 +250,7 @@ app.use("/matches/", matchesRouter);
 
 app.use("/interactions/", interactionsRouter);
 
-app.use("/reject/", rejectedRouter);
+app.use("/rejections/", authController.protect, rejectedRouter);
 
 app.use("/profiles/", authController.protect, profileRouter);
 
