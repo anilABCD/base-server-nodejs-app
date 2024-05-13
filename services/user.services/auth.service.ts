@@ -1,22 +1,19 @@
 import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
+import mongoose, { model } from "mongoose";
 import { injectable } from "tsyringe";
 import IUser, {
   IUserMethods,
   IUserModel,
 } from "../../interfaces/user.interfaces/user.interface";
-import UserModelModel from "../../Model/user.models/user.model";
+
+import { Model } from "mongoose";
+
 import BaseService from "../base.service";
 
-@injectable()
-export default class AuthService extends BaseService<
-  IUser,
-  IUserModel,
-  IUserMethods
-> {
-  model: IUserModel;
-  constructor(modelI: UserModelModel) {
+export default class AuthService extends BaseService {
+  model: Model<any>;
+  constructor(modelI: Model<any>) {
     super(modelI);
-    this.model = modelI.model;
+    this.model = modelI;
   }
 }

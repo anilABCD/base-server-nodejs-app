@@ -6,7 +6,7 @@ import EventModel from "../../../Model/messaging.app/event.models/event.model";
 import BaseService from "../../base.service";
 
 @autoInjectable()
-class EventService extends BaseService<IEvent, any, any> {
+class EventService extends BaseService {
   constructor(model?: EventModel) {
     console.log(model, "model");
     super(model);

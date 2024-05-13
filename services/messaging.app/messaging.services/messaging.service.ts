@@ -5,11 +5,7 @@ import BaseService from "../../base.service";
 import console from "../../../utils/console";
 
 @injectable()
-export default class MessagingService extends BaseService<
-  MessagingSI,
-  any,
-  any
-> {
+export default class MessagingService extends BaseService {
   constructor(modelI: MessagingModel) {
     super(modelI);
     //console.log("\n\n****** Model injected in service : ****** \n\n", modelI);

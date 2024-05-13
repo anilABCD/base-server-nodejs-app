@@ -5,12 +5,10 @@ import BaseService from "./base.service";
 import console from "../utils/console";
 
 @injectable()
-export default class AnyService extends BaseService<AnySI, any, any> {
-  constructor(collectionName : string) {
-    let modelI = new AnyModel(collectionName)
+export default class AnyService extends BaseService {
+  constructor(collectionName: string) {
+    let modelI = new AnyModel(collectionName);
     super(modelI);
     //console.log("\n\n****** Model injected in service : ****** \n\n", modelI);
   }
-
-  
 }

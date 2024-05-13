@@ -22,14 +22,9 @@ import AuthService from "../../services/user.services/auth.service";
 import console from "../../utils/console";
 import catchAsync from "../../ErrorHandling/catchAsync";
 
-@autoInjectable()
-export default class AuthController extends BaseController<
-  IUser,
-  IUserModel,
-  IUserMethods
-> {
-  service?: AuthService;
-  constructor(service?: AuthService) {
+export default class AuthController extends BaseController {
+  service: AuthService;
+  constructor(service: AuthService) {
     super(service);
     this.service = service;
   }
@@ -97,8 +92,9 @@ export default class AuthController extends BaseController<
         email: req.body.email,
         password: req.body.password,
         passwordConfirm: req.body.passwordConfirm,
-
         active: true,
+        experience: req.body.experience,
+        technology: req.body.technology,
       });
 
       const extra = req.body.extra;
@@ -203,6 +199,8 @@ export default class AuthController extends BaseController<
       gender: Gender.None,
       active: true,
       role: role,
+      experience: 0,
+      technology: [],
     });
 
     const url = `${req.protocol}://${req.get("host")}/me`;

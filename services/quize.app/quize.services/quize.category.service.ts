@@ -4,11 +4,7 @@ import QuizeCategoryModel from "../../../Model/quize.app/quize.models/quize.cate
 import BaseService from "../../base.service";
 import console from "../../../utils/console";
 @injectable()
-export default class QuizeCategoryService extends BaseService<
-  QuizeCategorySI,
-  any,
-  any
-> {
+export default class QuizeCategoryService extends BaseService {
   constructor(modelI: QuizeCategoryModel) {
     super(modelI);
     //console.log("\n\n****** Model injected in service : ****** \n\n", modelI);

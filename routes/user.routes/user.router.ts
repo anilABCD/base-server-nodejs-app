@@ -1,8 +1,12 @@
 import express, { NextFunction, Request, Response } from "express";
 
 import AuthController from "../../controllers/user.controllers/auth.controller";
+import AuthService from "../../services/user.services/auth.service";
+import User from "../../Model/user.models/user.model";
 
-let authController = new AuthController();
+let service = new AuthService(User);
+
+let authController = new AuthController(service);
 
 const router = express.Router();
 

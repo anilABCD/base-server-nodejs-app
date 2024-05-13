@@ -5,6 +5,8 @@ import { Request, Response, NextFunction } from "express";
 import { OAuth2Client } from "google-auth-library";
 import AppError from "../../ErrorHandling/AppError";
 import AuthController from "../user.controllers/auth.controller";
+import AuthService from "../../services/user.services/auth.service";
+import User from "../../Model/user.models/user.model";
 
 const CLIENT_ID =
   "346488674498-473kab7r2k8e5j5fcqmh7js4dfvgr6j6.apps.googleusercontent.com";
@@ -38,7 +40,8 @@ export default class GoogleController {
       try {
         let response = await verify(token);
 
-        let auth = new AuthController();
+        let service = new AuthService(User);
+        let auth = new AuthController(service);
 
         if (!response?.email || response.email.trim() == "") {
           console.log("did not got email form google.");
@@ -53,8 +56,6 @@ export default class GoogleController {
           res,
           extra
         );
-
-      
       } catch (error) {
         console.log(error);
 

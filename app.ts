@@ -16,13 +16,18 @@ import messagesRouter from "./routes/developerDating/messages";
 
 import matchesRouter from "./routes/developerDating/matchs";
 
+import rejectedRouter from "./routes/developerDating/rejectedUsers";
+
 import interactionsRouter from "./routes/developerDating/interactions";
+
+// import profileRouter from "./routes/developerDating/profiles";
 
 // import startApolloSevrver from "./GraphQLAPI/apollo.server";
 import { graphqlUploadExpress } from "graphql-upload";
 
 // import webpush from "web-push";
-
+// for : /graphql
+import AuthController from "./controllers/user.controllers/auth.controller";
 import cors from "cors";
 import { FileParams } from "./utils/File";
 
@@ -30,9 +35,6 @@ import File from "./utils/File";
 
 import { ExpressPeerServer } from "peer";
 
-// for : /graphql
-import AuthController from "./controllers/user.controllers/auth.controller";
-let authController = new AuthController();
 //////////////////////
 
 import { promisify } from "util";
@@ -58,12 +60,18 @@ import isCurrentApp from "./utils/isCurrentApp";
 import console from "./utils/console";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
-import express from "express";
+import express, { application } from "express";
 import generateRouter from "./routes/generate.routes/generate.router";
 import googleRouter from "./routes/google/google.router";
 import groupsRouter from "./routes/messaging.app/routers/groups.router";
 import eventRouter from "./routes/messaging.app/routers/events.router";
 import userRouter from "./routes/messaging.app/routers/user.routes";
+import AuthService from "./services/user.services/auth.service";
+import User from "./Model/user.models/user.model";
+
+let authService = new AuthService(User);
+
+let authController = new AuthController(authService);
 
 const limiter = rateLimit({
   max: 120,
@@ -241,6 +249,10 @@ app.use("/messages/", messagesRouter);
 app.use("/matches/", matchesRouter);
 
 app.use("/interactions/", interactionsRouter);
+
+app.use("/reject/", rejectedRouter);
+
+// app.use("/profiles/", authController.protect, profileRouter);
 
 //#endregion End User Api
 

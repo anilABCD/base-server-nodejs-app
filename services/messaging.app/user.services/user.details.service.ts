@@ -6,7 +6,7 @@ import { UserGroupDetailsModel } from "../../../Model/messaging.app/user.models/
 import BaseService from "../../base.service";
 
 @autoInjectable()
-class UserGroupDetailsService extends BaseService<IUserGroupDetails, any, any> {
+class UserGroupDetailsService extends BaseService {
   constructor(model?: UserGroupDetailsModel) {
     console.log(model, "model");
     super(model);

@@ -2,6 +2,13 @@ import mongoose, { Model, ObjectId } from "mongoose";
 import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import { IBaseModel_With_Time } from "../base.mode.interface";
 
+export enum Technology {
+  swiftUI = "#Swift UI",
+  swift = "#Swift",
+  react = "#React",
+  reactNative = "#React Native",
+}
+
 export default interface IUser extends IBaseModel_With_Time {
   _id?: string;
   name: String;
@@ -15,6 +22,8 @@ export default interface IUser extends IBaseModel_With_Time {
   passwordResetExpires?: Date;
   gender?: Gender;
   active: Boolean;
+  experience: number;
+  technology: Technology[];
 }
 
 // Put all user instance methods in this interface:

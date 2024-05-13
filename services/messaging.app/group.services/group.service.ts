@@ -5,7 +5,7 @@ import GroupModel from "../../../Model/messaging.app/group.models/group.model";
 import BaseService from "../../base.service";
 
 @autoInjectable()
-class GroupService extends BaseService<IGroup, any, any> {
+class GroupService extends BaseService {
   constructor(model?: GroupModel) {
     console.log(model, "model");
     super(model);

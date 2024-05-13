@@ -5,12 +5,7 @@ import BaseService from "../../base.service";
 
 import console from "../../../utils/console";
 
-@injectable()
-export default class QuizeQuestionService extends BaseService<
-  QuizeQuestionSI,
-  any,
-  any
-> {
+export default class QuizeQuestionService extends BaseService {
   constructor(modelI: QuizeQuestionModel) {
     super(modelI);
     //console.log("\n\n****** Model injected in service : ****** \n\n", modelI);

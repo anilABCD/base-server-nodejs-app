@@ -17,6 +17,8 @@ import { Server } from "socket.io";
 import AppError from "./ErrorHandling/AppError";
 import AuthController from "./controllers/user.controllers/auth.controller";
 import IUser from "./interfaces/user.interfaces/user.interface";
+import AuthService from "./services/user.services/auth.service";
+import User from "./Model/user.models/user.model";
 
 //////////////////////////////////////////////////////////////////////
 // NOTE :
@@ -35,7 +37,8 @@ console.log(PORT);
 
 const isAllReady = isAllResourcesReady();
 
-let authController = new AuthController();
+let service = new AuthService(User);
+let authController = new AuthController(service);
 
 if (!isAllReady) {
   console.log("setShowVerify");
