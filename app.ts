@@ -20,7 +20,7 @@ import rejectedRouter from "./routes/developerDating/rejectedUsers";
 
 import interactionsRouter from "./routes/developerDating/interactions";
 
-// import profileRouter from "./routes/developerDating/profiles";
+import profileRouter from "./routes/developerDating/profiles";
 
 // import startApolloSevrver from "./GraphQLAPI/apollo.server";
 import { graphqlUploadExpress } from "graphql-upload";
@@ -252,7 +252,7 @@ app.use("/interactions/", interactionsRouter);
 
 app.use("/reject/", rejectedRouter);
 
-// app.use("/profiles/", authController.protect, profileRouter);
+app.use("/profiles/", authController.protect, profileRouter);
 
 //#endregion End User Api
 

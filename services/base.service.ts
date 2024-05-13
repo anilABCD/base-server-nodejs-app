@@ -37,6 +37,7 @@ export default class BaseService {
       const resource = await this.model?.find(filters).session(session);
       return resource;
     } else {
+      console.log(filters);
       const resource = await this.model?.find(filters);
       return resource;
     }
