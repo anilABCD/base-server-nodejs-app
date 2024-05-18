@@ -83,29 +83,41 @@ export default class AuthController extends BaseController {
 
   signup = catchAsync(
     async (req: Request, res: Response, next: NextFunction) => {
-      const newUser = await this.service?.post({
-        id: "",
-        photo: "",
-        createdDate: new Date(),
-        updatedDate: new Date(),
-        name: "",
-        email: req.body.email,
-        password: req.body.password,
-        passwordConfirm: req.body.passwordConfirm,
-        active: true,
-        experience: req.body.experience,
-        technology: req.body.technology,
-      });
+      try {
+        const newUser = await this.service?.post({
+          id: "",
+          photo: "",
+          createdDate: new Date(),
+          updatedDate: new Date(),
+          name: "",
+          email: req.body.email,
+          password: req.body.password,
+          passwordConfirm: req.body.passwordConfirm,
+          active: true,
+          experience: req.body.experience,
+          technology: req.body.technology,
+        });
 
-      const extra = req.body.extra;
+        const extra = req.body.extra;
 
-      const url = `${req.protocol}://${req.get("host")}/me`;
-      // console.log(url);
-      //@Production : Email
+        const url = `${req.protocol}://${req.get("host")}/me`;
+        // console.log(url);
+        //@Production : Email
 
-      await new Email(newUser, url).sendWelcome();
+        await new Email(newUser, url).sendWelcome();
 
-      this.createSendToken(newUser, 201, req, res, extra);
+        this.createSendToken(newUser, 201, req, res, extra);
+      } catch (error: any) {
+        if (error.code === 11000) {
+          // Duplicate key error
+          res.status(400).send({
+            error: "DUPLICATE_USER",
+            details: error.keyValue,
+          });
+        } else {
+          res.status(500).send({ error: "Internal server error" });
+        }
+      }
     }
   );
 
