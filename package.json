@@ -69,6 +69,7 @@
     "reflect-metadata": "^0.1.13",
     "socket.io": "^4.5.4",
     "tsyringe": "^4.7.0",
+    "twilio": "^5.0.4",
     "util": "^0.12.4",
     "uuid": "^9.0.0",
     "validator": "^13.7.0",

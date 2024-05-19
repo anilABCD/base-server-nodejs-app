@@ -3,6 +3,7 @@ import { autoInjectable } from "tsyringe";
 import BaseController from "../base.controller";
 import getEnv, { EnvEnumType } from "../../env/getEnv";
 import { Request, Response, NextFunction } from "express";
+const allValidator = require("validator");
 //@ts-ignore
 import { v4 as uuidv4 } from "uuid";
 const crypto = require("crypto");
@@ -91,6 +92,7 @@ export default class AuthController extends BaseController {
           updatedDate: new Date(),
           name: "",
           email: req.body.email,
+          phone: req.body.phone,
           password: req.body.password,
           passwordConfirm: req.body.passwordConfirm,
           active: true,
@@ -100,11 +102,28 @@ export default class AuthController extends BaseController {
 
         const extra = req.body.extra;
 
-        const url = `${req.protocol}://${req.get("host")}/me`;
-        // console.log(url);
-        //@Production : Email
+        console.log("new user created");
 
-        await new Email(newUser, url).sendWelcome();
+        if (
+          req.body.phone &&
+          req.body.phone.trim() != "" &&
+          allValidator.isMobilePhone(req.body.phone, "en-IN", {
+            strictMode: false,
+          })
+        ) {
+        }
+
+        if (
+          req.body.email &&
+          req.body.email.trim() != "" &&
+          allValidator.isEmail(req.body.email)
+        ) {
+          const url = `${req.protocol}://${req.get("host")}/me`;
+          // console.log(url);
+          //@Production : Email
+
+          await new Email(newUser, url).sendWelcome();
+        }
 
         this.createSendToken(newUser, 201, req, res, extra);
       } catch (error: any) {
@@ -115,6 +134,8 @@ export default class AuthController extends BaseController {
             details: error.keyValue,
           });
         } else {
+          console.log(error);
+
           res.status(500).send({ error: "Internal server error" });
         }
       }
@@ -224,6 +245,48 @@ export default class AuthController extends BaseController {
   };
 
   loginWithGoogle = async (
+    email: string,
+    name: string,
+    photo: string,
+    req: Request,
+    res: Response,
+    extra: string
+  ) => {
+    const isEmail = validator.validate(email);
+
+    // 1) Check is email valid.
+    if (!isEmail) {
+      console.log("not a email in google login.");
+      throw new AppError("Internal Server Error", 500);
+    }
+
+    // 2) Check if user exists && password is correct
+    const user = await this.service?.findOneDocument({ email });
+
+    console.log("step 2 finding user ");
+
+    if (user) {
+      if (user?.role != Roles[extra as keyof typeof Roles]) {
+        await this.service?.update(
+          user?.id,
+          {
+            role: Roles[extra as keyof typeof Roles],
+          },
+          ["role"]
+        );
+      }
+    }
+
+    if (!user) {
+      console.log("step 3 crating user ");
+      return this.signUpWithGoogle(email, name, photo, req, res, extra);
+    }
+
+    // 3) If everything ok, send token to client
+    this.createSendToken(user, 200, req, res, extra);
+  };
+
+  loginWithPhone = async (
     email: string,
     name: string,
     photo: string,
@@ -553,11 +616,20 @@ export default class AuthController extends BaseController {
 
     // 3) Send it to user's email
     try {
-      const resetURL = `${req.protocol}://${req.get(
-        "host"
-      )}/api/v1/user/resetPassword/${resetToken}`;
+      if (allValidator.isEmail(req.body.email)) {
+        const resetURL = `${req.protocol}://${req.get(
+          "host"
+        )}/api/v1/user/resetPassword/${resetToken}`;
 
-      await new Email(user, resetURL).sendPasswordReset();
+        await new Email(user, resetURL).sendPasswordReset();
+      }
+
+      if (
+        allValidator.isMobilePhone(req.body.email, "en-IN", {
+          strictMode: false,
+        })
+      ) {
+      }
 
       res.status(200).json({
         status: "success",
