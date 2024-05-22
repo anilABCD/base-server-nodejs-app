@@ -12,7 +12,7 @@ const router = express.Router();
 let service = new AuthService(User);
 
 // Route to fetch profiles with matching technologies
-router.get(
+router.post(
   "/matches",
   catchAsync(async (req: any, res: any) => {
     const requestedTechnologies = req.body.technologies.split(",");
@@ -47,6 +47,8 @@ router.get(
         null,
         { experience: -1 }
       );
+
+      console.log(profiles);
 
       res.json(profiles);
     } catch (err: any) {
