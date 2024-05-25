@@ -17,6 +17,8 @@ router.get("/logout", authController.logout);
 router.post("/forgotPassword", authController.forgotPassword);
 router.patch("/resetPassword/:token", authController.resetPassword);
 
+router.post("/uploadImage", authController.uploadImage);
+
 router.patch("/edit", authController.update);
 
 // Protect all routes after this middleware

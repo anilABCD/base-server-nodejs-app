@@ -9,6 +9,9 @@ import { v4 as uuidv4 } from "uuid";
 const crypto = require("crypto");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
+const path = require("path");
+
+const multer = require("multer");
 
 import validator from "email-validator";
 
@@ -22,6 +25,37 @@ import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import AuthService from "../../services/user.services/auth.service";
 import console from "../../utils/console";
 import catchAsync from "../../ErrorHandling/catchAsync";
+import User from "../../Model/user.models/user.model";
+
+// Multer config
+const storage = multer.diskStorage({
+  destination: path.join(__dirname, "../../public/images/"),
+  filename: function (req: any, file: any, cb: any) {
+    cb(
+      null,
+      file.fieldname + "-" + Date.now() + path.extname(file.originalname)
+    );
+  },
+});
+
+const upload = multer({
+  storage: storage,
+  limits: { fileSize: 10000000000 },
+  fileFilter: function (req: any, file: any, cb: any) {
+    checkFileType(file, cb);
+  },
+}).single("myImage");
+
+const checkFileType = (file: any, cb: any) => {
+  const filetypes = /jpeg|jpg|png|gif/;
+  const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+  const mimetype = filetypes.test(file.mimetype);
+  if (mimetype && extname) {
+    return cb(null, true);
+  } else {
+    cb("Error: Images Only!");
+  }
+};
 
 export default class AuthController extends BaseController {
   service: AuthService;
@@ -707,4 +741,37 @@ export default class AuthController extends BaseController {
       }
     }
   );
+
+  uploadImage = catchAsync(async (req: any, res: any, next: any) => {
+    upload(req, res, async (err: any) => {
+      console.log(err);
+
+      if (err) {
+        res.send({ message: err });
+      } else {
+        if (req.file == undefined) {
+          res.send({ message: "No file selected!" });
+        } else {
+          try {
+            console.log(req.file.filename);
+
+            const userId = req.user._id;
+            // Update the user's photo
+            await User.findByIdAndUpdate(userId, { photo: req.file.filename });
+
+            res.send({
+              message: "File uploaded!",
+              data: { user: { photo: `/${req.file.filename}` } },
+            });
+          } catch (error) {
+            console.log(error);
+
+            res.status(500).send({
+              message: "Error saving file information to the database.",
+            });
+          }
+        }
+      }
+    });
+  });
 }

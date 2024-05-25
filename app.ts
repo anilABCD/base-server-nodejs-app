@@ -150,7 +150,12 @@ app.use(
 
 //#region Static Files
 
-app.use(express.static("public"));
+app.use(express.static(__dirname + "/public"));
+
+// Example route
+app.get("/", (req, res) => {
+  res.status(200).send("Hello World!");
+});
 
 //#endregion End Static Files
 
@@ -238,7 +243,7 @@ app.use("/google", googleRouter);
 //#region User Api
 
 app.use("/auth/", authRouter);
-app.use("/user/", authController.protect, userRouter);
+app.use("/user/", authController.protect, authRouter);
 
 app.use("/groups/", authController.protect, groupsRouter);
 
