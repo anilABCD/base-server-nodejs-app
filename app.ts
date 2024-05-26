@@ -167,6 +167,9 @@ var corsOptions = {
     "http://localhost:3000",
     "https://www.developerext.com",
     "https://developerext.com",
+    "http://192.168.1.4:8000",
+    "http://192.168.1.2:8000",
+    "http://0.0.0.0:8000",
   ],
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 };

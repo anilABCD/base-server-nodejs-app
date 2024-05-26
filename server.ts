@@ -10,7 +10,7 @@ import isProductionEnvironment from "./utils/isProductionEnvironment";
 import logger from "./utils/logger";
 import TypeDevMode from "./enums/TypeDevMode";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
-
+const os = require("os");
 import * as mongodb from "mongodb";
 const { ExpressPeerServer } = require("peer");
 import { Server } from "socket.io";
@@ -120,13 +120,32 @@ if (isAllReady) {
 
     //#endregion
 
+    // Function to get local IP address
+    const getLocalIPAddress = () => {
+      const interfaces = os.networkInterfaces();
+      for (let interfaceName in interfaces) {
+        for (let interfaceInfo of interfaces[interfaceName]) {
+          if (interfaceInfo.family === "IPv4" && !interfaceInfo.internal) {
+            return interfaceInfo.address;
+          }
+        }
+      }
+      return "localhost";
+    };
+
     //#region listen
     var server = require("http").createServer(app);
-    server.listen(PORT, () => {
+
+    const localIPAddress = getLocalIPAddress();
+
+    server.listen(PORT, "0.0.0.0", () => {
       console.log("\n\n\n******** NODE SERVER STARTED *************\n\n");
       console.log("Listening on port : " + PORT);
 
-      console.log("PeerJs Url :", "http://localhost:" + PORT + "/peerjs/");
+      console.log(
+        "PeerJs Url :",
+        `http://${getLocalIPAddress()}:` + PORT + "/peerjs/"
+      );
 
       console.log("isProduction", isProductionEnvironment());
     });
