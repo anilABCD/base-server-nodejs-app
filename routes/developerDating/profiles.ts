@@ -36,7 +36,7 @@ router.post(
     try {
       const profiles = await service.get(
         {
-          technology: { $in: requestedTechnologies },
+          technologies: { $in: requestedTechnologies },
           experience: {
             $gte: minExperience,
             $lte: maxExperience,
@@ -54,6 +54,27 @@ router.post(
     } catch (err: any) {
       res.status(500).json({ message: err.message });
     }
+  })
+);
+
+// Route to fetch profiles with matching technologies
+router.post(
+  "/technology",
+  catchAsync(async (req: any, res: any) => {
+    const userId = req.user._id;
+    // Update the user's photo
+
+    console.log(userId);
+
+    console.log(req.body.technologies);
+
+    let user = await User.findByIdAndUpdate(userId, {
+      technologies: req.body.technologies,
+    });
+
+    res.json({
+      status: "success",
+    });
   })
 );
 

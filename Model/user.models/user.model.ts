@@ -127,11 +127,24 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: 0,
   },
-  technology: {
+  technologies: {
     type: [
       {
         type: String,
-        enum: Object.values(Technology), // Use enum values as valid values
+        enum: [
+          "#React",
+          "#Angular",
+          "#React Native",
+          "#Flutter",
+          "#iOS",
+          "#Android",
+          "#Swift",
+          "#Swift UI",
+          "#Front End",
+          "#Backend",
+          "#Fullstack",
+          "#Dev Ops",
+        ], // Use enum values as valid values
       },
     ],
   },

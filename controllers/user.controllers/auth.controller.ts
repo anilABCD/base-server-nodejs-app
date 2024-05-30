@@ -107,11 +107,18 @@ export default class AuthController extends BaseController {
     // Remove password from output
     user.password = "";
 
+    console.log(user.technologies);
+
     res.status(statusCode).json({
       status: "success",
       token,
       data: {
-        user,
+        user: {
+          name: user.name,
+          email: user.email,
+          photo: user.photo,
+          technologies: user.technologies ? user.technologies.join(",") : "",
+        },
       },
     });
   };

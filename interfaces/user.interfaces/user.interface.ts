@@ -3,10 +3,18 @@ import { Gender, Roles } from "../../model.types/user.types/user.model.types";
 import { IBaseModel_With_Time } from "../base.mode.interface";
 
 export enum Technology {
-  swiftUI = "#Swift UI",
-  swift = "#Swift",
-  react = "#React",
-  reactNative = "#React Native",
+  "#React",
+  "#Angular",
+  "#React Native",
+  "#Flutter",
+  "#iOS",
+  "#Android",
+  "#Swift",
+  "#Swift UI",
+  "#Front End",
+  "#Backend",
+  "#Fullstack",
+  "#Dev Ops",
 }
 
 export default interface IUser extends IBaseModel_With_Time {
