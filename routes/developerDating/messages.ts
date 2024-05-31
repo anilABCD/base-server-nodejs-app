@@ -21,8 +21,10 @@ router.post(
 
       await newMessage.save();
       res.status(201).send(newMessage);
-    } catch (error) {
-      res.status(400).send({ error: "Error sending message" });
+    } catch (error: any) {
+      // console.log(error.message);
+      // console.log(error.message);
+      res.status(400).send({ error: error.message });
     }
   })
 );
