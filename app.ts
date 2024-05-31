@@ -252,7 +252,7 @@ app.use("/groups/", authController.protect, groupsRouter);
 
 app.use("/events/", authController.protect, eventRouter);
 
-app.use("/messages/", messagesRouter);
+app.use("/messages/", authController.protect, messagesRouter);
 
 app.use("/matches/", authController.protect, matchesRouter);
 

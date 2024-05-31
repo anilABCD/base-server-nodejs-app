@@ -36,7 +36,7 @@ router.post(
     try {
       const profiles = await service.get(
         {
-          technologies: { $in: requestedTechnologies },
+          technologies: { $in: requestedTechnologies, $exists: true },
           experience: {
             $gte: minExperience,
             $lte: maxExperience,

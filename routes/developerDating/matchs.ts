@@ -15,12 +15,6 @@ router.post(
 
       const { user2_id } = req.body;
 
-      // Check if receiver_id exists in the users collection
-      const user2 = await User.findById(user2_id);
-      if (!user2) {
-        return res.status(400).send({ error: "Invalid user2_id" });
-      }
-
       const newMatch = new Match({
         user1_id,
         user2_id,
@@ -51,6 +45,7 @@ router.get(
 
       res.status(200).send(matches);
     } catch (error) {
+      console.log(error);
       res.status(400).send({ error: "Error retrieving matches" });
     }
   })
