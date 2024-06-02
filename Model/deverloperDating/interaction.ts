@@ -16,4 +16,7 @@ const InteractionSchema = new mongoose.Schema({
   timestamp: { type: Date, default: Date.now },
 });
 
-module.exports = mongoose.model("Interaction", InteractionSchema);
+// Check if the model already exists to prevent OverwriteModelError
+module.exports =
+  mongoose.models.Interaction ||
+  mongoose.model("Interaction", InteractionSchema);
