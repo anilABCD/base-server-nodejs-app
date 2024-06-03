@@ -50,6 +50,7 @@ function verifyProjectNameOK() {
     "messaging-app",
     "quize-app",
     "dating-kairo-app",
+    "devos-app",
   ];
 
   const allProjectNames = values.join(",").split(",");

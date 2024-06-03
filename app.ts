@@ -57,7 +57,7 @@ import cookies from "cookie-parser";
 // import generateRouter from "./routes/generate.routes/generate.router";
 import getEnv, { EnvEnumType } from "./env/getEnv";
 import isCurrentApp from "./utils/isCurrentApp";
-import console from "./utils/console";
+// import console from "./utils/console";
 import isOnlyDevelopmentEnvironment from "./utils/isOnlyDevelopmentEnvironment";
 import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
 import express, { application } from "express";

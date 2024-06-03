@@ -6,6 +6,7 @@ import AuthService from "../../services/user.services/auth.service";
 import User from "../../Model/user.models/user.model";
 import catchAsync from "../../ErrorHandling/catchAsync";
 import Rejection from "../../Model/deverloperDating/rejection";
+import console from "../../utils/console";
 
 const router = express.Router();
 
@@ -18,6 +19,12 @@ router.post(
     const requestedTechnologies = req.body.technologies.split(",");
     const minExperience = req.body.minExperience;
     const maxExperience = req.body.maxExperience;
+
+    let skip = req.body.skip;
+
+    if (!skip) {
+      skip = 0;
+    }
 
     let rejectedUsers: ObjectId[] = [];
 
@@ -45,10 +52,12 @@ router.post(
           _id: { $nin: [...rejectedUsers] }, // Exclude the specified user ID
         },
         null,
-        { experience: -1 }
+        { experience: -1 },
+        skip
       );
 
       console.log(profiles);
+      // console.log(profiles);
 
       res.json(profiles);
     } catch (err: any) {

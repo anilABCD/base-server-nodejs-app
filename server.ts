@@ -4,7 +4,7 @@ import getEnv, { EnvEnumType } from "./env/getEnv";
 dotenv.config({ path: `${__dirname}/config.env` });
 import mongoose from "mongoose";
 import app from "./app";
-import console from "./utils/console";
+import otherConsole from "./utils/console";
 import isAllResourcesReady from "./ResourcesVerify/verifyAll";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 import logger from "./utils/logger";
@@ -42,7 +42,9 @@ let authController = new AuthController(service);
 
 if (!isAllReady) {
   console.log("setShowVerify");
-  console.setShowVerify();
+
+  otherConsole.setShowVerify();
+
   isAllResourcesReady();
 }
 
@@ -94,6 +96,9 @@ if (isAllReady) {
       socketTimeoutMS: 45000,
       family: 4, // Use IPv4, skip trying IPv6
     };
+
+    console.log();
+    console.log(DB);
 
     mongoose
       .connect(DB, options)
