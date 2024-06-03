@@ -1,4 +1,7 @@
 import catchAsync from "../../ErrorHandling/catchAsync";
+import logger from "../../utils/logger";
+
+const mongoose = require("mongoose");
 
 const express = require("express");
 const User = require("../../Model/user.models/user.model");
@@ -12,30 +15,31 @@ const router = express.Router();
 router.post(
   "/",
   catchAsync(async (req: any, res: any) => {
+    const user1_id = req.user?._id;
+
+    const { user2_id } = req.body;
+
+    const session = await mongoose.startSession();
+    session.startTransaction();
+
     try {
-      const user1_id = req.user?._id;
-
-      const { user2_id } = req.body;
-
       let existingInteraction = await Interaction.findOne({
         user_from_id: user1_id,
         user_to_id: user2_id,
-      });
+      }).session(session); // Include session here
 
       if (existingInteraction) {
-        // If interaction exists, update its action to dislike
+        // If interaction exists, update its action to like
         existingInteraction.action = "like";
-
-        await existingInteraction.save();
+        await existingInteraction.save({ session });
       } else {
-        // If no interaction exists, create a new interaction with dislike action
+        // If no interaction exists, create a new interaction with like action
         const newInteraction = new Interaction({
           user_from_id: user1_id,
           user_to_id: user2_id,
           action: "like",
         });
-
-        await newInteraction.save();
+        await newInteraction.save({ session });
       }
 
       let existingMatch = await Match.findOne({
@@ -43,12 +47,13 @@ router.post(
           { user1_id, user2_id },
           { user1_id: user2_id, user2_id: user1_id },
         ],
-      });
+      }).session(session); // Include session here
 
       if (existingMatch) {
         // If match exists, update its status or any other field as required
-        existingMatch.status = "accepted"; // Update the status to pending or any other logic as needed
-        await existingMatch.save();
+        existingMatch.status = "accepted"; // Update the status to accepted or any other logic as needed
+        await existingMatch.save({ session });
+        await session.commitTransaction();
         res.status(200).send(existingMatch);
       } else {
         const newMatch = new Match({
@@ -56,14 +61,22 @@ router.post(
           user2_id,
           status: "pending",
         });
-
-        await newMatch.save();
-
+        await newMatch.save({ session });
+        await session.commitTransaction();
         res.status(201).send(newMatch);
       }
     } catch (error) {
-      console.log(error);
-      res.status(400).send({ error: "Error creating match" });
+      await session.abortTransaction();
+      res
+        .status(500)
+        .send({ error: "An error occurred while processing the request." });
+    } finally {
+      try {
+        session.endSession();
+      } catch (endErr) {
+        console.error("Error ending session:", endErr);
+        logger.exceptionError("Error ending session:" + endErr);
+      }
     }
   })
 );
