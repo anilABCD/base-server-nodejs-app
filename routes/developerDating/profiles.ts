@@ -13,12 +13,34 @@ const router = express.Router();
 let service = new AuthService(User);
 
 // Route to fetch profiles with matching technologies
-router.post(
+router.get(
   "/",
   catchAsync(async (req: any, res: any) => {
-    const requestedTechnologies = req.body.technologies.split(",");
-    const minExperience = req.body.minExperience;
-    const maxExperience = req.body.maxExperience;
+    let requestedTechnologies = req.user?.technologies;
+
+    let minExperience = req.user?.experience;
+    let maxExperience = minExperience + 5;
+
+    if (req.query.technologies) {
+      requestedTechnologies = req.query.technologies
+        .split(",")
+        .map((technology: any) => technology.trim());
+    }
+
+    if (req.query.minExperience) {
+      minExperience = parseInt(req.query.minExperience);
+    }
+
+    if (req.query.maxExperience) {
+      maxExperience = parseInt(req.query.maxExperience);
+    }
+
+    console.log(
+      "Parameters Got",
+      minExperience,
+      maxExperience,
+      requestedTechnologies
+    );
 
     let skip = req.body.skip;
 
