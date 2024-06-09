@@ -50,12 +50,6 @@ router.post(
       }).session(session); // Include session here
 
       if (existingMatch) {
-        // If match exists, update its status or any other field as required
-
-        if (existingMatch.status == "pending") {
-          existingMatch.status = "pending"; // Update the status to accepted or any other logic as needed
-        } else {
-        }
         await existingMatch.save({ session });
         await session.commitTransaction();
         res.status(200).send(existingMatch);
