@@ -48,8 +48,12 @@ router.post(
       }
 
       console.log(rejection);
+      // Check if rejectedId is already in the rejectedUsers array
+      if (!rejection.rejectedUsers.includes(rejectedId)) {
+        rejection.rejectedUsers.push(rejectedId);
+      }
 
-      rejection.rejectedUsers.push(rejectedId);
+      // Save the updated rejection document
       await rejection.save({ session });
 
       await session.commitTransaction();
