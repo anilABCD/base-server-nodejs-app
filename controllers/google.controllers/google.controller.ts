@@ -51,7 +51,7 @@ export default class GoogleController {
         return auth.loginWithGoogle(
           response?.email ? response?.email : "",
           response?.name ? response?.name : "",
-          response?.picture ? response?.picture : "",
+          "",
           req,
           res,
           extra
