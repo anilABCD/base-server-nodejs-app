@@ -69,6 +69,8 @@ import userRouter from "./routes/messaging.app/routers/user.routes";
 import AuthService from "./services/user.services/auth.service";
 import User from "./Model/user.models/user.model";
 
+const likesRouter = require("./routes/developerDating/likes");
+
 let authService = new AuthService(User);
 
 let authController = new AuthController(authService);
@@ -261,6 +263,8 @@ app.use("/interactions/", interactionsRouter);
 app.use("/rejections/", authController.protect, rejectedRouter);
 
 app.use("/profiles/", authController.protect, profileRouter);
+
+app.use("/likes/", authController.protect, likesRouter);
 
 //#endregion End User Api
 

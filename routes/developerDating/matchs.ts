@@ -28,6 +28,11 @@ router.post(
         user_to_id: user2_id,
       }).session(session); // Include session here
 
+      let user2Interaction = await Interaction.findOne({
+        user_from_id: user2_id,
+        user_to_id: user1_id,
+      }).session(session);
+
       if (existingInteraction) {
         // If interaction exists, update its action to like
         existingInteraction.action = "like";
@@ -39,6 +44,9 @@ router.post(
           user_to_id: user2_id,
           action: "like",
         });
+
+        console.log(newInteraction);
+
         await newInteraction.save({ session });
       }
 
@@ -49,18 +57,37 @@ router.post(
         ],
       }).session(session); // Include session here
 
+      let doUser2LikeUser1 = false;
+
+      if (user2Interaction) {
+        if (user2Interaction.action == "like") {
+          doUser2LikeUser1 = true;
+        }
+      }
+
       if (existingMatch) {
+        if (doUser2LikeUser1) {
+          existingMatch.status = "accepted";
+        }
+
         await existingMatch.save({ session });
         await session.commitTransaction();
+
+        console.log(existingMatch);
+        console.log(existingInteraction);
+
         res.status(200).send(existingMatch);
       } else {
         const newMatch = new Match({
           user1_id,
           user2_id,
-          status: "pending",
+          status: doUser2LikeUser1 ? "accepted" : "pending",
         });
         await newMatch.save({ session });
         await session.commitTransaction();
+
+        console.log(newMatch);
+
         res.status(201).send(newMatch);
       }
     } catch (error) {
