@@ -30,7 +30,7 @@ router.get(
       const interaction = await Interaction.find({
         user_to_id: userId,
       })
-        .populate("user_from_id", "name technologies photo")
+        .populate("user_from_id", "_id name technologies photo")
         .sort({ timestamp: -1 }) // Sort by created date in descending order
         .skip(skipCount) // Skip the first `skipCount` results
         .limit(limitCount); // Limit the results to `limitCount` entries

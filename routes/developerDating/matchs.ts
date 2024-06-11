@@ -117,8 +117,8 @@ router.get(
         $or: [{ user1_id: userId }, { user2_id: userId }],
         status: "accepted",
       })
-        .populate("user1_id")
-        .populate("user2_id");
+        .populate("user1_id", "_id name photo technologies")
+        .populate("user2_id", "_id name photo technologies");
 
       res.status(200).send(matches);
     } catch (error) {
