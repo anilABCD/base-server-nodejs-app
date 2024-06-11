@@ -42,7 +42,7 @@ router.get(
       requestedTechnologies
     );
 
-    let skip = req.body.skip;
+    let skip = req.query.skip;
 
     if (!skip) {
       skip = 0;
