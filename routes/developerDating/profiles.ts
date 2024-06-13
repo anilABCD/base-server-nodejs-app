@@ -109,4 +109,25 @@ router.post(
   })
 );
 
+// Route to fetch profiles with matching technologies
+router.post(
+  "/hobbies",
+  catchAsync(async (req: any, res: any) => {
+    const userId = req.user._id;
+    // Update the user's photo
+
+    console.log(userId);
+
+    console.log(req.body.hobbies);
+
+    let user = await User.findByIdAndUpdate(userId, {
+      hobbies: req.body.hobbies,
+    });
+
+    res.json({
+      status: "success",
+    });
+  })
+);
+
 export default router;

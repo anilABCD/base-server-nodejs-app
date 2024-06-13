@@ -148,6 +148,27 @@ const userSchema = new mongoose.Schema({
       },
     ],
   },
+  hobbies: {
+    type: [
+      {
+        type: String,
+        enum: [
+          "#Reading",
+          "#Traveling",
+          "#Cooking",
+          "#Sports",
+          "#Music",
+          "#Movies",
+          "#Dancing",
+          "#Gaming",
+          "#Hiking",
+          "#Photography",
+          "#Painting",
+          "#Writing",
+        ],
+      },
+    ],
+  },
 });
 
 // Middleware to hash password before saving

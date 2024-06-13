@@ -118,6 +118,7 @@ export default class AuthController extends BaseController {
           email: user.email,
           photo: user.photo,
           technologies: user.technologies ? user.technologies.join(",") : "",
+          hobbies: user.hobbies ? user.hobbies.join(",") : "",
         },
       },
     });
