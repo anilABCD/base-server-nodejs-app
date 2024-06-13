@@ -130,4 +130,47 @@ router.post(
   })
 );
 
+// Route to fetch profiles with matching technologies
+router.post(
+  "/smoking-drinking-dob",
+  catchAsync(async (req: any, res: any) => {
+    const userId = req.user._id;
+    // Update the user's photo
+
+    console.log(userId);
+
+    let { dob, smoking, drinking } = req.body;
+
+    let data: any = {};
+
+    console.log(dob, smoking, drinking, "dob smoking drinking");
+
+    if (dob) {
+      data.dob = new Date(dob);
+    }
+
+    if (smoking) {
+      data.smoking = smoking;
+    }
+
+    if (drinking) {
+      data.drinking = drinking;
+    }
+
+    console.log(data);
+
+    let user = await User.findByIdAndUpdate(userId, {
+      dob: data.dob,
+      smoking: data.smoking,
+      drinking: data.drinking,
+    });
+
+    console.log(user);
+
+    res.json({
+      status: "success",
+    });
+  })
+);
+
 export default router;

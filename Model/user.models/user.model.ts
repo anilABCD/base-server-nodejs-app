@@ -169,6 +169,16 @@ const userSchema = new mongoose.Schema({
       },
     ],
   },
+
+  drinking: {
+    type: String,
+    enum: ["Never", "Socially", "Occasionally", "Frequently"],
+  },
+  smoking: {
+    type: String,
+    enum: ["Never", "Occasionally", "Regularly", "Trying to Quit"],
+  },
+  dob: { type: Date },
 });
 
 // Middleware to hash password before saving

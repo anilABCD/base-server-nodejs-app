@@ -119,6 +119,9 @@ export default class AuthController extends BaseController {
           photo: user.photo,
           technologies: user.technologies ? user.technologies.join(",") : "",
           hobbies: user.hobbies ? user.hobbies.join(",") : "",
+          dob: user.dob,
+          drinking: user.drinking,
+          smoking: user.smoking,
         },
       },
     });
@@ -304,6 +307,8 @@ export default class AuthController extends BaseController {
 
     // 2) Check if user exists && password is correct
     const user = await this.service?.findOneDocument({ email });
+
+    console.log(user);
 
     console.log("step 2 finding user ");
 
