@@ -71,6 +71,8 @@ import User from "./Model/user.models/user.model";
 
 const likesRouter = require("./routes/developerDating/likes");
 
+const notificationsRouter = require("./routes/notification.device.routes/notification.device.router");
+
 let authService = new AuthService(User);
 
 let authController = new AuthController(authService);
@@ -265,6 +267,8 @@ app.use("/rejections/", authController.protect, rejectedRouter);
 app.use("/profiles/", authController.protect, profileRouter);
 
 app.use("/likes/", authController.protect, likesRouter);
+
+app.use("/notifications/", authController.protect, notificationsRouter);
 
 //#endregion End User Api
 
