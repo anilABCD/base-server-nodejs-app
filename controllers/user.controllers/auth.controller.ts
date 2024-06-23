@@ -1,5 +1,8 @@
 import { RolesEnum } from "./../../model.types/user.types/user.model.types";
 import { autoInjectable } from "tsyringe";
+
+const fs = require("fs");
+
 import BaseController from "../base.controller";
 import getEnv, { EnvEnumType } from "../../env/getEnv";
 import { Request, Response, NextFunction } from "express";
@@ -770,12 +773,44 @@ export default class AuthController extends BaseController {
             console.log(req.file.filename);
 
             const userId = req.user._id;
-            // Update the user's photo
+
+            // Find the user and get the current photo filename
+            const user = await User.findById(userId);
+            const previousPhoto = user.photo;
+
             await User.findByIdAndUpdate(userId, { photo: req.file.filename });
+
+            // Delete previous photo if it exists and is different from the new one
+            if (previousPhoto && previousPhoto !== req.file.filename) {
+              // Delete previous photo file (assuming you have stored it in a specific directory)
+              // You may need to adjust this path according to your file storage structure
+              const filePath = path.join(
+                __dirname,
+                "../../public/images/" + previousPhoto
+              );
+              // Asynchronously delete the file
+              fs.unlink(filePath, (unlinkErr: any) => {
+                if (unlinkErr) {
+                  console.log(
+                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
+                  );
+                } else {
+                  console.log(`Deleted previous photo: ${previousPhoto}`);
+                }
+              });
+            }
+
+            console.log(
+              `New photo uploaded for user ${userId}: ${req.file.filename}`
+            );
+
+            console.log(user, {
+              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
+            });
 
             res.send({
               message: "File uploaded!",
-              data: { user: { photo: `/${req.file.filename}` } },
+              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
             });
           } catch (error) {
             console.log(error);
