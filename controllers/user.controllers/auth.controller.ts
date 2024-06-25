@@ -29,6 +29,7 @@ import AuthService from "../../services/user.services/auth.service";
 import console from "../../utils/console";
 import catchAsync from "../../ErrorHandling/catchAsync";
 import User from "../../Model/user.models/user.model";
+import logger from "../../utils/logger";
 
 // Multer config
 const storage = multer.diskStorage({
@@ -791,7 +792,7 @@ export default class AuthController extends BaseController {
               // Asynchronously delete the file
               fs.unlink(filePath, (unlinkErr: any) => {
                 if (unlinkErr) {
-                  console.log(
+                  logger.exceptionError(
                     `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
                   );
                 } else {
