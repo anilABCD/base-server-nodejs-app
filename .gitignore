@@ -4,11 +4,18 @@
 /node_modules
 /.pnp
 .pnp.js
-/dist
 
 # testing
 /coverage
 
+# Ignore everything in dist directory
+/dist/*
+/dist/**
+
+# Do not ignore dist/public/images and its contents
+!/dist/public/
+!/dist/public/images/
+!/dist/public/images/**
 # production
 /build
 
