@@ -13,6 +13,7 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const path = require("path");
+const sharp = require('sharp');
 
 const multer = require("multer");
 
@@ -775,6 +776,13 @@ export default class AuthController extends BaseController {
 
             const userId = req.user._id;
 
+            const inputPathForResize = req.file.path;
+            const outputFileNameForResize = `resized-${req.file.filename}`;
+            const outputPathForResize = path.join(req.file.destination, outputFileNameForResize);
+          
+
+
+
             // Find the user and get the current photo filename
             const user = await User.findById(userId);
             const previousPhoto = user.photo;
@@ -789,6 +797,12 @@ export default class AuthController extends BaseController {
                 __dirname,
                 "../../public/images/" + previousPhoto
               );
+
+              const resizedFilePath = path.join(
+                __dirname,
+                "../../public/images/" + "resized-" + previousPhoto
+              );
+
               // Asynchronously delete the file
               fs.unlink(filePath, (unlinkErr: any) => {
                 if (unlinkErr) {
@@ -799,7 +813,34 @@ export default class AuthController extends BaseController {
                   console.log(`Deleted previous photo: ${previousPhoto}`);
                 }
               });
+
+               // Asynchronously delete the file
+               fs.unlink(resizedFilePath, (unlinkErr: any) => {
+                if (unlinkErr) {
+                  logger.exceptionError(
+                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
+                  );
+                } else {
+                  console.log(`Deleted previous photo: ${previousPhoto}`);
+                }
+              });
             }
+
+
+            try {
+
+              const width = 60 ;
+              const height = 60 ;
+            
+          
+              await sharp(inputPathForResize)
+                .resize(width, height)
+                .toFile(outputPathForResize);
+          
+            } catch (error:any) {
+              res.status(500).send(`Error processing image: ${error.message}`);
+            }
+          
 
             console.log(
               `New photo uploaded for user ${userId}: ${req.file.filename}`
