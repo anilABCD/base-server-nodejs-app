@@ -270,6 +270,10 @@ app.use("/likes/", authController.protect, likesRouter);
 
 app.use("/notifications/", authController.protect, notificationsRouter);
 
+// // Serve static images with authentication
+// app.use('/images/', authController.protect, express.static(path.join(__dirname, 'images')));
+
+
 //#endregion End User Api
 
 //#region Apollo GraphQL

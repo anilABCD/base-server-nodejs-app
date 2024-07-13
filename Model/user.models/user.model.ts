@@ -140,10 +140,32 @@ const userSchema = new mongoose.Schema({
           "#Android",
           "#Swift",
           "#Swift UI",
+
+          "#Node js", 
+          "#MERN", 
+          "#MEAN", 
+        
           "#Front End",
+          "#UI/UX Designer",
           "#Backend",
           "#Fullstack",
           "#Dev Ops",
+
+          "#Cloud Engineer",
+          "#QA Engineer", 
+         
+          "#AI/ML Engineer",
+          "#Game Developer",
+
+          "#Database",
+          "#System Administrator",
+          "#Security Engineer",
+
+          "#Product Manager",
+          "#CEO", 
+          "#Chairman",
+
+          "#Data Scientist/Engineer",
         ], // Use enum values as valid values
       },
     ],
