@@ -138,6 +138,7 @@ router.get('/search-matched-users', catchAsync(async (req: any, res: any) => {
     return res.status(400).json({ error: 'User ID and search query are required' });
   }
 
+  
   try {
     const users = await searchMatchedUsers(userId, q , isOnlineQuery);
     res.json(users);
