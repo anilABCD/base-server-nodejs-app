@@ -204,6 +204,13 @@ const userSchema = new mongoose.Schema({
 
   username: String,
   socketId: String,
+
+   // Add the isOnline field
+   isOnline: {
+    type: Boolean,
+    default: false,
+  },
+  
 });
 
 // Middleware to hash password before saving

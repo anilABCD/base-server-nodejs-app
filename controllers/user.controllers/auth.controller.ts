@@ -761,6 +761,11 @@ export default class AuthController extends BaseController {
     }
   );
 
+
+
+  
+
+
   uploadImage = catchAsync(async (req: any, res: any, next: any) => {
     upload(req, res, async (err: any) => {
       console.log(err);

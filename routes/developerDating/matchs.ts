@@ -118,7 +118,9 @@ router.get(
         status: "accepted",
       })
         .populate("user1_id", "_id name photo technologies")
-        .populate("user2_id", "_id name photo technologies");
+        .populate("user2_id", "_id name photo technologies")
+        .sort({ created_at: -1 }); // Sort by createdAt in descending order
+        
 
       res.status(200).send(matches);
     } catch (error) {
@@ -127,6 +129,70 @@ router.get(
     }
   })
 );
+
+
+router.get('/search-matched-users', catchAsync(async (req: any, res: any) => {
+  const { userId, q , isOnlineQuery } = req.query;
+
+  if (!userId || !q) {
+    return res.status(400).json({ error: 'User ID and search query are required' });
+  }
+
+  try {
+    const users = await searchMatchedUsers(userId, q , isOnlineQuery);
+    res.json(users);
+  } catch (error) {
+    console.error("Error searching users:", error);
+    res.status(500).json({ error: 'An error occurred while searching users' });
+  }
+}));
+
+const searchMatchedUsers = async (userId : any , searchQuery : String, isOnlineQuery = false) => {
+  try {
+    const matches = await Match.find({
+      $or: [{ user1_id: userId }, { user2_id: userId }],
+      status: "accepted",
+    })
+      .populate({
+        path: 'user1_id',
+        select: '_id name photo technologies',
+        match: {
+          name: { $regex: `^${searchQuery}`, $options: 'i' },
+          ...(isOnlineQuery && { isOnline: true }),
+        }
+      })
+      .populate({
+        path: 'user2_id',
+        select: '_id name photo technologies',
+        match: {
+          match: {
+            name: { $regex: `^${searchQuery}`, $options: 'i' },
+            ...(isOnlineQuery && { isOnline: true }),
+          }
+        }
+      })
+      .sort({ created_at: -1 });
+
+    // Filter out matches where neither user matches the search query
+    const filteredMatches = matches.filter( (match : any ) => match.user1_id || match.user2_id);
+
+    // Extract and deduplicate users from matches
+    const users = filteredMatches.reduce((acc : any, match: any) => {
+      if (match.user1_id && match.user1_id._id.toString() !== userId.toString()) {
+        acc.set(match.user1_id, match.user1_id);
+      }
+      if (match.user2_id && match.user2_id._id.toString() !== userId.toString()) {
+        acc.set(match.user2_id, match.user2_id);
+      }
+      return acc;
+    }, new Map());
+
+    return Array.from(users.values());
+  } catch (error) {
+    console.error("Error searching users:", error);
+    throw error;
+  }
+};
 
 // Update match status
 router.put(
