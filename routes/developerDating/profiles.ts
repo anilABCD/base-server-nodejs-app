@@ -109,6 +109,33 @@ router.post(
   })
 );
 
+
+
+
+// Route to fetch profiles with matching technologies
+router.post(
+  "/bio",
+  catchAsync(async (req: any, res: any) => {
+    const userId = req.user._id;
+    // Update the user's photo
+
+    console.log(userId);
+
+    console.log(req.body.bio);
+
+    let user = await User.findByIdAndUpdate(userId, {
+      bio: req.body.bio,
+    });
+
+    res.json({
+      status: "success",
+    });
+  })
+);
+
+
+
+
 // Route to fetch profiles with matching technologies
 router.post(
   "/hobbies",

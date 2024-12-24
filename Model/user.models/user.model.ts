@@ -201,6 +201,12 @@ const userSchema = new mongoose.Schema({
     enum: ["Never", "Occasionally", "Regularly", "Trying to Quit"],
   },
   dob: { type: Date },
+  
+  bio: {
+    type: String,
+    maxlength: 200, // Maximum length of 200 characters
+    trim: true,     // Removes extra spaces from the start and end
+  },
 
   username: String,
   socketId: String,

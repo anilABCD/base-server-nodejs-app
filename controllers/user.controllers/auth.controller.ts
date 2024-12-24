@@ -128,6 +128,7 @@ export default class AuthController extends BaseController {
           dob: user.dob,
           drinking: user.drinking,
           smoking: user.smoking,
+          bio: user.bio 
         },
       },
     });
@@ -149,6 +150,7 @@ export default class AuthController extends BaseController {
           active: true,
           experience: req.body.experience,
           technology: req.body.technology,
+          
         });
 
         const extra = req.body.extra;
