@@ -286,8 +286,12 @@ if (isAllReady) {
 
         // Register user with their userId and socket.id
        socket.on('registerUser', (userId) => {
-           users[userId] = socket.id;
+
+           //@ts-ignore
+           users[socket.user.id] = socket.id;
            console.log(`User ${userId} connected with socketId: ${socket.id}`);
+
+           console.log(users)
        });
 
       socket.on("joinRoom", (userId) => {
@@ -300,14 +304,47 @@ if (isAllReady) {
         // Save the message to the database
 
         // message.timestamp = new Date(Date.now());
-
+        console.log(users[userId] , socket.id)
         console.log( "Message To"  , userId,  message)
+
+        if( users[userId] ){
+            io.to(users[userId]).emit("message", { userId: userId, message: message });
+        }
         // Emit the new message event to the user room
-        io.to(userId).emit("message", message);
+ 
+        //@ts-ignore
+         console.log(socket.user.id , socket.id)
+        //@ts-ignore
+         io.to(users[socket.user.id]).emit("message", { userId: userId, message: message });
+
+        /////// socket.emit("message", {userId: userId, message: message})
       });
 
       socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
+
+       //@ts-ignore
+        console.log(socket.user.id)
+
+       //@ts-ignore
+        console.log(users[socket.user.id])
+
+        for (let userId in users) {
+
+           //@ts-ignore
+          if (users[socket.user.id] == socket.id) {
+
+             console.log("user deleted from sockets")
+             //@ts-ignore
+              delete users[socket.user.id];
+              break;
+          }
+
+        }
+
+        console.log(users)
+      console.log(`User with socket ${socket.id} disconnected`);
+
       });
 
       // Above is chat gpt user to user communication code . ///////////
