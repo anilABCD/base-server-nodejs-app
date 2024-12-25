@@ -480,7 +480,7 @@ export default class AuthController extends BaseController {
   protectSocket = async (token: string) => {
     // 1) Getting token and check of it's there
 
-    console.log("token");
+    console.log("token", token);
 
     // console.log("token", token);
 

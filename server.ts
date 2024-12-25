@@ -20,6 +20,10 @@ import IUser from "./interfaces/user.interfaces/user.interface";
 import AuthService from "./services/user.services/auth.service";
 import User from "./Model/user.models/user.model";
 
+// Store mapping of userId to socket.id
+let users : any = {};
+
+
 //////////////////////////////////////////////////////////////////////
 // NOTE :
 // IMPORTANT: Just executes async but without waiting ...
@@ -280,6 +284,12 @@ if (isAllReady) {
 
       console.log("New client connected:", socket.id);
 
+        // Register user with their userId and socket.id
+       socket.on('registerUser', (userId) => {
+           users[userId] = socket.id;
+           console.log(`User ${userId} connected with socketId: ${socket.id}`);
+       });
+
       socket.on("joinRoom", (userId) => {
         console.log(`Socket ${socket.id} joined user room ${userId}`);
         socket.join(userId);
@@ -289,10 +299,11 @@ if (isAllReady) {
         console.log("Received new message:", message);
         // Save the message to the database
 
-        message.timestamp = new Date(Date.now());
+        // message.timestamp = new Date(Date.now());
 
+        console.log( "Message To"  , userId,  message)
         // Emit the new message event to the user room
-        io.to(userId).emit("newMessage", message);
+        io.to(userId).emit("message", message);
       });
 
       socket.on("disconnect", () => {
@@ -303,7 +314,17 @@ if (isAllReady) {
     });
 
     io.use(async (socket, next) => {
-      const token = socket.handshake.query.token as string;
+      // const token = socket.handshake.query.token as string;
+
+
+      const token = socket.handshake.headers['authorization']?.toString()?.split(' ')[1]; // Extract token from "Bearer <token>"
+    
+    if (!token) {
+        console.log("No token provided");
+        return next(new Error('Authentication error'));
+    }
+
+
 
       let validateToken = await authController.protectSocket(token);
       if (validateToken.success == true) {
