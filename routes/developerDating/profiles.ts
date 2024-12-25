@@ -159,6 +159,29 @@ router.post(
 
 // Route to fetch profiles with matching technologies
 router.post(
+  "/update-jobrole",
+  catchAsync(async (req: any, res: any) => {
+    const userId = req.user._id;
+    // Update the user's photo
+
+    console.log(userId);
+
+    console.log(req.body.jobRole);
+
+    let user = await User.findByIdAndUpdate(userId, {
+      jobRole: req.body.jobRole,
+    });
+
+    res.json({
+      status: "success",
+    });
+  })
+);
+
+
+
+// Route to fetch profiles with matching technologies
+router.post(
   "/smoking-drinking-dob",
   catchAsync(async (req: any, res: any) => {
     const userId = req.user._id;

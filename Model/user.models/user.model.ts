@@ -6,6 +6,23 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const crypto = require("crypto");
 
+
+const jobRolesList = [
+  "Intern",
+  "Junior Level",
+  "Mid Level",
+  "Senior Level",
+  "Lead Level",
+  "Manager",
+  "Director",
+  "Vice President",
+  "Chief Technology Officer (CTO)",
+  "Chief Information Officer (CIO)",
+  "Chief Product Officer (CPO)",
+  "Chief Operating Officer (COO)",
+  "Chief Executive Officer (CEO)"
+];
+
 const {
   Gender,
   Roles,
@@ -207,6 +224,11 @@ const userSchema = new mongoose.Schema({
     maxlength: 200, // Maximum length of 200 characters
     trim: true,     // Removes extra spaces from the start and end
   },
+
+  jobRole: {
+    type: String,
+    enum: jobRolesList,  // Enforcing the list of job roles
+  } , 
 
   username: String,
   socketId: String,

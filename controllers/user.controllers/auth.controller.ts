@@ -128,7 +128,8 @@ export default class AuthController extends BaseController {
           dob: user.dob,
           drinking: user.drinking,
           smoking: user.smoking,
-          bio: user.bio 
+          bio: user.bio ,
+          jobRole : user.jobRole
         },
       },
     });
