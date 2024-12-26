@@ -19,6 +19,9 @@ import AuthController from "./controllers/user.controllers/auth.controller";
 import IUser from "./interfaces/user.interfaces/user.interface";
 import AuthService from "./services/user.services/auth.service";
 import User from "./Model/user.models/user.model";
+import path from "path";
+const fs = require('fs');
+const Chat = require("./Model/deverloperDating/chat")
 
 // Store mapping of userId to socket.id
 let users : any = {};
@@ -294,31 +297,151 @@ if (isAllReady) {
            console.log(users)
        });
 
-      socket.on("joinRoom", (userId) => {
-        console.log(`Socket ${socket.id} joined user room ${userId}`);
-        socket.join(userId);
-      });
+      // socket.on("joinRoom", (userId) => {
+      //   console.log(`Socket ${socket.id} joined user room ${userId}`);
+      //   socket.join(userId);
+      // });
 
-      socket.on("sendMessage", ({ userId, message }) => {
-        console.log("Received new message:", message);
-        // Save the message to the database
+        // Join a one-to-one chat room
+  
+    socket.on('joinChat', ({ chatId }) => {
 
-        // message.timestamp = new Date(Date.now());
-        console.log(users[userId] , socket.id)
-        console.log( "Message To"  , userId,  message)
+          socket.join(chatId);
+          console.log(`User joined chat room: ${chatId}`);
+        
+    });
 
-        if( users[userId] ){
-            io.to(users[userId]).emit("message", { userId: userId, message: message });
-        }
-        // Emit the new message event to the user room
+
+    socket.on('sendMessage', ({ chatId, sender, text, image }) => {
+      // If an image is included, process it
+      let imageUrl = null;
+      if (image) {
+          const base64Data = image.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, ''); // Clean the base64 data
+
+          // Generate a unique filename
+          const imageName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.jpg`;
+
+          // Define the path to save the image
+          const imagePath = path.join(__dirname, 'public', 'images', imageName);
+
+          // Save the image to the 'public/images' directory
+          fs.writeFile(imagePath, base64Data, 'base64', (err:any) => {
+              if (err) {
+                  console.error('Error saving image:', err);
+                  return;
+              }
+
+              // If the image is saved successfully, set the image URL
+              imageUrl = `/images/${imageName}`;
+
+              // Now save the message with image URL to the chat
+              const message = {
+                  sender,
+                  text,
+                  image: imageUrl,
+                  timestamp: new Date()
+              };
+
+              // Find the chat and save the message
+              Chat.findByIdAndUpdate(chatId, { 
+                  $push: { messages: message } 
+              }, { 
+                  new: true,
+                  upsert: true // If no chat found, create a new one
+              })
+              .then((chat:any) => {
+                  // Enforce a limit of 20 messages
+                  if (chat.messages.length > 20) {
+                      chat.messages = chat.messages.slice(chat.messages.length - 20);
+                      chat.save();
+                  }
+
+                  // Broadcast the message to all users in the room (chatId)
+                  io.to(chatId).emit('newMessage', message);
+              })
+              .catch((error:any) => console.error('Error saving message:', error));
+          });
+      } else {
+          // If no image, just send a text message
+          const message = {
+              sender,
+              text,
+              timestamp: new Date()
+          };
+
+          // Find the chat and save the message
+          Chat.findByIdAndUpdate(chatId, { 
+              $push: { messages: message } 
+          }, { 
+              new: true,
+              upsert: true
+          })
+          .then((chat:any) => {
+              // Enforce a limit of 20 messages
+              if (chat.messages.length > 20) {
+                  chat.messages = chat.messages.slice(chat.messages.length - 20);
+                  chat.save();
+              }
+
+              // Broadcast the message to all users in the room (chatId)
+              io.to(chatId).emit('newMessage', message);
+          })
+          .catch((error:any) => console.error('Error saving message:', error));
+      }
+  });
+
+    // socket.on('sendMessage', ({ chatId, sender, text }) => {
+    //   const message = { sender, text, timestamp: new Date() };
+    
+    //   // Save the message to the database
+    //   Chat.findByIdAndUpdate(chatId, { 
+    //     $push: { messages: message } 
+    //   }, { 
+    //     new: true, 
+    //     upsert: true  // If no chat found, create a new one
+    //   })
+    //   .then((chat:any) => {
+    //     // Enforce a limit of 20 messages
+    //     if (chat.messages.length > 20) {
+    //       chat.messages = chat.messages.slice(chat.messages.length - 20); // Keep only the last 20 messages
+    //       chat.save();  // Save the updated chat with 20 messages
+    //     }
+    
+    //     // Broadcast the message to all users in the room (chatId)
+    //     io.to(chatId).emit('newMessage', message);
+    //   })
+    //   .catch((error: any) => console.error('Error saving message:', error));
+    // });
+    
+    // // Handle sending a message
+    // socket.on('sendMessage', ({ chatId, sender, text }) => {
+    //   const message = { sender, text, timestamp: new Date() };
+  
+    //   // Broadcast the message to others in the room
+    //   io.to(chatId).emit('newMessage', message);
+    // });
+  
+
+      // socket.on("sendMessage", ({ userId, message }) => {
+      //   console.log("Received new message:", message);
+      //   // Save the message to the database
+
+      //   // message.timestamp = new Date(Date.now());
+      //   console.log(users[userId] , socket.id)
+      //   console.log( "Message To"  , userId,  message)
+
+      //   if( users[userId] ){
+      //       io.to(users[userId]).emit("message", { userId: userId, message: message });
+      //   }
+      //   // Emit the new message event to the user room
  
-        //@ts-ignore
-         console.log(socket.user.id , socket.id)
-        //@ts-ignore
-         io.to(users[socket.user.id]).emit("message", { userId: userId, message: message });
+      //   //@ts-ignore
+      //    console.log(socket.user.id , socket.id)
+      //   //@ts-ignore
+      //    io.to(users[socket.user.id]).emit("message", { userId: userId, message: message });
 
-        /////// socket.emit("message", {userId: userId, message: message})
-      });
+      //   /////// socket.emit("message", {userId: userId, message: message})
+      // });
 
       socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
