@@ -18,15 +18,42 @@ const ChatSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
-// Ensure that participants are stored in a consistent order
 ChatSchema.pre('save', function(next:any) {
-    //@ts-ignore
-    this.participants.sort(); // Sort participants by ID to ensure uniqueness between the pairs
-    next();
+
+  //@ts-ignore
+  this.participants.sort((a, b) => a.toString().localeCompare(b.toString()));
+ //@ts-ignore
+  console.log(this.participants)
+  next();
+});
+
+  ChatSchema.set('toJSON', {
+    transform: (doc : any, ret : any ) => {
+      ret.id = ret._id.toString(); // Convert `_id` to string and assign to `id`
+      ret.participants = ret.participants.map((participant : any ) => participant.toString()); // Convert participants to strings
+
+      // Apply transformation to each message
+      ret.messages = ret.messages.map((message:any) => {
+        message.id = message._id.toString(); // Convert _id to id
+        message.sender = message.sender._id.toString(); // Convert sender ObjectId to string
+        message.text = message.text
+         console.log(message)
+        // Transform timestamp to a more readable format (e.g., ISO string or custom format)
+        message.timestamp = message.timestamp.toISOString(); // Convert to ISO string
+      
+       delete message._id; // Remove _id field
+       return message;
+     });
+
+      delete ret._id; // Remove `_id`
+      delete ret.__v; // Optional: Remove version field
+    },
   });
   
-  // Create a unique index on participants to prevent duplicate chats between the same users
-  ChatSchema.index({ participants: 1 }, { unique: true });
+  ChatSchema.index({ 
+    'participants.0': 1, 
+    'participants.1': 1 
+  }, { unique: true });
   
   // Index on messages.timestamp for better querying performance
   ChatSchema.index({ 'messages.timestamp': -1 });

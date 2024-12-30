@@ -22,6 +22,7 @@ import User from "./Model/user.models/user.model";
 import path from "path";
 const fs = require('fs');
 const Chat = require("./Model/deverloperDating/chat")
+const { ObjectId } = require('mongodb'); // Import ObjectId if needed
 
 // Store mapping of userId to socket.id
 let users : any = {};
@@ -118,6 +119,8 @@ if (isAllReady) {
       });
 
     client = new mongodb.MongoClient(DB);
+
+    Chat.syncIndexes();
 
     client
       .connect()
@@ -332,15 +335,17 @@ if (isAllReady) {
               }
 
               // If the image is saved successfully, set the image URL
-              imageUrl = `/images/${imageName}`;
+              imageUrl = `${imageName}`;
 
               // Now save the message with image URL to the chat
               const message = {
-                  sender,
+                  sender : new ObjectId(sender),
                   text,
                   image: imageUrl,
                   timestamp: new Date()
               };
+
+              console.log(message)
 
               // Find the chat and save the message
               Chat.findByIdAndUpdate(chatId, { 
@@ -364,7 +369,7 @@ if (isAllReady) {
       } else {
           // If no image, just send a text message
           const message = {
-              sender,
+            sender : new ObjectId(sender),
               text,
               timestamp: new Date()
           };

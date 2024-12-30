@@ -159,12 +159,20 @@ router.get('/chats', catchAsync(async (req: any, res: any) => {
 
   try {
     const participants = [user1, user2].sort();
+    console.log(participants)
+    let chat = await Chat.findOne({ participants }).populate('messages.sender');
 
-    const chat = await Chat.findOne({ participants }).populate('messages.sender');
+    if (!chat) {
+      console.log("Chat", chat)
+      chat = new Chat({ participants, messages: [] });
+      await chat.save();
+    }
+
     if (!chat) return res.status(404).json({ message: 'Chat not found' });
-
+    console.log("Chat", chat)
     res.json(chat);
   } catch (error : any ) {
+    console.log(error)
     res.status(500).json({ error: error.message });
   }
 })
