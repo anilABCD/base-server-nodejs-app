@@ -307,7 +307,7 @@ if (isAllReady) {
 
         // Join a one-to-one chat room
   
-    socket.on('joinChat', ({ chatId }) => {
+    socket.on('joinChat', (chatId ) => {
 
           socket.join(chatId);
           console.log(`User joined chat room: ${chatId}`);
