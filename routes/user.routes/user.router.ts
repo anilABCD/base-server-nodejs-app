@@ -53,6 +53,8 @@ router.post('/:userId/offline',  catchAsync(async (req: any, res: any, next: any
       return res.status(404).send('User not found');
     }
 
+    console.log("is Online" , user.isOnline)
+
     res.status(200).json({ message: 'User set to offline',  ...{
     
       _id: user._id, isOnline: user.isOnline 
