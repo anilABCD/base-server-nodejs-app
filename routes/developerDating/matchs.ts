@@ -8,7 +8,7 @@ const User = require("../../Model/user.models/user.model");
 const Match = require("../../Model/deverloperDating/match");
 
 const Interaction = require("../../Model/deverloperDating/interaction");
-
+const Chat = require("../../Model/deverloperDating/chat")
 const router = express.Router();
 
 // Create a new match:
@@ -144,6 +144,48 @@ router.get(
       console.log(error);
       res.status(400).send({ error: "Error retrieving matches" });
     }
+  })
+);
+
+
+
+// Get matches for a user
+router.get(
+  "/fromMessages",
+  catchAsync(async (req: any, res: any) => {
+      const userId = req.user?._id;
+      const isOnline = req.query.isOnline === "true"; // Retrieve isOnline parameter from the query string
+
+      try {
+        // Find chats where the user is a participant
+        const chats = await Chat.find({
+          participants: userId, // Ensure the user is in the participants array
+        })
+          .select('_id participants lastMessage unreadCount') // Fetch only necessary fields
+          .populate('participants', "_id name photo technologies isOnline") // Populate specific fields from the User schema
+          .lean();
+    
+        // Format response for the UI
+        let responseChats = chats.map( ( chat: any ) => {
+{
+          console.log( chat.participants.filter( ( p :any ) => p._id.toString() !== userId.toString()))
+        return {
+              id : chat._id,
+              participants: chat.participants.filter( ( p :any ) => p._id.toString() !== userId.toString()),
+              messages : [],
+              lastMessage: chat.lastMessage,
+              unreadCount: chat.unreadCounts?.get(userId.toString()) || 0
+        }
+      }});
+
+         console.log( responseChats )
+
+        // Format the response to include details of other participants
+        return  res.status(200).send(responseChats) ;
+      } catch (error) {
+        console.error('Error fetching chats for user with participants:', error);
+        throw error;
+      }
   })
 );
 

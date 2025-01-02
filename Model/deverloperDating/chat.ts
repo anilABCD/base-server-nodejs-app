@@ -11,9 +11,21 @@ const ChatSchema = new mongoose.Schema({
       sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Sender of the message
       text: { type: String, required: true }, // Message content
       image: { type: String }, // URL or Base64 string for the image
-      timestamp: { type: Date, default: Date.now } // Time when the message was sent
+      timestamp: { type: Date, default: Date.now } , // Time when the message was sent
+      readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // Track read receipts
     }
   ],
+  lastMessage: {
+    text: { type: String }, // Preview text of the last message
+    image: { type: String }, // Preview image URL, if applicable
+    timestamp: { type: Date },
+    sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User' }
+  },
+  unreadCounts: {
+    type: Map,
+    of: Number, // Unread messages count per user
+    default: {}
+  },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
 });
@@ -30,7 +42,7 @@ ChatSchema.pre('save', function(next:any) {
   ChatSchema.set('toJSON', {
     transform: (doc : any, ret : any ) => {
       ret.id = ret._id.toString(); // Convert `_id` to string and assign to `id`
-      ret.participants = ret.participants.map((participant : any ) => participant.toString()); // Convert participants to strings
+      // ret.participants = ret.participants.map((participant : any ) => participant.toString()); // Convert participants to strings
 
       // Apply transformation to each message
       ret.messages = ret.messages.map((message:any) => {

@@ -160,7 +160,7 @@ router.get('/chats', catchAsync(async (req: any, res: any) => {
   try {
     const participants = [user1, user2].sort();
     console.log(participants)
-    let chat = await Chat.findOne({ participants }).populate('messages.sender');
+    let chat = await Chat.findOne({ participants }).populate('messages.sender participants');
 
     if (!chat) {
       console.log("Chat", chat)
