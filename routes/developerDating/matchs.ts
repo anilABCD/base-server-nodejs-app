@@ -106,23 +106,40 @@ router.post(
   })
 );
 
+
 // Get matches for a user
 router.get(
   "/",
   catchAsync(async (req: any, res: any) => {
     try {
       const userId = req.user?._id;
+      const isOnline = req.query.isOnline === "true"; // Retrieve isOnline parameter from the query string
 
-      const matches = await Match.find({
-        $or: [{ user1_id: userId }, { user2_id: userId }],
+      const matchConditions: any = {
+        $or: [
+          { user1_id: userId },
+          { user2_id: userId }
+        ],
         status: "accepted",
-      })
-        .populate("user1_id", "_id name photo technologies")
-        .populate("user2_id", "_id name photo technologies")
-        .sort({ created_at: -1 }); // Sort by createdAt in descending order
-        
+      };
 
-      res.status(200).send(matches);
+      const populateOptions = (path: string) => ({
+        path,
+        select: "_id name photo technologies isOnline",
+        ...(req.query.isOnline && { match: { isOnline } }), // Add match condition if isOnline is specified
+      });
+
+      const matches = await Match.find(matchConditions)
+        .populate(populateOptions("user1_id"))
+        .populate(populateOptions("user2_id"))
+        .sort({ created_at: -1 }); // Sort by createdAt in descending order
+
+      // Filter out matches where both users failed the isOnline match condition
+      const filteredMatches = matches.filter(
+        (match:any) => match.user1_id || match.user2_id
+      );
+
+      res.status(200).send(filteredMatches);
     } catch (error) {
       console.log(error);
       res.status(400).send({ error: "Error retrieving matches" });
