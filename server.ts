@@ -381,6 +381,57 @@ if (isAllReady) {
         
     });
 
+    socket.on('receieved', async ({ sender, timestamp }) => {
+
+
+      try {
+        // Sort participants to match the schema's structure 
+        //@ts-ignore
+        let participants = [socket.user.id, sender].sort();
+
+        console.log( "reveived" , sender, timestamp)
+
+        // Update messages in the chat schema
+        await Chat.updateOne(
+            { participants },
+            {
+                $set: {
+                    "messages.$[msg].delivered": true, // Mark as delivered
+                },
+            },
+            {
+                arrayFilters: [
+                    { 
+                      
+                      "msg.sender": sender, // Messages sent by the sender
+                      "msg.timestamp": { $lte: new Date(timestamp) } , // Messages sent on or before the timestamp
+                      "msg.delivered": false
+                    
+                    }// Only update if not already delivered
+                ],
+            }
+        );
+
+        console.log("Messages marked as delivered.");
+
+      // Broadcast the message to all users in the room (chatId)
+
+
+      let message = { 
+          //@ts-ignore
+          receiver : socket.user.id,
+          timestamp : timestamp,
+      }
+
+      io.to(users[sender]).emit('delivered', message);
+
+    } catch (error:any) {
+        console.error("Error marking messages as delivered:", error.message);
+    }
+ 
+console.log("Messages marked as delivered.");
+ 
+});
 
     socket.on('sendMessage', ({ chatId, sender, text, image }) => {
       // If an image is included, process it

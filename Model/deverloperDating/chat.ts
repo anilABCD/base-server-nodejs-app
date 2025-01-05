@@ -14,6 +14,7 @@ const ChatSchema = new mongoose.Schema({
       text: { type: String, required: true }, // Message content
       image: { type: String }, // URL or Base64 string for the image
       timestamp: { type: Date, default: Date.now } , // Time when the message was sent
+      delivered : { type:Boolean , default :false} ,
       readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // Track read receipts
     }
   ],
@@ -51,6 +52,7 @@ ChatSchema.pre('save', function(next:any) {
         message.id = message._id.toString(); // Convert _id to id
         message.sender = message.sender._id.toString(); // Convert sender ObjectId to string
         message.text = message.text
+        message.deliverd = message.deliverd
          console.log(message)
 
            // Handle `readBy` transformation
