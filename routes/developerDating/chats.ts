@@ -170,6 +170,32 @@ router.get('/chats', catchAsync(async (req: any, res: any) => {
 
     if (!chat) return res.status(404).json({ message: 'Chat not found' });
     console.log("Chat", chat)
+
+
+      // Update read receipts for the requesting user
+      const requestingUser = req.query.user1; // Assuming user1 is the current user
+      let unreadMessages = chat.messages.filter(
+        (message : any) => !message.readBy.includes(requestingUser)
+      );
+
+      if (unreadMessages.length > 0) {
+        // Mark all unread messages as read by the current user
+        unreadMessages.forEach((message:any) => {
+          message.readBy.push(requestingUser);
+        });
+
+        // Update the unreadCounts for the requesting user
+        const currentUnreadCount = chat.unreadCounts.get(requestingUser) || 0;
+        chat.unreadCounts.set(
+          requestingUser,
+          Math.max(0, currentUnreadCount - unreadMessages.length)
+        );
+
+        // Save updated chat with read receipts
+        await chat.save();
+
+      }
+
     res.json(chat);
   } catch (error : any ) {
     console.log(error)

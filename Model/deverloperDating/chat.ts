@@ -2,6 +2,8 @@
 
 const mongoose = require('mongoose');
 
+ // messages are handled by this chat.ts
+
 const ChatSchema = new mongoose.Schema({
   participants: [
     { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }
@@ -50,6 +52,11 @@ ChatSchema.pre('save', function(next:any) {
         message.sender = message.sender._id.toString(); // Convert sender ObjectId to string
         message.text = message.text
          console.log(message)
+
+           // Handle `readBy` transformation
+      message.readBy = message.readBy.map((userId: any) => userId.toString()); // Convert `readBy` ObjectIds to strings
+
+
         // Transform timestamp to a more readable format (e.g., ISO string or custom format)
         message.timestamp = message.timestamp.toISOString(); // Convert to ISO string
       

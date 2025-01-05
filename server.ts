@@ -24,6 +24,8 @@ const fs = require('fs');
 const Chat = require("./Model/deverloperDating/chat")
 const { ObjectId } = require('mongodb'); // Import ObjectId if needed
 
+// const { HubConnectionBuilder, LogLevel } = require("@microsoft/signalr");
+
 // Store mapping of userId to socket.id
 let users : any = {};
 
@@ -167,6 +169,71 @@ if (isAllReady) {
 
     const customGenerationFunction = () =>
       (Math.random().toString(36) + "0000000000000000000").substr(2, 16);
+
+
+
+// ///////////////////////////////////////////////////////////////// SIGNALR START //////////////////////////////////
+ 
+// const connection = new HubConnectionBuilder()
+//   .withUrl(`${process.env.SIGNALR_ENDPOINT}/?hub=ChatHub`, {
+//     accessTokenProvider: () => {
+//       const token = process.env.SIGNALR_ACCESS_TOKEN; 
+//       if (!token) {
+//         console.error("Access token is missing or empty.");
+//         return Promise.reject(new Error("Missing access token")); 
+//       }
+//       return Promise.resolve(token);
+//     }
+//   })
+//   .configureLogging(LogLevel.Information)
+//   .build();
+// console.log(`${process.env.SIGNALR_ENDPOINT}/?hub=ChatHub`);
+
+// (async () => {
+//   try {
+//     await connection.start();
+//     console.log("SignalR connected."); 
+//   } catch (error:any) {
+//     console.error("Error connecting to SignalR:", error); 
+//     console.error("Error details:", error.statusCode, error.message); // Log more details
+//   }
+// })();
+
+// // Join a room
+// app.post("/join-room", async (req, res) => {
+//   const { roomName, userId } = req.body;
+
+//   if (!roomName || !userId) {
+//     return res.status(400).send({ error: "Room name and user ID are required." });
+//   }
+
+//   try {
+//     await connection.invoke("JoinRoom", roomName, userId);
+//     res.status(200).send({ message: `User ${userId} joined room ${roomName}` });
+//   } catch (error) {
+//     console.error("Error joining room:", error);
+//     res.status(500).send({ error: "Failed to join room." });
+//   }
+// });
+
+// // Send a message to a room
+// app.post("/send-message", async (req, res) => {
+//   const { roomName, message } = req.body;
+
+//   if (!roomName || !message) {
+//     return res.status(400).send({ error: "Room name and message are required." });
+//   }
+
+//   try {
+//     await connection.invoke("SendMessageToRoom", roomName, message);
+//     res.status(200).send({ message: `Message sent to room ${roomName}` });
+//   } catch (error) {
+//     console.error("Error sending message to room:", error);
+//     res.status(500).send({ error: "Failed to send message." });
+//   }
+// });
+
+// ///////////////////////////////////////////////////////////////// END SIGNALR //////////////////////////////////
 
     const peerServer = ExpressPeerServer(server, {
       debug: true,

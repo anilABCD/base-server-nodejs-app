@@ -12,7 +12,7 @@ import errorController from "./ErrorHandling/error.controller";
 import AppError from "./ErrorHandling/AppError";
 import isProductionEnvironment from "./utils/isProductionEnvironment";
 
-import messagesRouter from "./routes/developerDating/messages";
+import messagesRouter from "./routes/developerDating/chats";
 
 import matchesRouter from "./routes/developerDating/matchs";
 
