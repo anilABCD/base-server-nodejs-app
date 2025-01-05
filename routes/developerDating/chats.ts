@@ -187,8 +187,13 @@ const unreadMessages = chat.messages.filter(
 );
 
 if (unreadMessages.length > 0) {
+
   unreadMessages.forEach((message:any) => {
-    message.readBy.push(user1); // Mark as read by the user
+    // Check if the user is already in the readBy array
+
+    if (!message.readBy.includes(user1)) {      
+      message.readBy.push(user1); // Mark as read by the user
+    }
   });
 
   // Update unread counts for the requesting user
@@ -198,11 +203,10 @@ if (unreadMessages.length > 0) {
     Math.max(0, currentUnreadCount - unreadMessages.length)
   );
 
-
-         // Save the updated chat document
-         await chat.save();
-
       }
+
+        // Save the updated chat document
+        await chat.save();
 
     res.json(chat);
   } catch (error : any ) {

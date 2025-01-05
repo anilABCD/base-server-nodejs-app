@@ -174,7 +174,7 @@ router.get(
               participants: chat.participants.filter( ( p :any ) => p._id.toString() !== userId.toString()),
               messages : [],
               lastMessage: chat.lastMessage,
-              unreadCount: chat.unreadCounts?.get(userId.toString()) || 0
+              unreadCounts: chat.unreadCounts
         }
       }});
 

@@ -433,7 +433,8 @@ console.log("Messages marked as delivered.");
  
 });
 
-    socket.on('sendMessage', ({ chatId, sender, text, image }) => {
+socket.on('sendMessage', async ({ chatId, sender, text, image }) => {
+  try {
       // If an image is included, process it
       let imageUrl = null;
       if (image) {
@@ -445,73 +446,141 @@ console.log("Messages marked as delivered.");
           // Define the path to save the image
           const imagePath = path.join(__dirname, 'public', 'images', imageName);
 
-          // Save the image to the 'public/images' directory
-          fs.writeFile(imagePath, base64Data, 'base64', (err:any) => {
-              if (err) {
-                  console.error('Error saving image:', err);
-                  return;
-              }
+          // Save the image to the 'public/images' directory using fs.promises
+          await fs.promises.writeFile(imagePath, base64Data, 'base64');
 
-              // If the image is saved successfully, set the image URL
-              imageUrl = `${imageName}`;
-
-              // Now save the message with image URL to the chat
-              const message = {
-                  sender : new ObjectId(sender),
-                  text,
-                  image: imageUrl,
-                  timestamp: new Date()
-              };
-
-              console.log(message)
-
-              // Find the chat and save the message
-              Chat.findByIdAndUpdate(chatId, { 
-                  $push: { messages: message } 
-              }, { 
-                  new: true,
-                  upsert: true // If no chat found, create a new one
-              })
-              .then((chat:any) => {
-                  // Enforce a limit of 20 messages
-                  if (chat.messages.length > 20) {
-                      chat.messages = chat.messages.slice(chat.messages.length - 20);
-                      chat.save();
-                  }
-
-                  // Broadcast the message to all users in the room (chatId)
-                  io.to(chatId).emit('newMessage', message);
-              })
-              .catch((error:any) => console.error('Error saving message:', error));
-          });
-      } else {
-          // If no image, just send a text message
-          const message = {
-            sender : new ObjectId(sender),
-              text,
-              timestamp: new Date()
-          };
-
-          // Find the chat and save the message
-          Chat.findByIdAndUpdate(chatId, { 
-              $push: { messages: message } 
-          }, { 
-              new: true,
-              upsert: true
-          })
-          .then((chat:any) => {
-              // Enforce a limit of 20 messages
-              if (chat.messages.length > 20) {
-                  chat.messages = chat.messages.slice(chat.messages.length - 20);
-                  chat.save();
-              }
-
-              // Broadcast the message to all users in the room (chatId)
-              io.to(chatId).emit('newMessage', message);
-          })
-          .catch((error:any) => console.error('Error saving message:', error));
+          // If the image is saved successfully, set the image URL
+          imageUrl = `${imageName}`;
       }
-  });
+
+      // Prepare the message object
+      const message = {
+          sender: new ObjectId(sender),
+          text,
+          image: imageUrl || null,
+          timestamp: new Date()
+      };
+
+      console.log(message);
+
+      // Find the chat and save the message
+      const chat = await Chat.findByIdAndUpdate(
+          chatId,
+          { 
+              $push: { messages: message },
+              lastMessage: {
+                  text: message.text || null,
+                  image: message.image || null,
+                  timestamp: message.timestamp || new Date(),
+                  sender: message.sender || null
+              }
+          },
+          { 
+              new: true,
+              upsert: true // If no chat found, create a new one
+          }
+      );
+
+      // Enforce a limit of 20 messages
+      if (chat.messages.length > 20) {
+          chat.messages = chat.messages.slice(chat.messages.length - 20);
+          await chat.save(); // Save the updated chat
+      }
+
+      // Broadcast the message to all users in the room (chatId)
+      io.to(chatId).emit('newMessage', message);
+
+  } catch (error) {
+      console.error('Error processing message:', error);
+  }
+});
+
+
+  //   socket.on('sendMessage',  ({ chatId, sender, text, image }) => {
+  //     // If an image is included, process it
+  //     let imageUrl = null;
+  //     if (image) {
+  //         const base64Data = image.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, ''); // Clean the base64 data
+
+  //         // Generate a unique filename
+  //         const imageName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.jpg`;
+
+  //         // Define the path to save the image
+  //         const imagePath = path.join(__dirname, 'public', 'images', imageName);
+
+  //         // Save the image to the 'public/images' directory
+  //         fs.writeFile(imagePath, base64Data, 'base64', (err:any) => {
+  //             if (err) {
+  //                 console.error('Error saving image:', err);
+  //                 return;
+  //             }
+
+  //             // If the image is saved successfully, set the image URL
+  //             imageUrl = `${imageName}`;
+
+  //             // Now save the message with image URL to the chat
+  //             const message = {
+  //                 sender : new ObjectId(sender),
+  //                 text,
+  //                 image: imageUrl,
+  //                 timestamp: new Date()
+  //             };
+
+  //             console.log(message)
+
+  //             // Find the chat and save the message
+  //             Chat.findByIdAndUpdate(chatId, { 
+  //                 $push: { messages: message } ,
+  //                 lastMessage: {
+  //                   text: message.text || null,
+  //                   image: message.image || null,
+  //                   timestamp: message.timestamp || new Date(),
+  //                   sender: message.sender || null
+  //               } // Update the lastMessage field
+  //             }, { 
+  //                 new: true,
+  //                 upsert: true // If no chat found, create a new one
+  //             })
+  //             .then((chat:any) => {
+  //                 // Enforce a limit of 20 messages
+  //                 if (chat.messages.length > 20) {
+  //                     chat.messages = chat.messages.slice(chat.messages.length - 20);
+  //                     chat.save();
+  //                 }
+
+  //                 // Broadcast the message to all users in the room (chatId)
+  //                 io.to(chatId).emit('newMessage', message);
+  //             })
+  //             .catch((error:any) => console.error('Error saving message:', error));
+  //         });
+  //     } else {
+  //         // If no image, just send a text message
+  //         const message = {
+  //           sender : new ObjectId(sender),
+  //             text,
+  //             timestamp: new Date()
+  //         };
+
+  //         // Find the chat and save the message
+  //         Chat.findByIdAndUpdate(chatId, { 
+  //             $push: { messages: message } 
+  //         }, { 
+  //             new: true,
+  //             upsert: true
+  //         })
+  //         .then((chat:any) => {
+  //             // Enforce a limit of 20 messages
+  //             if (chat.messages.length > 20) {
+  //                 chat.messages = chat.messages.slice(chat.messages.length - 20);
+  //                 chat.save();
+  //             }
+
+  //             // Broadcast the message to all users in the room (chatId)
+  //             io.to(chatId).emit('newMessage', message);
+  //         })
+  //         .catch((error:any) => console.error('Error saving message:', error));
+  //     }
+  // });
 
     // socket.on('sendMessage', ({ chatId, sender, text }) => {
     //   const message = { sender, text, timestamp: new Date() };
