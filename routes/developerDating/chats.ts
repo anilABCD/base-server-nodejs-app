@@ -171,28 +171,36 @@ router.get('/chats', catchAsync(async (req: any, res: any) => {
     if (!chat) return res.status(404).json({ message: 'Chat not found' });
     console.log("Chat", chat)
 
+ // Update delivery status for relevant messages
+ chat.messages.forEach((message : any) => {
+  if (
+    message.sender === user2 &&
+    !message.delivered
+  ) {
+    message.delivered = true; // Mark as delivered
+  }
+});
 
-      // Update read receipts for the requesting user
-      const requestingUser = req.query.user1; // Assuming user1 is the current user
-      let unreadMessages = chat.messages.filter(
-        (message : any) => !message.readBy.includes(requestingUser)
-      );
+// Update read receipts for the requesting user
+const unreadMessages = chat.messages.filter(
+  (message:any) => !message.readBy.includes(user2)
+);
 
-      if (unreadMessages.length > 0) {
-        // Mark all unread messages as read by the current user
-        unreadMessages.forEach((message:any) => {
-          message.readBy.push(requestingUser);
-        });
+if (unreadMessages.length > 0) {
+  unreadMessages.forEach((message:any) => {
+    message.readBy.push(user1); // Mark as read by the user
+  });
 
-        // Update the unreadCounts for the requesting user
-        const currentUnreadCount = chat.unreadCounts.get(requestingUser) || 0;
-        chat.unreadCounts.set(
-          requestingUser,
-          Math.max(0, currentUnreadCount - unreadMessages.length)
-        );
+  // Update unread counts for the requesting user
+  const currentUnreadCount = chat.unreadCounts.get(user1) || 0;
+  chat.unreadCounts.set(
+    user1,
+    Math.max(0, currentUnreadCount - unreadMessages.length)
+  );
 
-        // Save updated chat with read receipts
-        await chat.save();
+
+         // Save the updated chat document
+         await chat.save();
 
       }
 

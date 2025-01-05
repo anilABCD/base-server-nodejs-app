@@ -381,7 +381,7 @@ if (isAllReady) {
         
     });
 
-    socket.on('receieved', async ({ sender, timestamp }) => {
+    socket.on('messageReceieved', async ({ sender, timestamp }) => {
 
 
       try {
@@ -423,7 +423,7 @@ if (isAllReady) {
           timestamp : timestamp,
       }
 
-      io.to(users[sender]).emit('delivered', message);
+      io.to(users[sender]).emit('messageDelivered', message);
 
     } catch (error:any) {
         console.error("Error marking messages as delivered:", error.message);
