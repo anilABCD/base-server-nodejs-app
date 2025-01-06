@@ -161,8 +161,9 @@ router.get(
         const chats = await Chat.find({
           participants: userId, // Ensure the user is in the participants array
         })
-          .select('_id participants lastMessage unreadCount') // Fetch only necessary fields
+          .select('_id participants lastMessage unreadCounts') // Fetch only necessary fields
           .populate('participants', "_id name photo technologies isOnline") // Populate specific fields from the User schema
+          .sort({ 'lastMessage.timestamp': -1 }) // Sort by lastMessage timestamp in descending order
           .lean();
     
         // Format response for the UI

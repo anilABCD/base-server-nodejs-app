@@ -433,7 +433,8 @@ console.log("Messages marked as delivered.");
  
 });
 
-socket.on('sendMessage', async ({ chatId, sender, text, image }) => {
+
+socket.on('sendMessage', async ({ chatId, sender, user2 , text, image }) => {
   try {
       // If an image is included, process it
       let imageUrl = null;
@@ -462,7 +463,8 @@ socket.on('sendMessage', async ({ chatId, sender, text, image }) => {
       };
 
       console.log(message);
-
+ 
+      console.log(sender.toString())
       // Find the chat and save the message
       const chat = await Chat.findByIdAndUpdate(
           chatId,
@@ -473,7 +475,8 @@ socket.on('sendMessage', async ({ chatId, sender, text, image }) => {
                   image: message.image || null,
                   timestamp: message.timestamp || new Date(),
                   sender: message.sender || null
-              }
+              } ,
+       
           },
           { 
               new: true,
@@ -481,11 +484,40 @@ socket.on('sendMessage', async ({ chatId, sender, text, image }) => {
           }
       );
 
+      if (chat) {
+        
+        // // Increment the unread count manually after finding the chat
+        // if (!chat.unreadCounts) {
+        //     chat.unreadCounts = {}; // Initialize unreadCounts if missing
+        // }
+
+        // console.log(user2)
+    
+        // // If the recipient's unread count does not exist, initialize it to 0, then increment by 1
+        // chat.unreadCounts[user2] = (chat.unreadCounts[user2] || 0) + 1;
+
+        // Initialize unreadCounts if it's missing
+        if (!chat.unreadCounts) {
+            chat.unreadCounts = new Map(); // Initialize unreadCounts as Map if missing
+         }
+
+        // Use Map's set method to modify the unread count for the recipient
+        chat.unreadCounts.set(user2, (chat.unreadCounts.get(user2) || 0) + 1);
+
+
+        console.log(chat.unreadCounts , user2)
+  
+        await chat.save()
+      
       // Enforce a limit of 20 messages
       if (chat.messages.length > 20) {
           chat.messages = chat.messages.slice(chat.messages.length - 20);
-          await chat.save(); // Save the updated chat
       }
+
+        // Save the updated chat document
+        await chat.save();
+    
+    }
 
       // Broadcast the message to all users in the room (chatId)
       io.to(chatId).emit('newMessage', message);

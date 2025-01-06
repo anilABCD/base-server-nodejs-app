@@ -196,14 +196,10 @@ if (unreadMessages.length > 0) {
     }
   });
 
-  // Update unread counts for the requesting user
-  const currentUnreadCount = chat.unreadCounts.get(user1) || 0;
-  chat.unreadCounts.set(
-    user1,
-    Math.max(0, currentUnreadCount - unreadMessages.length)
-  );
-
       }
+
+        // Use Map's set method to modify the unread count for the recipient
+        chat.unreadCounts.set(user1 , 0 );
 
         // Save the updated chat document
         await chat.save();
