@@ -11,8 +11,8 @@ const ChatSchema = new mongoose.Schema({
   messages: [
     {
       sender: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true }, // Sender of the message
-      text: { type: String, required: true }, // Message content
-      image: { type: String }, // URL or Base64 string for the image
+      text: { type: String, default: "" }, // Message content
+      image: { type: String , default : null }, // URL or Base64 string for the image
       timestamp: { type: Date, default: Date.now } , // Time when the message was sent
       delivered : { type:Boolean , default :false} ,
       readBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] // Track read receipts

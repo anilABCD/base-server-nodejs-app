@@ -238,6 +238,7 @@ if (isAllReady) {
     const peerServer = ExpressPeerServer(server, {
       debug: true,
       path: "/",
+     
       generateClientId: customGenerationFunction,
     });
 
@@ -245,7 +246,7 @@ if (isAllReady) {
 
     // #region Peer Server
 
-    const io = new Server(server, { cors: { origin: "*" } });
+    const io = new Server(server, {  maxHttpBufferSize: 1e8 /* 100MB */ , cors: { origin: "*" } });
 
     io.on("connect", (socket) => {
       // below is room Code ::::::::::::::::::::::::::::::::
@@ -434,12 +435,15 @@ console.log("Messages marked as delivered.");
 });
 
 
-socket.on('sendMessage', async ({ chatId, sender, user2 , text, image }) => {
+socket.on('sendMessage', async ({ chatId, sender, user2 , text, imageBase64 }) => {
   try {
       // If an image is included, process it
+
+     console.log(imageBase64)
+
       let imageUrl = null;
-      if (image) {
-          const base64Data = image.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, ''); // Clean the base64 data
+      if (imageBase64) {
+          const base64Data = imageBase64.replace(/^data:image\/(png|jpg|jpeg|gif);base64,/, ''); // Clean the base64 data
 
           // Generate a unique filename
           const imageName = `${Date.now()}-${Math.random().toString(36).substring(2, 15)}.jpg`;
