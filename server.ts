@@ -382,6 +382,7 @@ if (isAllReady) {
         
     });
 
+   
     socket.on('messageReceieved', async ({ sender, timestamp }) => {
 
 
@@ -392,26 +393,34 @@ if (isAllReady) {
 
         console.log( "reveived" , sender, timestamp)
 
-        // Update messages in the chat schema
-        await Chat.updateOne(
-            { participants },
-            {
-                $set: {
-                    "messages.$[msg].delivered": true, // Mark as delivered
-                },
-            },
-            {
-                arrayFilters: [
-                    { 
-                      
-                      "msg.sender": sender, // Messages sent by the sender
-                      "msg.timestamp": { $lte: new Date(timestamp) } , // Messages sent on or before the timestamp
-                      "msg.delivered": false
-                    
-                    }// Only update if not already delivered
-                ],
-            }
-        );
+  
+    // Retrieve the chat document
+    let chat = await Chat.findOne({ participants });
+
+    if (!chat) {
+        throw new Error("Chat not found");
+    }
+
+    // Mark messages as delivered
+    chat.messages.forEach((msg : any) => {
+        if (
+            msg.sender === sender && // Messages sent by the sender
+            new Date(msg.timestamp) <= new Date(timestamp) && // Messages sent on or before the timestamp
+            !msg.delivered // Only update if not already delivered
+        ) {
+            msg.delivered = true;
+        }
+    });
+
+      // Use Map's set method to modify the unread count for the recipient
+
+      //@ts-ignore
+      chat.unreadCounts.set(socket.user.id, 0);
+
+
+
+    // Save the updated chat document
+    await chat.save();
 
         console.log("Messages marked as delivered.");
 

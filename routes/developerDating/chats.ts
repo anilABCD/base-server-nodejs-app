@@ -156,11 +156,16 @@ router.get('/chats/:chatId', catchAsync(async (req: any, res: any) => {
 //Retrieve a chat between two users using their IDs.
 router.get('/chats', catchAsync(async (req: any, res: any) => {
   const { user1, user2 } = req.query;
+  let retries = 3
 
+ 
+  
   try {
+    while (retries > 0) {
+    try { 
     const participants = [user1, user2].sort();
     console.log(participants)
-    let chat = await Chat.findOne({ participants }).populate('messages.sender participants');
+    let chat = await Chat.findOne({ participants }).populate('messages.sender participants').exec();
 
     if (!chat) {
       console.log("Chat", chat)
@@ -204,11 +209,25 @@ if (unreadMessages.length > 0) {
         // Save the updated chat document
         await chat.save();
 
+    
     res.json(chat);
-  } catch (error : any ) {
-    console.log(error)
-    res.status(500).json({ error: error.message });
+    
+  
+    }catch  (error : any ) {
+        retries -= 1;
+
+        if( retries == -1) {
+        throw error;
+        }
+    }
   }
+}
+    
+    catch (error : any ) {
+      console.log(error)
+      res.status(500).json({ error: error.message });
+    }
+  
 })
 );
 
