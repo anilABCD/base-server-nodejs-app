@@ -298,7 +298,7 @@ export default class AuthController extends BaseController {
     return this.createSendToken(newUser, 201, req, res, extra);
   };
 
-  loginWithGoogle = async (
+  loginWithSocialLogin = async (
     email: string,
     name: string,
     photo: string,

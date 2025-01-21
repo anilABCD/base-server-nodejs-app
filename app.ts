@@ -63,6 +63,7 @@ import isOnlyTestEnvironment from "./utils/isOnlyTestingEnvironment";
 import express, { application } from "express";
 import generateRouter from "./routes/generate.routes/generate.router";
 import googleRouter from "./routes/google/google.router";
+import facebookRouter from "./routes/facebook/facebook.router";
 import groupsRouter from "./routes/messaging.app/routers/groups.router";
 import eventRouter from "./routes/messaging.app/routers/events.router";
 import userRouter from "./routes/messaging.app/routers/user.routes";
@@ -241,9 +242,11 @@ if (isOnlyDevelopmentEnvironment() || isOnlyTestEnvironment()) {
 
 ///////////////
 
-/// google ///
+/// social ///
 
 app.use("/google", googleRouter);
+
+app.use("/facebook", facebookRouter);
 
 /////////////
 

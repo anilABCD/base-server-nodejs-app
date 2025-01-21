@@ -4,6 +4,7 @@ import AuthController from "../../controllers/user.controllers/auth.controller";
 import AuthService from "../../services/user.services/auth.service";
 import User from "../../Model/user.models/user.model";
 import catchAsync from "../../ErrorHandling/catchAsync";
+const axios = require('axios');
 
 let service = new AuthService(User);
 
@@ -67,6 +68,10 @@ router.post('/:userId/offline',  catchAsync(async (req: any, res: any, next: any
 
 
 router.patch("/edit", authController.update);
+
+
+
+
 
 // Protect all routes after this middleware
 router.use(authController.protect);
