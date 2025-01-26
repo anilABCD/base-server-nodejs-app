@@ -230,7 +230,9 @@ if (unreadMessages.length > 0) {
         await chat.save();
 
     console.log("sent")
-    res.json(chat);
+    
+    
+    return res.json(chat);
     
   
     }catch  (error : any ) {
