@@ -213,7 +213,7 @@ router.post(
       dob: data.dob,
       smoking: data.smoking,
       drinking: data.drinking,
-    });
+    } , { runValidators: true, new: true }); // `new: true` returns the updated document
 
     console.log(user);
 

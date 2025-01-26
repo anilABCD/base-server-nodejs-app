@@ -217,7 +217,33 @@ const userSchema = new mongoose.Schema({
     type: String,
     enum: ["Never", "Occasionally", "Regularly", "Trying to Quit"],
   },
-  dob: { type: Date },
+  dob: { type: Date , 
+
+    validate: {
+      validator: function(value : any ) {
+        const currentDate = new Date();
+        
+        // Calculate 15 years ago (start of day for precision)
+        const fifteenYearsAgo = new Date(currentDate.setFullYear(currentDate.getFullYear() - 15));
+        fifteenYearsAgo.setHours(23, 59, 59, 999);
+
+        const currentDate2 = new Date();
+        // Reset current date time to the start of the day to avoid time comparison issues
+        const currentDateStartOfDay = new Date(currentDate2.setHours(0, 0, 0, 0));
+
+        // Calculate 60 years ago (end of the day for precision)
+        const sixtyYearsAgo = new Date(currentDateStartOfDay.setFullYear(currentDateStartOfDay.getFullYear() - 60));
+        sixtyYearsAgo.setHours(0, 0, 0, 0)  // Set to the start of the day (00:00:00.000)
+
+        console.log(value ,  value >= sixtyYearsAgo && value <= fifteenYearsAgo  , sixtyYearsAgo , fifteenYearsAgo );
+
+        // Check if dob is between 15 years ago and 60 years ago
+        return value >= sixtyYearsAgo && value <= fifteenYearsAgo;
+      },
+      message: 'Date of birth must be between 15 and 60 years ago.'
+    }
+
+  },
   
   bio: {
     type: String,
