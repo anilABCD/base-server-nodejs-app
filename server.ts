@@ -20,6 +20,7 @@ import IUser from "./interfaces/user.interfaces/user.interface";
 import AuthService from "./services/user.services/auth.service";
 import User from "./Model/user.models/user.model";
 import path from "path";
+import { extractObjectId } from "./utils/extractObjectId";
 const fs = require('fs');
 const Chat = require("./Model/deverloperDating/chat")
 const { ObjectId } = require('mongodb'); // Import ObjectId if needed
@@ -391,7 +392,7 @@ if (isAllReady) {
         //@ts-ignore
         let participants = [socket.user.id, sender].sort();
 
-        console.log( "reveived" , sender, timestamp)
+        console.log( "received" , sender, timestamp)
 
   
     // Retrieve the chat document
@@ -404,11 +405,14 @@ if (isAllReady) {
     // Mark messages as delivered
     chat.messages.forEach((msg : any) => {
         if (
-            msg.sender === sender && // Messages sent by the sender
+            extractObjectId( msg.sender ) === sender && // Messages sent by the sender
             new Date(msg.timestamp) <= new Date(timestamp) && // Messages sent on or before the timestamp
             !msg.delivered // Only update if not already delivered
         ) {
             msg.delivered = true;
+        }
+        else {
+           console.log("delivered updationg realted" , msg , sender , msg.timestamp , timestamp)
         }
     });
 
@@ -417,6 +421,8 @@ if (isAllReady) {
 const unreadMessages = chat.messages.filter(
   (message:any) => !message.readBy.includes(receiverByUserId)
 );
+
+ console.log("unreadMessages" , unreadMessages)
 
 // const unreadMessages = chat.messages
 if (unreadMessages.length > 0) {
@@ -435,6 +441,7 @@ if (unreadMessages.length > 0) {
 
   });
 
+  console.log("unreadMessages" , unreadMessages)
 
 
     }
