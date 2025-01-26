@@ -383,7 +383,7 @@ if (isAllReady) {
     });
 
    
-    socket.on('messageReceieved', async ({ sender, timestamp }) => {
+    socket.on('messageReceieved', async ({ receiverByUserId , sender, timestamp }) => {
 
 
       try {
@@ -412,6 +412,32 @@ if (isAllReady) {
         }
     });
 
+
+// Update read receipts for the requesting user
+const unreadMessages = chat.messages.filter(
+  (message:any) => !message.readBy.includes(receiverByUserId)
+);
+
+// const unreadMessages = chat.messages
+if (unreadMessages.length > 0) {
+
+  unreadMessages.forEach((message:any) => {
+    // Check if the user is already in the readBy array
+
+    if (!message.readBy.includes(receiverByUserId)) {      
+      message.readBy.push(receiverByUserId); // Mark as read by the user
+    }
+ 
+
+ // Remove null values from the readBy array
+    message.readBy = message.readBy.filter( ( user : any ) => user !== null);
+
+
+  });
+
+
+
+    }
       // Use Map's set method to modify the unread count for the recipient
 
       //@ts-ignore
@@ -433,7 +459,15 @@ if (isAllReady) {
           timestamp : timestamp,
       }
 
-      io.to(users[sender]).emit('messageDelivered', message);
+
+       if( users[sender]) {
+
+         
+         io.to(users[sender]).emit('messageDelivered', message);
+
+
+       }
+
 
     } catch (error:any) {
         console.error("Error marking messages as delivered:", error.message);

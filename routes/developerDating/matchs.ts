@@ -17,7 +17,7 @@ router.post(
   catchAsync(async (req: any, res: any) => {
     const user1_id = req.user?._id;
 
-    const { user2_id } = req.body;
+    const { user2_id , action } = req.body;
 
     const session = await mongoose.startSession();
     session.startTransaction();

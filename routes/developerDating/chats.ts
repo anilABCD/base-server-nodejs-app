@@ -1,4 +1,5 @@
 import catchAsync from "../../ErrorHandling/catchAsync";
+import { extractObjectId } from "../../utils/extractObjectId";
 
 const express = require("express");
 const Message = require("../../model/deverloperDating/message");
@@ -158,10 +159,13 @@ router.get('/chats', catchAsync(async (req: any, res: any) => {
   const { user1, user2 } = req.query;
   let retries = 3
 
- 
+   console.log( "user1 " , user1 , "user2" , user2 )
   
   try {
     while (retries > 0) {
+
+    console.log( "retries "  , retries )
+
     try { 
     const participants = [user1, user2].sort();
     console.log(participants)
@@ -174,22 +178,32 @@ router.get('/chats', catchAsync(async (req: any, res: any) => {
     }
 
     if (!chat) return res.status(404).json({ message: 'Chat not found' });
-    console.log("Chat", chat)
+    // console.log("Chat", chat)
 
  // Update delivery status for relevant messages
  chat.messages.forEach((message : any) => {
+
+console.log( "check equality : " ,  extractObjectId( message.sender._id ) , user2  )
+
   if (
-    message.sender === user2 &&
+       extractObjectId( message.sender._id ) === user2 &&
     !message.delivered
   ) {
     message.delivered = true; // Mark as delivered
   }
+  else {
+    console.log("message for " , message )
+  }
 });
+
+ 
 
 // Update read receipts for the requesting user
 const unreadMessages = chat.messages.filter(
   (message:any) => !message.readBy.includes(user2)
 );
+
+// const unreadMessages = chat.messages
 
 if (unreadMessages.length > 0) {
 
@@ -199,6 +213,12 @@ if (unreadMessages.length > 0) {
     if (!message.readBy.includes(user1)) {      
       message.readBy.push(user1); // Mark as read by the user
     }
+  
+   // Remove null values from the readBy array
+   message.readBy = message.readBy.filter( ( user : any ) => user !== null);
+
+     console.log("Read By" , message.readBy)
+  
   });
 
       }
@@ -209,12 +229,14 @@ if (unreadMessages.length > 0) {
         // Save the updated chat document
         await chat.save();
 
-    
+    console.log("sent")
     res.json(chat);
     
   
     }catch  (error : any ) {
         retries -= 1;
+
+        console.log("Error code" , error)
 
         if( retries == -1) {
         throw error;
