@@ -510,6 +510,7 @@ socket.on('sendMessage', async ({ chatId, sender, user2 , text, imageBase64 }) =
 
       // Prepare the message object
       const message = {
+          chatId : chatId ,
           sender: new ObjectId(sender),
           text,
           image: imageUrl || null,
