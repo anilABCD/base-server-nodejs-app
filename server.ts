@@ -461,8 +461,9 @@ if (unreadMessages.length > 0) {
 
 
       let message = { 
-          //@ts-ignore
-          receiver : socket.user.id,
+          chatId : chat._id.toString(),
+           //@ts-ignore
+          receiverUserId : socket.user.id,
           timestamp : timestamp,
       }
 
