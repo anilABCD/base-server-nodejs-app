@@ -4,6 +4,11 @@ import { extractObjectId } from "../../utils/extractObjectId";
 const express = require("express");
 const Message = require("../../model/deverloperDating/message");
 const Chat = require("../../Model/deverloperDating/chat")
+
+import { ioE } from "../../server";
+
+import { users , chattingUsers } from "../../server";
+
 const router = express.Router();
 
 // // Send a new message
@@ -200,7 +205,7 @@ console.log( "check equality : " ,  extractObjectId( message.sender._id ) , user
 
 // Update read receipts for the requesting user
 const unreadMessages = chat.messages.filter(
-  (message:any) => !message.readBy.includes(user2)
+  (message:any) => !message.readBy.includes(user1)
 );
 
 // const unreadMessages = chat.messages
@@ -223,11 +228,46 @@ if (unreadMessages.length > 0) {
 
       }
 
+
+      if(  chattingUsers[user2] && chattingUsers[user2] == user1 ) {
+
+        console.log( "chatting users" , chattingUsers);
+
+      // Update read receipts for the requesting user
+const unreadMessages2 = chat.messages.filter(
+  (message:any) => !message.readBy.includes(user2)
+);
+
+if (unreadMessages2.length > 0) {
+
+  unreadMessages2.forEach((message:any) => {
+    // Check if the user is already in the readBy array
+
+    if (!message.readBy.includes(user2)) {      
+      message.readBy.push(user2); // Mark as read by the user
+    }
+  
+   // Remove null values from the readBy array
+   message.readBy = message.readBy.filter( ( user : any ) => user !== null);
+
+     console.log("Read By" , message.readBy)
+  
+  });
+}
+
+      }
         // Use Map's set method to modify the unread count for the recipient
         chat.unreadCounts.set(user1 , 0 );
 
         // Save the updated chat document
         await chat.save();
+
+        if( users[user2] ) {
+
+             console.log("hasRead"  , users[user2] , user2 )
+
+            ioE.to(users[user2]).emit("hasRead", { chatId: chat._id.toString(), readBy: user1 });
+        }
 
     console.log("sent")
     

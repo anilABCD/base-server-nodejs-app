@@ -29,8 +29,9 @@ const { ObjectId } = require('mongodb'); // Import ObjectId if needed
 
 // Store mapping of userId to socket.id
 let users : any = {};
+let chattingUsers : any = {};
 
-
+let ioE : Server ;
 //////////////////////////////////////////////////////////////////////
 // NOTE :
 // IMPORTANT: Just executes async but without waiting ...
@@ -249,6 +250,8 @@ if (isAllReady) {
 
     const io = new Server(server, {  maxHttpBufferSize: 1e8 /* 100MB */ , cors: { origin: "*" } });
 
+    ioE = io;
+
     io.on("connect", (socket) => {
       // below is room Code ::::::::::::::::::::::::::::::::
       console.log("connected");
@@ -383,6 +386,27 @@ if (isAllReady) {
         
     });
 
+
+    socket.on('onJoinChatUser', (user2Id ) => {
+
+       //@ts-ignore
+       chattingUsers[socket.user.id] = user2Id;
+
+       //@ts-ignore
+       console.log(socket.user.id ," Joins Chat : ", user2Id);
+    
+    });
+
+
+    socket.on("onLeaveChatUser", (user2Id) => {
+
+      //@ts-ignore
+      chattingUsers[socket.user.id] = "";
+          //@ts-ignore
+       console.log(socket.user.id ," Leaves Chat : ", user2Id);
+    
+    });
+
    
     socket.on('messageReceieved', async ({ receiverByUserId , sender, timestamp }) => {
 
@@ -416,6 +440,7 @@ if (isAllReady) {
         }
     });
 
+    if ( false ) { // this code will not execute but just added . 
 
 // Update read receipts for the requesting user
 const unreadMessages = chat.messages.filter(
@@ -449,8 +474,13 @@ if (unreadMessages.length > 0) {
 
       //@ts-ignore
       chat.unreadCounts.set(socket.user.id, 0);
+  }
 
 
+    if( chattingUsers[receiverByUserId] != null && ( chattingUsers[receiverByUserId] == sender)) {
+      //@ts-ignore
+      chat.unreadCounts.set(socket.user.id, 0);
+     }
 
     // Save the updated chat document
     await chat.save();
@@ -465,12 +495,17 @@ if (unreadMessages.length > 0) {
            //@ts-ignore
           receiverUserId : socket.user.id,
           timestamp : timestamp,
+
+          //@ts-ignore
+          isRead : ( chattingUsers[receiverByUserId] != null && ( chattingUsers[receiverByUserId] == sender) ) 
       }
 
-
+  //@ts-ignore
+      console.log("chatting user" , chattingUsers , receiverByUserId , ( chattingUsers[receiverByUserId] != null && ( chattingUsers[receiverByUserId] == sender) )  );
+   
        if( users[sender]) {
 
-         
+           console.log("sending to user " , users[sender])
          io.to(users[sender]).emit('messageDelivered', message);
 
 
@@ -552,6 +587,8 @@ socket.on('sendMessage', async ({ chatId, sender, user2 , text, imageBase64 }) =
         // // If the recipient's unread count does not exist, initialize it to 0, then increment by 1
         // chat.unreadCounts[user2] = (chat.unreadCounts[user2] || 0) + 1;
 
+
+         
         // Initialize unreadCounts if it's missing
         if (!chat.unreadCounts) {
             chat.unreadCounts = new Map(); // Initialize unreadCounts as Map if missing
@@ -576,7 +613,16 @@ socket.on('sendMessage', async ({ chatId, sender, user2 , text, imageBase64 }) =
     }
 
       // Broadcast the message to all users in the room (chatId)
-      io.to(chatId).emit('newMessage', message);
+
+      if ( users[user2] )
+      {
+         //@ts-ignore
+         io.to(users[socket.user.id]).emit('newMessage', message);
+        
+         io.to(users[user2]).emit('newMessage', message);
+         
+      }
+
 
   } catch (error) {
       console.error('Error processing message:', error);
@@ -723,6 +769,7 @@ socket.on('sendMessage', async ({ chatId, sender, user2 , text, imageBase64 }) =
       //   /////// socket.emit("message", {userId: userId, message: message})
       // });
 
+
       socket.on("disconnect", () => {
         console.log("Client disconnected:", socket.id);
 
@@ -805,4 +852,4 @@ socket.on('sendMessage', async ({ chatId, sender, user2 , text, imageBase64 }) =
   }
 }
 
-export { db, client };
+export { db, client , ioE , users , chattingUsers };
