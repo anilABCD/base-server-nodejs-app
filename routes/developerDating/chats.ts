@@ -115,6 +115,7 @@ router.post('/chats', catchAsync(async (req: any, res: any) => {
 })
 );
 
+
 // Add a message to an existing one-to-one chat.
 router.post('/chats/:chatId/message', catchAsync(async (req: any, res: any) => {
   const { chatId } = req.params;
@@ -158,6 +159,28 @@ router.get('/chats/:chatId', catchAsync(async (req: any, res: any) => {
   }
 }));
 
+
+
+//Retrieve a chat between two users using their IDs.
+router.get('/countChatsWithUnreadMessages', catchAsync(async (req: any, res: any) => {
+
+     try {
+
+     let user1 = req.user?._id;
+
+      let count = await countChatsWithUnreadMessages(user1) ;
+
+      console.log("count" , count)
+
+      res.json({ count });
+
+    }
+    catch (error : any ) {
+      console.log(error)
+      res.status(500).json({ error: error.message });
+    }
+
+ })) ;
 
 //Retrieve a chat between two users using their IDs.
 router.get('/chats', catchAsync(async (req: any, res: any) => {
@@ -295,6 +318,29 @@ if (unreadMessages2.length > 0) {
 })
 );
 
+
+
+// Function to count chats with unread messages for a specific user
+async function countChatsWithUnreadMessages(userId : any ) {
+  try {
+    // Find all chats where the user is a participant
+    const chats = await Chat.find({ participants: userId });
+
+    let chatCount = 0;
+
+    // Iterate through each chat and check if the user has unread messages
+    chats.forEach( ( chat: any ) => {
+      if (chat.unreadCounts && chat.unreadCounts.get(userId.toString()) > 0) {
+        chatCount += 1; // Increment the counter if the user has unread messages
+      }
+    });
+
+    return chatCount;
+  } catch (error) {
+    console.error('Error fetching chats with unread messages:', error);
+    throw error;
+  }
+}
 
 
 export default router;
