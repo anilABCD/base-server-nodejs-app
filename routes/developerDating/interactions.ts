@@ -1,7 +1,7 @@
 import catchAsync from "../../ErrorHandling/catchAsync";
 
 const express = require("express");
-const Interaction = require("../../model/deverloperDating/interaction");
+const Interaction = require("../../Model/deverloperDating/interaction");
 
 const router = express.Router();
 
