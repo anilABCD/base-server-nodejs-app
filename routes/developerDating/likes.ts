@@ -34,7 +34,7 @@ router.get(
             user_to_id: userId,
             action: "like",
           })
-            .populate("user_from_id", "_id name technologies photo")
+            .populate("user_from_id", "_id name technologies photo hobbies bio smoking drinking dob jobRole")
             .sort({ timestamp: -1 }) // Sort by created date in descending order
             .skip(skipCount) // Skip the first `skipCount` results
             .limit(limitCount); // Limit the results to `limitCount` entries

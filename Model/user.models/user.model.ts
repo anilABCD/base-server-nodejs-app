@@ -207,15 +207,18 @@ const userSchema = new mongoose.Schema({
         ],
       },
     ],
+    default: null // Represents "not specified"
   },
 
   drinking: {
     type: String,
-    enum: ["Never", "Socially", "Occasionally", "Frequently"],
+    enum: [   "Never", "Socially", "Occasionally", "Frequently"],
+    default: null // Represents "not specified"
   },
   smoking: {
     type: String,
-    enum: ["Never", "Occasionally", "Regularly", "Trying to Quit"],
+    enum: [  "Never", "Occasionally", "Regularly", "Trying to Quit"],
+    default: null // Represents "not specified"
   },
   dob: { type: Date , 
 
@@ -254,6 +257,7 @@ const userSchema = new mongoose.Schema({
   jobRole: {
     type: String,
     enum: jobRolesList,  // Enforcing the list of job roles
+    default: "",
   } , 
 
   username: String,
