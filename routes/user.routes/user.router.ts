@@ -21,6 +21,9 @@ router.patch("/resetPassword/:token", authController.resetPassword);
 
 router.post("/uploadImage", authController.uploadImage);
 
+router.post("/uploadPhotosAdditional", authController.uploadPhotosAdditional);
+
+
 // Set user online
 router.post('/:userId/online', catchAsync(async (req: any, res: any, next: any) => {
   try {

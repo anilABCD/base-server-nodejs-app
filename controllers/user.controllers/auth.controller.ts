@@ -877,17 +877,11 @@ export default class AuthController extends BaseController {
 
 
 
-
-
-
-
-
-
-
-   
-  uploadImage1 = catchAsync(async (req: any, res: any, next: any) => {
+   uploadPhotosAdditional = catchAsync(async (req: any, res: any, next: any) => {
     upload(req, res, async (err: any) => {
       console.log(err);
+
+      const imageNumber = req.headers["x-image-number"];
 
       if (err) {
         res.send({ message: err });
@@ -900,18 +894,28 @@ export default class AuthController extends BaseController {
 
             const userId = req.user._id;
 
-            const inputPathForResize = req.file.path;
-            const outputFileNameForResize = `resized-${req.file.filename}`;
-            const outputPathForResize = path.join(req.file.destination, outputFileNameForResize);
           
-
-
-
-            // Find the user and get the current photo filename
+ 
             const user = await User.findById(userId);
-            const previousPhoto = user.photo1;
 
-            await User.findByIdAndUpdate(userId, { photo1: req.file.filename });
+            if (!user) {
+                throw new Error("User not found");
+            }
+            
+            let previousPhoto: string | null = null;
+            const updateField: { [key: number]: string } = {
+                1: "photo1",
+                2: "photo2",
+                3: "photo3",
+                4: "photo4",
+            };
+
+            if (imageNumber in updateField) {
+                previousPhoto = user[updateField[imageNumber]];
+                await User.findByIdAndUpdate(userId, { [updateField[imageNumber]]: req.file.filename });
+            } else {
+                throw new Error("Invalid image number");
+            }
 
             // Delete previous photo if it exists and is different from the new one
             if (previousPhoto && previousPhoto !== req.file.filename) {
@@ -922,10 +926,7 @@ export default class AuthController extends BaseController {
                 "../../public/images/" + previousPhoto
               );
 
-              const resizedFilePath = path.join(
-                __dirname,
-                "../../public/images/" + "resized-" + previousPhoto
-              );
+             
 
               // Asynchronously delete the file
               fs.unlink(filePath, (unlinkErr: any) => {
@@ -938,33 +939,8 @@ export default class AuthController extends BaseController {
                 }
               });
 
-               // Asynchronously delete the file
-               fs.unlink(resizedFilePath, (unlinkErr: any) => {
-                if (unlinkErr) {
-                  logger.exceptionError(
-                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
-                  );
-                } else {
-                  console.log(`Deleted previous photo: ${previousPhoto}`);
-                }
-              });
+               
             }
-
-
-            try {
-
-              const width = 60 ;
-              const height = 60 ;
-            
-          
-              await sharp(inputPathForResize)
-                .resize(width, height)
-                .toFile(outputPathForResize);
-          
-            } catch (error:any) {
-              res.status(500).send(`Error processing image: ${error.message}`);
-            }
-          
 
             console.log(
               `New photo uploaded for user ${userId}: ${req.file.filename}`
@@ -991,325 +967,6 @@ export default class AuthController extends BaseController {
   });
 
 
-   
-  uploadImage2 = catchAsync(async (req: any, res: any, next: any) => {
-    upload(req, res, async (err: any) => {
-      console.log(err);
-
-      if (err) {
-        res.send({ message: err });
-      } else {
-        if (req.file == undefined) {
-          res.send({ message: "No file selected!" });
-        } else {
-          try {
-            console.log(req.file.filename);
-
-            const userId = req.user._id;
-
-            const inputPathForResize = req.file.path;
-            const outputFileNameForResize = `resized-${req.file.filename}`;
-            const outputPathForResize = path.join(req.file.destination, outputFileNameForResize);
-          
-
-
-
-            // Find the user and get the current photo filename
-            const user = await User.findById(userId);
-            const previousPhoto = user.photo2;
-
-            await User.findByIdAndUpdate(userId, { photo2: req.file.filename });
-
-            // Delete previous photo if it exists and is different from the new one
-            if (previousPhoto && previousPhoto !== req.file.filename) {
-              // Delete previous photo file (assuming you have stored it in a specific directory)
-              // You may need to adjust this path according to your file storage structure
-              const filePath = path.join(
-                __dirname,
-                "../../public/images/" + previousPhoto
-              );
-
-              const resizedFilePath = path.join(
-                __dirname,
-                "../../public/images/" + "resized-" + previousPhoto
-              );
-
-              // Asynchronously delete the file
-              fs.unlink(filePath, (unlinkErr: any) => {
-                if (unlinkErr) {
-                  logger.exceptionError(
-                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
-                  );
-                } else {
-                  console.log(`Deleted previous photo: ${previousPhoto}`);
-                }
-              });
-
-               // Asynchronously delete the file
-               fs.unlink(resizedFilePath, (unlinkErr: any) => {
-                if (unlinkErr) {
-                  logger.exceptionError(
-                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
-                  );
-                } else {
-                  console.log(`Deleted previous photo: ${previousPhoto}`);
-                }
-              });
-            }
-
-
-            try {
-
-              const width = 60 ;
-              const height = 60 ;
-            
-          
-              await sharp(inputPathForResize)
-                .resize(width, height)
-                .toFile(outputPathForResize);
-          
-            } catch (error:any) {
-              res.status(500).send(`Error processing image: ${error.message}`);
-            }
-          
-
-            console.log(
-              `New photo uploaded for user ${userId}: ${req.file.filename}`
-            );
-
-            console.log(user, {
-              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
-            });
-
-            res.send({
-              message: "File uploaded!",
-              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
-            });
-          } catch (error) {
-            console.log(error);
-
-            res.status(500).send({
-              message: "Error saving file information to the database.",
-            });
-          }
-        }
-      }
-    });
-  });
-
-
-
-  uploadImage3 = catchAsync(async (req: any, res: any, next: any) => {
-    upload(req, res, async (err: any) => {
-      console.log(err);
-
-      if (err) {
-        res.send({ message: err });
-      } else {
-        if (req.file == undefined) {
-          res.send({ message: "No file selected!" });
-        } else {
-          try {
-            console.log(req.file.filename);
-
-            const userId = req.user._id;
-
-            const inputPathForResize = req.file.path;
-            const outputFileNameForResize = `resized-${req.file.filename}`;
-            const outputPathForResize = path.join(req.file.destination, outputFileNameForResize);
-          
-
-
-
-            // Find the user and get the current photo filename
-            const user = await User.findById(userId);
-            const previousPhoto = user.photo3;
-
-            await User.findByIdAndUpdate(userId, { photo3: req.file.filename });
-
-            // Delete previous photo if it exists and is different from the new one
-            if (previousPhoto && previousPhoto !== req.file.filename) {
-              // Delete previous photo file (assuming you have stored it in a specific directory)
-              // You may need to adjust this path according to your file storage structure
-              const filePath = path.join(
-                __dirname,
-                "../../public/images/" + previousPhoto
-              );
-
-              const resizedFilePath = path.join(
-                __dirname,
-                "../../public/images/" + "resized-" + previousPhoto
-              );
-
-              // Asynchronously delete the file
-              fs.unlink(filePath, (unlinkErr: any) => {
-                if (unlinkErr) {
-                  logger.exceptionError(
-                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
-                  );
-                } else {
-                  console.log(`Deleted previous photo: ${previousPhoto}`);
-                }
-              });
-
-               // Asynchronously delete the file
-               fs.unlink(resizedFilePath, (unlinkErr: any) => {
-                if (unlinkErr) {
-                  logger.exceptionError(
-                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
-                  );
-                } else {
-                  console.log(`Deleted previous photo: ${previousPhoto}`);
-                }
-              });
-            }
-
-
-            try {
-
-              const width = 60 ;
-              const height = 60 ;
-            
-          
-              await sharp(inputPathForResize)
-                .resize(width, height)
-                .toFile(outputPathForResize);
-          
-            } catch (error:any) {
-              res.status(500).send(`Error processing image: ${error.message}`);
-            }
-          
-
-            console.log(
-              `New photo uploaded for user ${userId}: ${req.file.filename}`
-            );
-
-            console.log(user, {
-              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
-            });
-
-            res.send({
-              message: "File uploaded!",
-              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
-            });
-          } catch (error) {
-            console.log(error);
-
-            res.status(500).send({
-              message: "Error saving file information to the database.",
-            });
-          }
-        }
-      }
-    });
-  });
-
-
-
-  uploadImage4 = catchAsync(async (req: any, res: any, next: any) => {
-    upload(req, res, async (err: any) => {
-      console.log(err);
-
-      if (err) {
-        res.send({ message: err });
-      } else {
-        if (req.file == undefined) {
-          res.send({ message: "No file selected!" });
-        } else {
-          try {
-            console.log(req.file.filename);
-
-            const userId = req.user._id;
-
-            const inputPathForResize = req.file.path;
-            const outputFileNameForResize = `resized-${req.file.filename}`;
-            const outputPathForResize = path.join(req.file.destination, outputFileNameForResize);
-          
-
-
-
-            // Find the user and get the current photo filename
-            const user = await User.findById(userId);
-            const previousPhoto = user.photo4;
-
-            await User.findByIdAndUpdate(userId, { photo4: req.file.filename });
-
-            // Delete previous photo if it exists and is different from the new one
-            if (previousPhoto && previousPhoto !== req.file.filename) {
-              // Delete previous photo file (assuming you have stored it in a specific directory)
-              // You may need to adjust this path according to your file storage structure
-              const filePath = path.join(
-                __dirname,
-                "../../public/images/" + previousPhoto
-              );
-
-              const resizedFilePath = path.join(
-                __dirname,
-                "../../public/images/" + "resized-" + previousPhoto
-              );
-
-              // Asynchronously delete the file
-              fs.unlink(filePath, (unlinkErr: any) => {
-                if (unlinkErr) {
-                  logger.exceptionError(
-                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
-                  );
-                } else {
-                  console.log(`Deleted previous photo: ${previousPhoto}`);
-                }
-              });
-
-               // Asynchronously delete the file
-               fs.unlink(resizedFilePath, (unlinkErr: any) => {
-                if (unlinkErr) {
-                  logger.exceptionError(
-                    `Error deleting previous photo ${previousPhoto}: ${unlinkErr}`
-                  );
-                } else {
-                  console.log(`Deleted previous photo: ${previousPhoto}`);
-                }
-              });
-            }
-
-
-            try {
-
-              const width = 60 ;
-              const height = 60 ;
-            
-          
-              await sharp(inputPathForResize)
-                .resize(width, height)
-                .toFile(outputPathForResize);
-          
-            } catch (error:any) {
-              res.status(500).send(`Error processing image: ${error.message}`);
-            }
-          
-
-            console.log(
-              `New photo uploaded for user ${userId}: ${req.file.filename}`
-            );
-
-            console.log(user, {
-              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
-            });
-
-            res.send({
-              message: "File uploaded!",
-              data: { user: { _id: user._id, photo: `/${req.file.filename}` } },
-            });
-          } catch (error) {
-            console.log(error);
-
-            res.status(500).send({
-              message: "Error saving file information to the database.",
-            });
-          }
-        }
-      }
-    });
-  });
-
+    
 
 }
